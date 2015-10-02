@@ -21,14 +21,24 @@ int main(int argc, char* argv[]){
 	// allocates the memory for the command that the user inputs
 	char** argVector = (char**) malloc(sizeof(char*) * 7);
 	if (argVector == NULL){
-		fprintf(stderr, "Error allocating argVector's memory");
+		fprintf(stderr, "Error allocating argVector's memory\n");
 		exit(EXIT_FAILURE);
 	}
 
-	// Continue until the exit command is executed
-	while(1){
-		
+	// stores the number of arguments from the user
+	int narg = 0;
 
+	// Continue until the exit command is executed
+	while (1){
+		
+		// read the user input
+		narg = readLineArguments(argVector, MAX_N_INPUT);
+
+		// checks for errors reading the input
+		if (narg == -1)
+			fprintf(stderr, "Some error occurred reading the user's input.\n");
+
+	
 		
 	}
 }
