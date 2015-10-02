@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <string.h>
+#include <errno.h>
 
 #define MAX_N_INPUT 7 // the programs executed in the par-shell are limited to 
 					  // 5 input arguments (the last entry is always set to NULL)
@@ -22,7 +23,7 @@ int main(int argc, char* argv[]){
 	// allocates the memory for the command that the user inputs
 	char** argVector = (char**) malloc(sizeof(char*) * 7);
 	if (argVector == NULL){
-		fprintf(stderr, "Error allocating argVector's memory\n");
+		fprintf(stderr, "Error allocating argVector's memory. %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
@@ -53,13 +54,15 @@ int main(int argc, char* argv[]){
 
 		// check for errors in the creation of a new process
 		if (child_pid == -1){
-			fprintf(stderr, "Some error occurred when creating a new process.\n");
+			fprintf(stderr, "Some error occurred when creating a new process. %s\n", strerror(errno));
 			continue;
 		}
 
 		// child executes this
 		if (child_pid == 0){
-			/* TODO: executar o programa do ficheiro introduzido */
+			
+
+
 		}
 
 		
