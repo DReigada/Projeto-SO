@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <string.h>
 
 #define MAX_N_INPUT 7 // the programs executed in the par-shell are limited to 
 					  // 5 input arguments (the last entry is always set to NULL)
@@ -40,6 +41,28 @@ int main(int argc, char* argv[]){
 			continue;
 		}
 
+		/* see what command the user typed */
+
+		// exit
+		if (strcmp(argVector[0], "exit") == 0)
+			// TODO: precisa de ser alterada esta parte de acordo com as especificações!!!
+			exit(EXIT_SUCCESS);
+
+		// else we assume it was given a path to a program to execute
+		pid_t child_pid = fork();
+
+		// check for errors in the creation of a new process
+		if (child_pid == -1){
+			fprintf(stderr, "Some error occurred when creating a new process.\n");
+			continue;
+		}
+
+		// child executes this
+		if (child_pid == 0){
+			/* TODO: executar o programa do ficheiro introduzido */
+		}
+
+		
 		
 	}
 }
