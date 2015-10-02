@@ -34,11 +34,12 @@ int main(int argc, char* argv[]){
 		// read the user input
 		narg = readLineArguments(argVector, MAX_N_INPUT);
 
-		// checks for errors reading the input
-		if (narg == -1)
+		// checks for errors reading the input and reads again if there were
+		if (narg == -1){
 			fprintf(stderr, "Some error occurred reading the user's input.\n");
+			continue;
+		}
 
-	
 		
 	}
 }
