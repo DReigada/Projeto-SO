@@ -61,11 +61,22 @@ int main(int argc, char* argv[]){
 		// child executes this
 		if (child_pid == 0){
 			
+			// Change the process image to the program given by the user
+			int err = execv(argVector[0], argVector);
+
+			// Check for errors
+			if (err == -1){
+				fprintf(stderr, "Erro ao tentar abrir programa com o pathname. %s\n", strerror(errno));
+				exit(EXIT_FAILURE);
+			}
+
+			// exit with success if there are no errors
+			else
+				exit(EXIT_SUCCESS);
+
 
 
 		}
-
-		
 		
 	}
 }

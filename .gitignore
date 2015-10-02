@@ -1,6 +1,11 @@
-# The make file #
+# The makefile and the fibonacci #
 #################
 /Makefile
+/fibonacci.c
+
+# All normal text files #
+#########################
+*.txt
 
 # Compiled source #
 ###################
