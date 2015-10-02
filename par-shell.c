@@ -21,7 +21,7 @@ int main(int argc, char* argv[]){
 	// allocates the memory for the command that the user inputs
 	char** argVector = (char**) malloc(sizeof(char*) * 7);
 	if (argVector == NULL){
-		frpintf(stderr, "Error allocating argVector's memory");
+		fprintf(stderr, "Error allocating argVector's memory");
 		exit(EXIT_FAILURE);
 	}
 
