@@ -1,6 +1,13 @@
 /* File that implements a QUEUE (FIFO method) */
 #include "QUEUE.h"
 
+/** 
+ * Macro to free a node of the queue.
+ * This depends on the type of item you chose, so it should be modified 
+ * as needed.
+ * It takes as input the pointer to the node being freed (type QLink).
+ */
+ #define freeNodeQ(A) (free(A))
 
 
 /**
@@ -42,7 +49,7 @@
 
  	/* if we are adding a new element to an empty queue, the head and the tail
  	   will be the same and equal to this element, which is the only one */
- 	if (emptyQueue(q)){ 
+ 	if (isEmptyQueue(q)){ 
  		q->tail = node;
  		q->head = q->tail;
  		return;
@@ -62,7 +69,7 @@
 void* getFirstQueue(Queue q){
 	void* it;
 	QLink temp;
-	if (emptyQueue(q)) return NULL; /* if empty, no element to retrieve */
+	if (isEmptyQueue(q)) return NULL; /* if empty, no element to retrieve */
 
 	it = q->head->item;
 	temp = q->head->next; /* saving the pointer so we don't lose it */
