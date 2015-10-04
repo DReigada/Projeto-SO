@@ -1,4 +1,3 @@
-
 #ifndef _PROC_INFO_H_
 #define _PROC_INFO_H_
 
@@ -40,7 +39,6 @@ process_info createProcess(int pid, time_t startTime);
  * Returns its end time (-1 if its end time was not set). 
  */
 #define getEndTime(P) ((P) -> endTime)
-
 
 /**
  * Set the end time of a process.
