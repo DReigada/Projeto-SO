@@ -25,21 +25,21 @@ process_info createProcess(int pid, time_t startTime);
  * Takes the process_info as input.
  * Returns its PID. 
  */
-int getPid(process_info process);
+#define getPid(P) ((P) -> process)
 
 /**
  * Get the star time of a process.
  * Takes the process_info as input.
  * Returns its start time. 
  */
-time_t getStartTime(process_info process);
+#define getStartTime(P) ((P) -> startTime)
 
 /**
  * Get the end time of a process.
  * Takes the process_info as input.
  * Returns its end time (-1 if its end time was not set). 
  */
-time_t getEndTime(process_info process);
+#define getEndTime(P) ((P) -> endTime)
 
 
 /**
@@ -47,7 +47,7 @@ time_t getEndTime(process_info process);
  * Takes as input the process_info and the end time.
  * Returns nothing.
 */
-void setEndTime(process_info process, time_t endTime);
+#define setEndTime(P, T) ((P) -> endTime = T)
 
 
 #endif
