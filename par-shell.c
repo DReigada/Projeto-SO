@@ -8,6 +8,9 @@
 #include <sys/types.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
+#include "QUEUE.h"
+#include "process_info.h"
 
 #define MAX_N_INPUT 7 // the programs executed in the par-shell are limited to 
 					  // 5 input arguments (the last entry is always set to NULL)
@@ -21,7 +24,7 @@ int main(int argc, char* argv[]){
 	}
 
 	// allocates the memory for the command that the user inputs
-	char** argVector = (char**) malloc(sizeof(char*) * 7);
+	char** argVector = (char**) malloc(sizeof(char*) * 7); 			//CHANGE to xmalloc
 	if (argVector == NULL){
 		fprintf(stderr, "Error allocating argVector's memory. %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
@@ -29,6 +32,9 @@ int main(int argc, char* argv[]){
 
 	// stores the number of arguments from the user
 	int narg = 0;
+
+	// initialize the list to store the processes
+	Queue processList = initQueue();
 
 	// Continue until the exit command is executed
 	while (1){
@@ -73,11 +79,13 @@ int main(int argc, char* argv[]){
 			// exit with success if there are no errors
 			else
 				exit(EXIT_SUCCESS);
-
-
-
 		}
-		
+
+		// parent executes this
+		else{
+			process_info process = createProcessInfo(child_pid, time(NULL));
+			addQueue(process, processList);
+		}
 	}
 }
 
