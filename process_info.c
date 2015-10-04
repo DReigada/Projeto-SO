@@ -5,7 +5,7 @@
  * Takes as inputs the process pid and its start time.
  * Returns the new process_info.
  */
-process_info createProcess(int pid, time_t startTime){
+process_info createProcessInfo(int pid, time_t startTime){
 	process_info process = (process_info) xmalloc(sizeof(struct process_info_s));
 	process -> pid = pid;
 	process -> startTime = startTime;

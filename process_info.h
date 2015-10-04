@@ -17,7 +17,7 @@ typedef struct process_info_s {
  * Takes as inputs the process pid and its start time.
  * Returns the new process_info.
  */
-process_info createProcess(int pid, time_t startTime);
+process_info createProcessInfo(int pid, time_t startTime);
 
 /**
  * Get the PID of a process.
