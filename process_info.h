@@ -24,7 +24,7 @@ process_info createProcessInfo(int pid, time_t startTime);
  * Takes the process_info as input.
  * Returns its PID. 
  */
-#define getPid(P) ((P) -> process)
+#define getPid(P) ((P) -> pid)
 
 /**
  * Get the star time of a process.
