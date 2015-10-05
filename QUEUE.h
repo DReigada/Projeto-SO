@@ -76,5 +76,16 @@ typedef struct nodeQ{
  */
  void* getFirstQueue(Queue q);
 
+/**
+ * Gets a specific element from the queue, with two different ends
+ * specified by the mode. If mode is 1, the element is retrieved from the 
+ * queue and returned, if it is 0 the element is just returned, so the
+ * queue is not modified.
+ * Takes as input the queue, the element to retrieve, the compare function
+ * pointer and the mode.
+ * Returns the element if it was found or NULL if not. Only if mode is 1
+ * is the element withraw from the queue.
+ */
+ void* getSpecificQueue(Queue q, void* ref, int (*compare) (void*, void*), int mode);
 
 #endif

@@ -79,3 +79,50 @@ void* getFirstQueue(Queue q){
 	return it;
 }
 
+/**
+ * Gets a specific element from the queue, with two different ends
+ * specified by the mode. If mode is 1, the element is retrieved from the 
+ * queue and returned, if it is 0 the element is just returned, so the
+ * queue is not modified.
+ * Takes as input the queue, the element to retrieve, the compare function
+ * pointer and the mode.
+ * Returns the element if it was found or NULL if not. Only if mode is 1
+ * is the element withraw from the queue.
+ */
+void* getSpecificQueue(Queue q, void* ref, int (*compare) (void*, void*), int mode){
+	void* it;
+	QLink prev, aux, temp;
+
+ 	if (emptyQueue(q)) { return NULL;} /* if list is empty, element not found */
+
+ 	/* look for the check in the queue */
+ 	for (prev = NULL, aux = q->head; aux != NULL;
+ 			 prev = aux, aux = aux->next){
+
+ 		/* if it was found */
+ 		if (compare(ref, aux->item)) {
+ 			/* if the node is to be removed and is the head, use the normal queue get */
+    		if (q->head == aux && mode){
+    			it = getFirstQueue(q); 
+    			return it;
+    		}
+
+    		/* if the node is to be removed and is the tail we must update it */
+    		else if (q->tail == aux && mode) q->tail = prev;
+
+ 			/* getting the*/
+	 		it = aux->item;
+
+	 		/* only remove if the mode is 1 */
+	 		if (mode){
+ 				temp = aux->next;
+				freeNodeQ(aux);
+ 				prev->next = temp;
+ 			}
+ 
+ 			return it;
+ 		}
+ 	}
+ 	/* if it wasn't yet found return NULL */
+ 	return NULL;
+}		
