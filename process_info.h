@@ -47,5 +47,11 @@ process_info createProcessInfo(int pid, time_t startTime);
 */
 #define setEndTime(P, T) ((P) -> endTime = T)
 
+/** 
+ * Macro to free a process info.
+ * It takes as input the process.
+ */
+#define freeProcInfo(P) (free(P));
+
 
 #endif
