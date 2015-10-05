@@ -93,7 +93,7 @@ void* getSpecificQueue(Queue q, void* ref, int (*compare) (void*, void*), int mo
 	void* it;
 	QLink prev, aux, temp;
 
- 	if (emptyQueue(q)) { return NULL;} /* if list is empty, element not found */
+ 	if (isEmptyQueue(q)) { return NULL;} /* if list is empty, element not found */
 
  	/* look for the check in the queue */
  	for (prev = NULL, aux = q->head; aux != NULL;
