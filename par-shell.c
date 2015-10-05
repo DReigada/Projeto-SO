@@ -16,7 +16,7 @@
 					  // 5 input arguments (the last entry is always set to NULL)
 
 
-//TODO MUDAR ISTO PARA ALGURES
+//TODO: MUDAR ISTO PARA ALGURES
 int compareProcesses(void* pid, void* process){ 
 	return *(pid_t*) pid ==  getPid((process_info) process);
 }
@@ -76,19 +76,20 @@ int main(int argc, char* argv[]){
 						continue;
 					}
 					else{
-						setEndTime(process, 0); //NAO É NECESSARIO Setting it to 0 to know it was terminated. 
+						setEndTime(process, 0); //NAO É NECESSARIO, Setting it to 0 to know it was terminated. 
 						/*WIFEXITED(estado);
 						WEXITSTATUS(estado);*/
 						//TODO maybe? adicionar á info do processo o status de saida
 					}
 				}
-				else{ //TODO: caso o pid seja -1 testar se é porque já não há processos
+				else{ 
+					//TODO: caso o pid seja -1 testar se é porque já não há processos
 					/*printf("%s\n", strerror(errno));*/
 					break;
 				}
 			}
 
-			while(!isEmptyQueue(processList)){ //while the liss is not empty print the info of all processes
+			while(!isEmptyQueue(processList)){ //while the list is not empty print the info of all processes
 				process = (process_info) getFirstQueue(processList);
 				fprintf(stdout, "Process %d terminated\n", getPid(process));
 			}
@@ -116,16 +117,12 @@ int main(int argc, char* argv[]){
 				fprintf(stderr, "Erro ao tentar abrir programa com o pathname. %s\n", strerror(errno));
 				exit(EXIT_FAILURE);
 			}
-
-			// exit with success if there are no errors
-			else
-				exit(EXIT_SUCCESS);
 		}
 
 		// parent executes this
 		else{
 			process_info process = createProcessInfo(child_pid, time(NULL));
-			addQueue(process, processList);
+			addQueue(process, processList);  //add the created process to the list
 		}
 	}
 }
