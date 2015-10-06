@@ -1,7 +1,8 @@
-# The makefile and the fibonacci #
+# The makefile, the fibonacci and the par-shell executable#
 #################
 /Makefile
 /fibonacci
+/par-shell
 
 # All normal text files #
 #########################
