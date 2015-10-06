@@ -1,14 +1,20 @@
 /* Projeto de SO */
 
+// includes "standards"
 #include <stdio.h>
 #include <stdlib.h>
-#include "commandlinereader.h"
+#include <string.h>
+#include <time.h>
+#include <errno.h>
+
+
+// related to the system calls functions
 #include <sys/wait.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <string.h>
-#include <errno.h>
-#include <time.h>
+
+// our own files
+#include "commandlinereader.h"
 #include "QUEUE.h"
 #include "process_info.h"
 

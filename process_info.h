@@ -1,9 +1,8 @@
 #ifndef _PROC_INFO_H_
 #define _PROC_INFO_H_
 
-#include <stdlib.h>
 #include <time.h>
-#include "Xmalloc.h"
+
 
 
 /* Struct with the information about a process */

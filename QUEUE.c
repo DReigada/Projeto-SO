@@ -1,5 +1,7 @@
 /* File that implements a QUEUE (FIFO method) */
 #include "QUEUE.h"
+#include <stdlib.h>
+#include "Xmalloc.h"
 
 /** 
  * Macro to free a node of the queue.

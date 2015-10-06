@@ -2,9 +2,6 @@
 #ifndef _XMALLOC_H_
 #define _XMALLOC_H_
 
-#include <stdlib.h>
-#include <stdio.h>
-
 
 /**
  * Uses the same input as malloc, and has the same output, with the only 

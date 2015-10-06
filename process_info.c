@@ -1,4 +1,6 @@
 #include "process_info.h"
+#include "Xmalloc.h"
+#include <stdlib.h>
 
 /**
  * Initialize the process.

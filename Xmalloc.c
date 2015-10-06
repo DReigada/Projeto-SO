@@ -1,5 +1,7 @@
 /*File that defines two functions for a better use of malloc and realloc*/
 #include "Xmalloc.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 /**
  * Uses the same input as malloc, and has the same output, with the only 
