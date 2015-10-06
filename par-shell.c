@@ -60,6 +60,10 @@ int main(int argc, char* argv[]){
 			fprintf(stderr, "Some error occurred reading the user's input.\n");
 			continue;
 		}
+		else if (narg == 0){ //in case no command was inputted
+			fprintf(stdout, "Please input a valid command\n");
+			continue;
+		}
 
 		/* see what command the user typed */
 
