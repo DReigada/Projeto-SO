@@ -2,6 +2,7 @@
 #define _PROC_INFO_H_
 
 #include <stdlib.h>
+#include <time.h>
 #include "Xmalloc.h"
 
 
