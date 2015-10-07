@@ -9,6 +9,7 @@
 /* Struct with the information about a process */
 typedef struct process_info_s {
    pid_t pid;
+   int exitStatus;
    time_t startTime;
    time_t endTime;
 }* process_info;
@@ -37,16 +38,30 @@ process_info createProcessInfo(int pid, time_t startTime);
 /**
  * Get the end time of a process.
  * Takes the process_info as input.
- * Returns its end time (-1 if its end time was not set). 
+ * Returns its end time (-1 if it was not set). 
  */
 #define getEndTime(P) ((P) -> endTime)
+
+/**
+ * Get the exit status of a process.
+ * Takes the process_info as input.
+ * Returns its return exit status as an int (-1 if it was not set). 
+ */
+#define getExitStatus(P) ((P) -> exitStatus)
 
 /**
  * Set the end time of a process.
  * Takes as input the process_info and the end time.
  * Returns nothing.
 */
-#define setEndTime(P, T) ((P) -> endTime = T)
+#define setEndTime(P, T) ((P) -> endTime = (T))
+
+/**
+ * Set the exit status of a process.
+ * Takes as input the process_info and the status as an int.
+ * Returns nothing.
+*/
+#define setExitStatus(P, S) ((P) -> exitStatus = (S))
 
 /** 
  * Macro to free a process info.
