@@ -2,12 +2,13 @@
 #define _PROC_INFO_H_
 
 #include <time.h>
+#include <sys/types.h>
 
 
 
 /* Struct with the information about a process */
 typedef struct process_info_s {
-   int pid;
+   pid_t pid;
    time_t startTime;
    time_t endTime;
 }* process_info;
