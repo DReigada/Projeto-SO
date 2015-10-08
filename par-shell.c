@@ -17,6 +17,7 @@
 #include "commandlinereader.h"
 #include "QUEUE.h"
 #include "process_info.h"
+#include "Xmalloc.h"
 
 #define MAX_N_INPUT 7 // the programs executed in the par-shell are limited to 
 					  // 5 input arguments (the last entry is always set to NULL)
@@ -37,7 +38,7 @@ int main(int argc, char* argv[]){
 	}
 
 	// allocates the memory for the command that the user inputs
-	char** argVector = (char**) malloc(sizeof(char*) * 7); 			//CHANGE to xmalloc
+	char** argVector = (char**) xmalloc(sizeof(char*) * MAX_N_INPUT); 			//CHANGE to xmalloc
 	if (argVector == NULL){
 		fprintf(stderr, "Error allocating argVector's memory. %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
