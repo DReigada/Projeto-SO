@@ -86,22 +86,26 @@ int main(int argc, char* argv[]){
 						continue;
 					}
 					else{
-						setEndTime(process, 0); //NAO É NECESSARIO, Setting it to 0 to know it was terminated. 
-						/*WIFEXITED(estado);
-						WEXITSTATUS(estado);*/
-						//TODO maybe? adicionar á info do processo o status de saida
+						setEndTime(process, 0); //NOT REALLY NECESSARY, Setting it to 0 to know it was terminated. 
+						if (WIFEXITED(status))	//if the process exited store its exit status
+							setExitStatus(process, WEXITSTATUS(status));					
 					}
 				}
 				else{ 
-					//TODO: caso o pid seja -1 testar se é porque já não há processos
-					/*printf("%s\n", strerror(errno));*/
-					break;
+					if (errno == ECHILD){	//checks to see if the error that wait() return was because there were no child processes
+						break;
+					}
+					else{					//if not prints the error
+						fprintf(stderr, "An error occurred when wating for a process to exit. %s\n", strerror(errno));
+						break;
+					}
 				}
 			}
 
 			while(!isEmptyQueue(processList)){ //while the list is not empty print the info of all processes
 				process = (process_info) getFirstQueue(processList);
-				fprintf(stdout, "Process %d terminated\n", getPid(process));
+				fprintf(stdout, "Process %d terminated with status %d\n", getPid(process), getExitStatus(process));
+				freeProcInfo(process);		//free the process info struct
 			}
 
 			exit(EXIT_SUCCESS);
