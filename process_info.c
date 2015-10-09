@@ -1,5 +1,5 @@
 #include "process_info.h"
-#include "Xmalloc.h"
+#include "Auxiliares.h"
 #include <stdlib.h>
 
 /**

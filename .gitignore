@@ -3,10 +3,15 @@
 /Makefile
 /fibonacci
 /par-shell
+/somador
 
 # All normal text files #
 #########################
 *.txt
+
+# valgrind output #
+#########################
+*.dSYM
 
 # Compiled source #
 ###################

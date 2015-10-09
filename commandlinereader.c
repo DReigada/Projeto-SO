@@ -5,6 +5,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /* 
 Reads up to 'vectorSize' space-separated arguments from the standard input
@@ -50,7 +51,12 @@ int readLineArguments(char **argVector, int vectorSize)
     
     token = strtok(NULL, s);
   }
-   
+  
+  if (numtokens == 0){
+    free(str);
+    return 0;
+  }
+
   for (i = numtokens; i<vectorSize; i++) {
     argVector[i] = NULL;
   }

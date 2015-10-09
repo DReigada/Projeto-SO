@@ -17,15 +17,13 @@
 #include "commandlinereader.h"
 #include "QUEUE.h"
 #include "process_info.h"
+#include "Auxiliares.h"
 
 #define MAX_N_INPUT 7 // the programs executed in the par-shell are limited to 
 					  // 5 input arguments (the last entry is always set to NULL)
 
-
-//TODO: MUDAR ISTO PARA ALGURES
-int compareProcesses(void* pid, void* process){ 
-	return *(pid_t*) pid ==  getPid((process_info) process);
-}
+int compareProcesses(void* pid, void* process);
+void exitFree(char **argVector, Queue processList, int mode);
 
 
 int main(int argc, char* argv[]){
@@ -37,11 +35,7 @@ int main(int argc, char* argv[]){
 	}
 
 	// allocates the memory for the command that the user inputs
-	char** argVector = (char**) malloc(sizeof(char*) * 7); 			//CHANGE to xmalloc
-	if (argVector == NULL){
-		fprintf(stderr, "Error allocating argVector's memory. %s\n", strerror(errno));
-		exit(EXIT_FAILURE);
-	}
+	char** argVector = (char**) xmalloc(sizeof(char*) * MAX_N_INPUT); 			
 
 	// stores the number of arguments from the user
 	int narg = 0;
@@ -69,12 +63,12 @@ int main(int argc, char* argv[]){
 
 		// exit
 		if (strcmp(argVector[0], "exit") == 0){
-			
 			process_info process;
 
 			printf("Waiting for all the processes to terminate\n");
 
 			while(1){
+
 				int status;
 				pid_t child_pid = wait(&status);
 
@@ -88,7 +82,9 @@ int main(int argc, char* argv[]){
 					else{
 						setEndTime(process, 0); //NOT REALLY NECESSARY, Setting it to 0 to know it was terminated. 
 						if (WIFEXITED(status))	//if the process exited store its exit status
-							setExitStatus(process, WEXITSTATUS(status));					
+							setExitStatus(process, WEXITSTATUS(status));	
+						else	
+							setPidError(process);			
 					}
 				}
 				else{ 
@@ -102,12 +98,7 @@ int main(int argc, char* argv[]){
 				}
 			}
 
-			while(!isEmptyQueue(processList)){ //while the list is not empty print the info of all processes
-				process = (process_info) getFirstQueue(processList);
-				fprintf(stdout, "Process %d terminated with status %d\n", getPid(process), getExitStatus(process));
-				freeProcInfo(process);		//free the process info struct
-			}
-
+			exitFree(argVector, processList, 1);
 			exit(EXIT_SUCCESS);
 		}
 
@@ -122,14 +113,17 @@ int main(int argc, char* argv[]){
 
 		// child executes this
 		if (child_pid == 0){
-			
+
 			// Change the process image to the program given by the user
 			int err = execv(argVector[0], argVector);
 
 			// Check for errors
 			if (err == -1){
-				fprintf(stderr, "Erro ao tentar abrir programa com o pathname. %s\n", strerror(errno));
-				exit(EXIT_FAILURE);
+				fprintf(stderr, "Erro ao tentar abrir programa com o pathname. %s\n", strerror(errno)); //print error message
+
+				exitFree(argVector, processList, 0);
+
+				exit(EXIT_FAILURE); //exits
 			}
 		}
 
@@ -137,14 +131,12 @@ int main(int argc, char* argv[]){
 		else{
 			process_info process = createProcessInfo(child_pid, time(NULL));
 			addQueue(process, processList);  //add the created process to the list
+
+			//free the memory allocated to store the string inputs
+			free(argVector[0]);
 		}
 	}
 }
-
-
-
-
-
 
 
 
