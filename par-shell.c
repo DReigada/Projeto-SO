@@ -130,15 +130,8 @@ int main(int argc, char* argv[]){
 			process_info process = createProcessInfo(child_pid, time(NULL));
 			addQueue(process, processList);  //add the created process to the list
 
-			// clean the argVector file, to be ready to take another pathfile with different inputs
-			// also free the memory allocated to store the string inputs
-			char* temp = argVector[0];
-			int i;
-			for(i = 0; argVector[i] != NULL; i++){
-				argVector[i] = NULL;
-			}
-
-			free(temp);
+			//free the memory allocated to store the string inputs
+			free(argVector[0]);
 		}
 	}
 }
