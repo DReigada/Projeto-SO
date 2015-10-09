@@ -45,7 +45,7 @@ process_info createProcessInfo(int pid, time_t startTime);
 /**
  * Get the exit status of a process.
  * Takes the process_info as input.
- * Returns its return exit status as an int (-1 if it was not set). 
+ * Returns its return exit status as an int. 
  */
 #define getExitStatus(P) ((P) -> exitStatus)
 
