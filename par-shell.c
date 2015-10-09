@@ -17,7 +17,7 @@
 #include "commandlinereader.h"
 #include "QUEUE.h"
 #include "process_info.h"
-#include "Xmalloc.h"
+#include "Auxiliares.h"
 
 #define MAX_N_INPUT 7 // the programs executed in the par-shell are limited to 
 					  // 5 input arguments (the last entry is always set to NULL)
@@ -140,21 +140,3 @@ int main(int argc, char* argv[]){
 
 
 
-void exitFree(char **argVector, Queue processList, int mode){
-
-	while(!isEmptyQueue(processList)){ //while the list is not empty print the info of all processes
-		process_info process = (process_info) getFirstQueue(processList);
-		if(mode && (getPid(process) != -1))
-			fprintf(stdout, "Process %d terminated with status %d\n", getPid(process), getExitStatus(process));
-		freeProcInfo(process);		//free the process info struct
-	}
-	// free memory
-	freeQ(processList);
-	free(argVector[0]);
-	free(argVector);
-}
-
-//TODO: MUDAR ISTO PARA ALGURES
-int compareProcesses(void* pid, void* process){ 
-	return *(pid_t*) pid ==  getPid((process_info) process);
-}
