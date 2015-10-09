@@ -11,12 +11,5 @@
 void* xmalloc(unsigned siz);
 
 
-/**
- * Uses the same input as realloc, and has the same output, with the only 
- * difference being that it stops execution if some error occurred when
- * calling realloc.
- */
-void* xrealloc(void* ptr, unsigned siz);
-
 
 #endif

@@ -18,16 +18,4 @@
   }
 
 
-/**
- * Uses the same input as realloc, and has the same output, with the only 
- * difference being that it stops execution if some error occurred when
- * calling realloc.
- */
-void* xrealloc(void* ptr, unsigned siz){
-    void* mem = realloc(ptr, siz); /* allocate the needed memory */
 
-	 if (mem == NULL){ fprintf(stderr, "No memory in line %d of file \"%s\".\n",
-	   	 __LINE__, __FILE__); exit(2);} /* check for errors in allocating memory */
-
-		  return mem;
-  }
