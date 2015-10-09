@@ -38,7 +38,7 @@ int main(int argc, char* argv[]){
 	}
 
 	// allocates the memory for the command that the user inputs
-	char** argVector = (char**) xmalloc(sizeof(char*) * MAX_N_INPUT); 			//CHANGE to xmalloc
+	char** argVector = (char**) xmalloc(sizeof(char*) * MAX_N_INPUT); 			
 	if (argVector == NULL){
 		fprintf(stderr, "Error allocating argVector's memory. %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
@@ -109,6 +109,8 @@ int main(int argc, char* argv[]){
 				freeProcInfo(process);		//free the process info struct
 			}
 
+			freeQ(processList);
+			//free(argVector);
 			exit(EXIT_SUCCESS);
 		}
 
@@ -123,7 +125,7 @@ int main(int argc, char* argv[]){
 
 		// child executes this
 		if (child_pid == 0){
-			
+
 			// Change the process image to the program given by the user
 			int err = execv(argVector[0], argVector);
 
@@ -141,11 +143,12 @@ int main(int argc, char* argv[]){
 
 			// clean the argVector file, to be ready to take another pathfile with different inputs
 			// also free the memory allocated to store the string inputs
-			for(int i = 0; i < MAX_N_INPUT && argVector[i] != NULL; i++){
-
+			//char* temp = argVector[0];
+			for(int i = 0; argVector[i] != NULL; i++){
 				argVector[i] = NULL;
-
 			}
+
+			//free(temp);
 		}
 	}
 }
