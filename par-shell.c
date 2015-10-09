@@ -39,10 +39,6 @@ int main(int argc, char* argv[]){
 
 	// allocates the memory for the command that the user inputs
 	char** argVector = (char**) xmalloc(sizeof(char*) * MAX_N_INPUT); 			
-	if (argVector == NULL){
-		fprintf(stderr, "Error allocating argVector's memory. %s\n", strerror(errno));
-		exit(EXIT_FAILURE);
-	}
 
 	// stores the number of arguments from the user
 	int narg = 0;
