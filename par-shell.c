@@ -22,11 +22,8 @@
 #define MAX_N_INPUT 7 // the programs executed in the par-shell are limited to 
 					  // 5 input arguments (the last entry is always set to NULL)
 
-
-//TODO: MUDAR ISTO PARA ALGURES
-int compareProcesses(void* pid, void* process){ 
-	return *(pid_t*) pid ==  getPid((process_info) process);
-}
+int compareProcesses(void* pid, void* process);
+void exitFree(char **argVector, Queue processList, int mode);
 
 
 int main(int argc, char* argv[]){
@@ -99,16 +96,7 @@ int main(int argc, char* argv[]){
 				}
 			}
 
-			while(!isEmptyQueue(processList)){ //while the list is not empty print the info of all processes
-				process = (process_info) getFirstQueue(processList);
-				fprintf(stdout, "Process %d terminated with status %d\n", getPid(process), getExitStatus(process));
-				freeProcInfo(process);		//free the process info struct
-			}
-
-			// free memory
-			free(argVector[0]);
-			freeQ(processList);
-			free(argVector);
+			exitFree(argVector, processList, 1);
 			exit(EXIT_SUCCESS);
 		}
 
@@ -131,7 +119,7 @@ int main(int argc, char* argv[]){
 			if (err == -1){
 				fprintf(stderr, "Erro ao tentar abrir programa com o pathname. %s\n", strerror(errno)); //print error message
 
-				free(argVector[0]); // free the memory allocated by reading the command
+				exitFree(argVector, processList, 0);
 
 				exit(EXIT_FAILURE); //exits
 			}
@@ -157,8 +145,21 @@ int main(int argc, char* argv[]){
 
 
 
+void exitFree(char **argVector, Queue processList, int mode){
 
+	while(!isEmptyQueue(processList)){ //while the list is not empty print the info of all processes
+		process_info process = (process_info) getFirstQueue(processList);
+		if(mode)
+			fprintf(stdout, "Process %d terminated with status %d\n", getPid(process), getExitStatus(process));
+		freeProcInfo(process);		//free the process info struct
+	}
+	// free memory
+	freeQ(processList);
+	free(argVector[0]);
+	free(argVector);
+}
 
-
-
-
+//TODO: MUDAR ISTO PARA ALGURES
+int compareProcesses(void* pid, void* process){ 
+	return *(pid_t*) pid ==  getPid((process_info) process);
+}
