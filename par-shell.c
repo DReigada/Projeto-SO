@@ -82,7 +82,9 @@ int main(int argc, char* argv[]){
 					else{
 						setEndTime(process, 0); //NOT REALLY NECESSARY, Setting it to 0 to know it was terminated. 
 						if (WIFEXITED(status))	//if the process exited store its exit status
-							setExitStatus(process, WEXITSTATUS(status));					
+							setExitStatus(process, WEXITSTATUS(status));	
+						else	
+							setPidError(process);			
 					}
 				}
 				else{ 
@@ -142,7 +144,7 @@ void exitFree(char **argVector, Queue processList, int mode){
 
 	while(!isEmptyQueue(processList)){ //while the list is not empty print the info of all processes
 		process_info process = (process_info) getFirstQueue(processList);
-		if(mode)
+		if(mode && (getPid(process) != -1))
 			fprintf(stdout, "Process %d terminated with status %d\n", getPid(process), getExitStatus(process));
 		freeProcInfo(process);		//free the process info struct
 	}

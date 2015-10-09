@@ -50,6 +50,14 @@ process_info createProcessInfo(int pid, time_t startTime);
 #define getExitStatus(P) ((P) -> exitStatus)
 
 /**
+ * Set the pid of a process to an error state.
+ * Takes as input the process_info.
+ * Returns nothing.
+*/
+#define setPidError(P) ((P) -> pid = -1)
+
+
+/**
  * Set the end time of a process.
  * Takes as input the process_info and the end time.
  * Returns nothing.
