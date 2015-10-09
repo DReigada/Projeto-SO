@@ -70,12 +70,12 @@ int main(int argc, char* argv[]){
 
 		// exit
 		if (strcmp(argVector[0], "exit") == 0){
-			
 			process_info process;
 
 			printf("Waiting for all the processes to terminate\n");
 
 			while(1){
+
 				int status;
 				pid_t child_pid = wait(&status);
 
@@ -109,6 +109,7 @@ int main(int argc, char* argv[]){
 				freeProcInfo(process);		//free the process info struct
 			}
 
+			// free memory
 			free(argVector[0]);
 			freeQ(processList);
 			free(argVector);
@@ -132,8 +133,11 @@ int main(int argc, char* argv[]){
 
 			// Check for errors
 			if (err == -1){
-				fprintf(stderr, "Erro ao tentar abrir programa com o pathname. %s\n", strerror(errno));
-				exit(EXIT_FAILURE);
+				fprintf(stderr, "Erro ao tentar abrir programa com o pathname. %s\n", strerror(errno)); //print error message
+
+				free(argVector[0]); // free the memory allocated by reading the command
+
+				exit(EXIT_FAILURE); //exits
 			}
 		}
 
