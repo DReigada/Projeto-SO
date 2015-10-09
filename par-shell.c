@@ -22,9 +22,6 @@
 #define MAX_N_INPUT 7 // the programs executed in the par-shell are limited to 
 					  // 5 input arguments (the last entry is always set to NULL)
 
-int compareProcesses(void* pid, void* process);
-void exitFree(char **argVector, Queue processList, int mode);
-
 
 int main(int argc, char* argv[]){
 
@@ -61,29 +58,37 @@ int main(int argc, char* argv[]){
 
 		/* see what command the user typed */
 
-		// exit
+		// exit command
 		if (strcmp(argVector[0], "exit") == 0){
+
+			// initialize the process struct
 			process_info process;
 
 			printf("Waiting for all the processes to terminate\n");
 
+			// wait to finish all the processes that were started
 			while(1){
 
 				int status;
 				pid_t child_pid = wait(&status);
 
 				if (child_pid > 0){	// case the pid is valid 
+
+					// get the process that finished from the queue
 					process = (process_info) getSpecificQueue(processList, &child_pid, compareProcesses, 0);
+
 					//checks for an error on finding the element
 					if (process == NULL){
 						fprintf(stderr, "An error occurred when searching for a process in the list. Process not found.\n");
 						continue;
 					}
 					else{
-						setEndTime(process, 0); //NOT REALLY NECESSARY, Setting it to 0 to know it was terminated. 
+						setEndTime(process, 0); //NOT REALLY NECESSARY, Setting the end time to 0 to know it was terminated.
+
 						if (WIFEXITED(status))	//if the process exited store its exit status
 							setExitStatus(process, WEXITSTATUS(status));	
-						else	
+
+						else	// the process didn't correctly ended, so set an error in the end time
 							setPidError(process);			
 					}
 				}
@@ -98,7 +103,10 @@ int main(int argc, char* argv[]){
 				}
 			}
 
+			// prints the final results and frees the memory allocated
 			exitFree(argVector, processList, 1);
+
+			// exit the shell with success
 			exit(EXIT_SUCCESS);
 		}
 
@@ -121,6 +129,7 @@ int main(int argc, char* argv[]){
 			if (err == -1){
 				fprintf(stderr, "Erro ao tentar abrir programa com o pathname. %s\n", strerror(errno)); //print error message
 
+				// free the allocated memory that was copied for the child process
 				exitFree(argVector, processList, 0);
 
 				exit(EXIT_FAILURE); //exits
@@ -129,10 +138,12 @@ int main(int argc, char* argv[]){
 
 		// parent executes this
 		else{
-			process_info process = createProcessInfo(child_pid, time(NULL));
-			addQueue(process, processList);  //add the created process to the list
 
-			//free the memory allocated to store the string inputs
+			//add the created process to the list
+			process_info process = createProcessInfo(child_pid, time(NULL));
+			addQueue(process, processList);  
+
+			//free the memory allocated to store new commands
 			free(argVector[0]);
 		}
 	}
