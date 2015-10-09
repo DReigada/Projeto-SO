@@ -110,7 +110,7 @@ int main(int argc, char* argv[]){
 			}
 
 			freeQ(processList);
-			//free(argVector);
+			free(argVector);
 			exit(EXIT_SUCCESS);
 		}
 
