@@ -109,6 +109,7 @@ int main(int argc, char* argv[]){
 				freeProcInfo(process);		//free the process info struct
 			}
 
+			free(argVector[0]);
 			freeQ(processList);
 			free(argVector);
 			exit(EXIT_SUCCESS);
@@ -143,12 +144,12 @@ int main(int argc, char* argv[]){
 
 			// clean the argVector file, to be ready to take another pathfile with different inputs
 			// also free the memory allocated to store the string inputs
-			//char* temp = argVector[0];
+			char* temp = argVector[0];
 			for(int i = 0; argVector[i] != NULL; i++){
 				argVector[i] = NULL;
 			}
 
-			//free(temp);
+			free(temp);
 		}
 	}
 }
