@@ -149,7 +149,8 @@ int main(int argc, char* argv[]){
 			// clean the argVector file, to be ready to take another pathfile with different inputs
 			// also free the memory allocated to store the string inputs
 			char* temp = argVector[0];
-			for(int i = 0; argVector[i] != NULL; i++){
+			int i;
+			for(i = 0; argVector[i] != NULL; i++){
 				argVector[i] = NULL;
 			}
 
