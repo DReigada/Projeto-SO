@@ -39,7 +39,7 @@ void exitFree(char **argVector, Queue processList, pthread_t thread_id, int mode
 
 		// print info about the terminated thread
 		else {
-			printf("Monitor thread %d terminated.\n", (int) thread_id);
+			printf("Monitor thread: %d terminated normally.\n", (int) thread_id);
 		}
 	}
 
@@ -47,7 +47,11 @@ void exitFree(char **argVector, Queue processList, pthread_t thread_id, int mode
 		process_info process = (process_info) getFirstQueue(processList);
 
 		if (mode && (getPid(process) != -1))
-			fprintf(stdout, "Process %d terminated with status %d\n", getPid(process), getExitStatus(process));
+			fprintf(stdout,
+				"Process %d terminated normally: status=%d | execution time: %ld \n",
+				getPid(process), 
+				getExitStatus(process), 
+				getEndTime(process) - getStartTime(process));
 
 		freeProcInfo(process);		//free the process info struct
 	}
