@@ -56,9 +56,15 @@ int main(int argc, char* argv[]){
 		exit(EXIT_FAILURE);
 	}
 
-	// init the mutexes
-	pthread_mutex_init(&queue_lock, NULL);
-	pthread_mutex_init(&numChildren_lock, NULL);
+	// init the locks
+	int lock_err;
+	lock_err = pthread_mutex_init(&queue_lock, NULL);
+	if (lock_err != 0)
+		fprintf(stderr, "Error creating the queue lock: %s\n", strerror(lock_err)); 
+
+	lock_err = pthread_mutex_init(&numChildren_lock, NULL);
+	if (lock_err != 0)
+		fprintf(stderr, "Error creating the number of children lock: %s\n", strerror(lock_err));
 
 	// variables related to the monitor thread
 	pthread_t thread_id;
@@ -108,6 +114,16 @@ int main(int argc, char* argv[]){
 
 			// prints the final results, terminates the thread and frees the memory allocated
 			exitFree(argVector, processList, thread_id, 1);
+
+
+			// destroy the locks
+			lock_err = pthread_mutex_destroy(&queue_lock);
+			if (lock_err != 0)
+				fprintf(stderr, "Error destroying the queue lock: %s\n", strerror(lock_err)); 
+
+			lock_err = pthread_mutex_destroy(&numChildren_lock);
+			if (lock_err != 0)
+				fprintf(stderr, "Error destroying the number of children lock: %s\n", strerror(lock_err));
 
 			// exit the shell with success
 			exit(EXIT_SUCCESS);
