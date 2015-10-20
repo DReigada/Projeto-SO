@@ -13,14 +13,26 @@
 #include <unistd.h>
 #include <sys/types.h>
 
+// related to creating threads
+#include <pthread.h>
+
 // our own files
 #include "commandlinereader.h"
 #include "QUEUE.h"
 #include "process_info.h"
 #include "Auxiliares.h"
 
+// boolean values 
+#define TRUE 1 
+#define FALSE 0
+
 #define MAX_N_INPUT 7 // the programs executed in the par-shell are limited to 
 					  // 5 input arguments (the last entry is always set to NULL)
+
+#define ONE_SECOND 1 
+
+// prototype
+void* monitorChildProcesses(void* arg);
 
 // global variable to store the number of active children
 int numChildren;
@@ -28,11 +40,25 @@ int numChildren;
 // global list to store the processes
 Queue processList;
 
+// global variable that is TRUE while the par-shell is running and is set to 
+// False when the exit command is given
+int par_shell_on = TRUE;
+
 int main(int argc, char* argv[]){
 
 	// To initiate the par-shell no input arguments are needed
 	if (argc != 1){
 		printf("Usage: par-shell\n");
+		exit(EXIT_FAILURE);
+	}
+
+	// variables related to the monitor thread
+	pthread_t thread_id;
+
+	// start the thread and check for errors 
+	int thread_err = pthread_create(&thread_id, NULL, &monitorChildProcesses, NULL);
+	if (thread_err != 0){
+		fprintf(stderr, "Erro ao criar a thread: %s\n", strerror(thread_err));
 		exit(EXIT_FAILURE);
 	}
 
@@ -49,7 +75,7 @@ int main(int argc, char* argv[]){
 	processList = initQueue();
 
 	// Continue until the exit command is executed
-	while (1){
+	while (TRUE){
 		
 		// read the user input
 		narg = readLineArguments(argVector, MAX_N_INPUT);
@@ -69,50 +95,11 @@ int main(int argc, char* argv[]){
 		// exit command
 		if (strcmp(argVector[0], "exit") == 0){
 
-			// initialize the process struct
-			process_info process;
+			// gives indication to the thread to terminate
+			par_shell_on = FALSE;
 
-			printf("Waiting for all the processes to terminate\n");
-
-			// wait to finish all the processes that were started
-			while(1){
-
-				int status;
-				pid_t child_pid = wait(&status);
-
-				if (child_pid > 0){	// case the pid is valid 
-
-					// get the process that finished from the queue
-					process = (process_info) getSpecificQueue(processList, &child_pid, compareProcesses, 0);
-
-					//checks for an error on finding the element
-					if (process == NULL){
-						fprintf(stderr, "An error occurred when searching for a process in the list. Process not found.\n");
-						continue;
-					}
-					else{
-						setEndTime(process, 0); //NOT REALLY NECESSARY, Setting the end time to 0 to know it was terminated.
-
-						if (WIFEXITED(status))	//if the process exited store its exit status
-							setExitStatus(process, WEXITSTATUS(status));	
-
-						else	// the process didn't correctly ended, so set an error in the end time
-							setPidError(process);			
-					}
-				}
-				else{ 
-					if (errno == ECHILD){	//checks to see if the error that wait() return was because there were no child processes
-						break;
-					}
-					else{					//if not prints the error
-						fprintf(stderr, "An error occurred when wating for a process to exit. %s\n", strerror(errno));
-						break;
-					}
-				}
-			}
-
-			// prints the final results and frees the memory allocated
-			exitFree(argVector, processList, 1);
+			// prints the final results, terminates the thread and frees the memory allocated
+			exitFree(argVector, processList, thread_id, 1);
 
 			// exit the shell with success
 			exit(EXIT_SUCCESS);
@@ -121,9 +108,12 @@ int main(int argc, char* argv[]){
 		// else we assume it was given a path to a program to execute
 		pid_t child_pid = fork();
 
+		// TODO: This probably needs trincos!!! and might need to be right after the call to fork (or right before)
+		numChildren++;
+
 		// check for errors in the creation of a new process
 		if (child_pid == -1){
-			fprintf(stderr, "Some error occurred when creating a new process. %s\n", strerror(errno));
+			fprintf(stderr, "Error occurred when creating a new process: %s\n", strerror(errno));
 			continue;
 		}
 
@@ -135,10 +125,10 @@ int main(int argc, char* argv[]){
 
 			// Check for errors
 			if (err == -1){
-				fprintf(stderr, "Erro ao tentar abrir programa com o pathname. %s\n", strerror(errno)); //print error message
+				fprintf(stderr, "Error occurred when trying to open executable with the pathname: %s\n", strerror(errno)); //print error message
 
 				// free the allocated memory that was copied for the child process
-				exitFree(argVector, processList, 0);
+				exitFree(argVector, processList, thread_id, 0);
 
 				exit(EXIT_FAILURE); //exits
 			}
@@ -146,8 +136,6 @@ int main(int argc, char* argv[]){
 
 		// parent executes this
 		else{
-			// TODO: This probably needs trincos!!! and might need to be right after the call to fork (or right before)
-			numChildren++;
 
 			//add the created process to the list
 			process_info process = createProcessInfo(child_pid, time(NULL));
@@ -158,6 +146,68 @@ int main(int argc, char* argv[]){
 		}
 	}
 }
+
+/**
+ * Monitors the active children processes. Waits for them to finish and
+ * when they have it terminates them and sets their end time
+ * 
+ * @param arg is it's sole argument
+ * Returns 0 if exited with no errors and -1 otherwise
+ */
+ void* monitorChildProcesses(){
+
+ 	// initialize the process struct
+	process_info process;
+
+	// variables to store the child info 
+	int status;
+	pid_t child_pid;
+
+	// repeat this while the user didn't exit the par-shell or there are still active children
+	while (par_shell_on || numChildren){
+
+		// repeat until there are no more active children
+		while (numChildren){
+
+			child_pid = wait(&status);
+
+			if (child_pid > 0){	// case the pid is valid 
+
+				// get the process that finished from the queue
+				process = (process_info) getSpecificQueue(processList, &child_pid, compareProcesses, 0);
+
+				//checks for an error on finding the element
+				if (process == NULL){
+					fprintf(stderr, "An error occurred when searching for a process in the list. Process not found.\n");
+					continue;
+				}
+				else{
+					setEndTime(process, time(NULL)); //Setting the end time
+
+					if (WIFEXITED(status))
+						//if the process exited store its exit status
+						setExitStatus(process, WEXITSTATUS(status));
+						
+
+					else	// the process didn't correctly ended, so set an error in the end time
+						setPidError(process);
+
+					numChildren--;	
+				}
+			}
+			else{ 
+				fprintf(stderr, "An error occurred when wating for a process to exit. %s\n", strerror(errno));
+				break;
+			}
+		}
+
+		sleep(ONE_SECOND);
+	}
+
+	// returns 
+	pthread_exit(NULL);
+
+ }
 
 
 

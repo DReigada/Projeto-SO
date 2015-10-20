@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include "QUEUE.h"
+#include <pthread.h>
 
 /**
  * Uses the same input as malloc, and has the same output, with the only 
@@ -19,7 +20,7 @@ void* xmalloc(unsigned siz);
  * If mode is 0 doesn't print anything.
  * Doesn't have a return value.
  */
-void exitFree(char **argVector, Queue processList, int mode);
+void exitFree(char **argVector, Queue processList, pthread_t thread_id, int mode);
 
 /**
  * Auxiliary function that determines if two processes are the same.
