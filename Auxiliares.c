@@ -46,13 +46,16 @@ void exitFree(char **argVector, Queue processList, pthread_t thread_id, int mode
 	while (!isEmptyQueue (processList)) { //while the list is not empty print the info of all processes
 		process_info process = (process_info) getFirstQueue(processList);
 
+		// print the processes that terminated normally
 		if (mode && (getPid(process) != -1))
 			fprintf(stdout,
 				"Process %d terminated normally: status=%d | execution time: %ld \n",
 				getPid(process), 
 				getExitStatus(process), 
 				getEndTime(process) - getStartTime(process));
-
+		// print the ones that didn't terminate normally
+		else if (mode)
+			printf("Process %d terminated without calling exit.\n", getPid(process));
 		freeProcInfo(process);		//free the process info struct
 	}
 
