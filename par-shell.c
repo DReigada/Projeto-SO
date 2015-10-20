@@ -40,6 +40,10 @@ int numChildren;
 // global list to store the processes
 Queue processList;
 
+// global mutexes 
+pthread_mutex_t queue_lock;
+pthread_mutex_t numChildren_lock;
+
 // global variable that is TRUE while the par-shell is running and is set to 
 // False when the exit command is given
 int par_shell_on = TRUE;
@@ -51,6 +55,10 @@ int main(int argc, char* argv[]){
 		printf("Usage: par-shell\n");
 		exit(EXIT_FAILURE);
 	}
+
+	// init the mutexes
+	pthread_mutex_init(&queue_lock, NULL);
+	pthread_mutex_init(&numChildren_lock, NULL);
 
 	// variables related to the monitor thread
 	pthread_t thread_id;
@@ -108,8 +116,10 @@ int main(int argc, char* argv[]){
 		// else we assume it was given a path to a program to execute
 		pid_t child_pid = fork();
 
-		// TODO: This probably needs trincos!!! and might need to be right after the call to fork (or right before)
+		// increment the number of children 
+		pthread_mutex_lock (&numChildren_lock);
 		numChildren++;
+		pthread_mutex_unlock (&numChildren_lock);
 
 		// check for errors in the creation of a new process
 		if (child_pid == -1){
@@ -136,10 +146,12 @@ int main(int argc, char* argv[]){
 
 		// parent executes this
 		else{
+			process_info process = createProcessInfo(child_pid, time(NULL));
 
 			//add the created process to the list
-			process_info process = createProcessInfo(child_pid, time(NULL));
+			pthread_mutex_lock (&queue_lock);
 			addQueue(process, processList);  
+			pthread_mutex_unlock(&queue_lock);
 
 			//free the memory allocated to store new commands
 			free(argVector[0]);
@@ -174,7 +186,9 @@ int main(int argc, char* argv[]){
 			if (child_pid > 0){	// case the pid is valid 
 
 				// get the process that finished from the queue
+				pthread_mutex_lock(&queue_lock);
 				process = (process_info) getSpecificQueue(processList, &child_pid, compareProcesses, 0);
+				pthread_mutex_unlock(&queue_lock);
 
 				//checks for an error on finding the element
 				if (process == NULL){
@@ -192,7 +206,10 @@ int main(int argc, char* argv[]){
 					else	// the process didn't correctly ended, so set an error in the end time
 						setPidError(process);
 
+					//decrement the number of children
+					pthread_mutex_lock(&numChildren_lock);
 					numChildren--;	
+					pthread_mutex_unlock(&numChildren_lock);
 				}
 			}
 			else{ 
