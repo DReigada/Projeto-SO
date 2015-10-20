@@ -22,6 +22,11 @@
 #define MAX_N_INPUT 7 // the programs executed in the par-shell are limited to 
 					  // 5 input arguments (the last entry is always set to NULL)
 
+// global variable to store the number of active children
+int numChildren;
+
+// global list to store the processes
+Queue processList;
 
 int main(int argc, char* argv[]){
 
@@ -37,8 +42,11 @@ int main(int argc, char* argv[]){
 	// stores the number of arguments from the user
 	int narg = 0;
 
-	// initialize the list to store the processes
-	Queue processList = initQueue();
+	// set number of children to 0
+	numChildren = 0;
+
+	// initializes the list to store the children 
+	processList = initQueue();
 
 	// Continue until the exit command is executed
 	while (1){
@@ -138,6 +146,8 @@ int main(int argc, char* argv[]){
 
 		// parent executes this
 		else{
+			// TODO: This probably needs trincos!!! and might need to be right after the call to fork (or right before)
+			numChildren++;
 
 			//add the created process to the list
 			process_info process = createProcessInfo(child_pid, time(NULL));
