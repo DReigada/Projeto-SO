@@ -44,6 +44,7 @@ Queue processList;
 // global mutexes 
 pthread_mutex_t queue_lock;
 pthread_mutex_t numChildren_lock;
+pthread_mutex_t shell_status_lock;
 
 // global variable that is TRUE while the par-shell is running and is set to 
 // False when the exit command is given
@@ -72,6 +73,10 @@ int main(int argc, char* argv[]){
 	lock_err = pthread_mutex_init(&numChildren_lock, NULL);
 	if (lock_err != 0)
 		fprintf(stderr, "Error creating the number of children lock: %s\n", strerror(lock_err));
+
+	lock_err = pthread_mutex_init(&shell_status_lock, NULL);
+	if (lock_err != 0)
+		fprintf(stderr, "Error creating the shell_status lock: %s\n", strerror(lock_err));
 
 	// variables related to the monitor thread
 	pthread_t thread_id;
@@ -113,8 +118,12 @@ int main(int argc, char* argv[]){
 		// exit command
 		if (strcmp(argVector[0], EXIT_COMMAND) == 0){
 
+			printf("Waiting for all the processes to terminate\n");
+
 			// gives indication to the thread to terminate
+			pthread_mutex_lock (&shell_status_lock);
 			par_shell_on = FALSE;
+			pthread_mutex_unlock (&shell_status_lock);
 
 			// prints the final results, terminates the thread and frees the memory allocated
 			exitFree(argVector, processList, thread_id, 1);
@@ -129,17 +138,16 @@ int main(int argc, char* argv[]){
 			if (lock_err != 0)
 				fprintf(stderr, "Error destroying the number of children lock: %s\n", strerror(lock_err));
 
+			lock_err = pthread_mutex_destroy(&shell_status_lock);
+			if (lock_err != 0)
+				fprintf(stderr, "Error destroying the shell status lock: %s\n", strerror(lock_err));
+
 			// exit the shell with success
 			exit(EXIT_SUCCESS);
 		}
 
 		// else we assume it was given a path to a program to execute
 		pid_t child_pid = fork();
-
-		// increment the number of children 
-		pthread_mutex_lock (&numChildren_lock);
-		numChildren++;
-		pthread_mutex_unlock (&numChildren_lock);
 
 		// check for errors in the creation of a new process
 		if (child_pid == -1){
@@ -168,10 +176,15 @@ int main(int argc, char* argv[]){
 		else{
 			process_info process = createProcessInfo(child_pid, time(NULL));
 
-			//add the created process to the list
-			pthread_mutex_lock (&queue_lock);
-			addQueue(process, processList);  
+			//add the created process to the list and increment the number of children
+			pthread_mutex_lock(&numChildren_lock);
+			pthread_mutex_lock(&queue_lock);
+
+			numChildren++;
+			addQueue(process, processList);
+
 			pthread_mutex_unlock(&queue_lock);
+			pthread_mutex_unlock(&numChildren_lock);
 
 			//free the memory allocated to store new commands
 			free(argVector[0]);
