@@ -32,7 +32,7 @@
 #define ONE_SECOND 1 
 
 // prototype
-void* monitorChildProcesses(void* arg);
+void* monitorChildProcesses();
 
 // global variable to store the number of active children
 int numChildren;
