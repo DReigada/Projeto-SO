@@ -7,58 +7,43 @@
  *                - Sebastião Araújo
  */
 
+#define DEFINE_VARIABLES //indicate that we are defining the global variables
 
-// includes "standards"
+// shared variables and the monitor function
+#include "globalVariables.h"
+#include "threadFunction.h"
+
+// GNU C libraries
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <errno.h>
 
-
 // related to the system calls functions
 #include <sys/wait.h>
 #include <unistd.h>
 #include <sys/types.h>
 
-// related to creating threads
-#include <pthread.h>
-
 // our own files
+#include "globalVariables.h"
 #include "commandlinereader.h"
-#include "QUEUE.h"
 #include "process_info.h"
 #include "Auxiliares.h"
 
+// Constants
 #define NARGS 1 // number of arguments of the par-shell program 
+
 // boolean values 
 #define TRUE 1 
 #define FALSE 0
 
 #define MAX_N_INPUT 7 // the programs executed in the par-shell are limited to 
 					  // 5 input arguments (the last entry is always set to NULL)
+
 #define N_MUTEXES 3   // number of mutexes that will be needed
 
-#define ONE_SECOND 1 
 #define EXIT_COMMAND "exit"
-
-// prototype
-void* monitorChildProcesses();
-
-// global variable to store the number of active children
-int numChildren;
-
-// global list to store the processes
-Queue processList;
-
-// global mutexes 
-pthread_mutex_t queue_lock;
-pthread_mutex_t numChildren_lock;
-pthread_mutex_t shell_status_lock;
-
-// global variable that is TRUE while the par-shell is running and is set to 
-// False when the exit command is given
-int par_shell_on;
 
 int main(int argc, char* argv[]){
 
@@ -185,72 +170,7 @@ int main(int argc, char* argv[]){
 	}
 }
 
-/**
- * Monitors the active children processes. Waits for them to finish and
- * when they have it terminates them and sets their end time
- * 
- * @param arg is it's sole argument
- * Returns 0 if exited with no errors and -1 otherwise
- */
- void* monitorChildProcesses(){
 
- 	// initialize the process struct
-	process_info process;
-
-	// variables to store the child info 
-	int status;
-	pid_t child_pid;
-
-	// repeat this while the user didn't exit the par-shell or there are still active children
-	while (par_shell_on || numChildren){
-
-		// repeat until there are no more active children
-		while (numChildren){
-
-			child_pid = wait(&status);
-
-			if (child_pid > 0){	// case the pid is valid 
-
-				// get the process that finished from the queue
-				pthread_mutex_lock(&queue_lock);
-				process = (process_info) getSpecificQueue(processList, &child_pid, compareProcesses, 0);
-				pthread_mutex_unlock(&queue_lock);
-
-				//checks for an error on finding the element
-				if (process == NULL){
-					fprintf(stderr, "An error occurred when searching for a process in the list. Process not found.\n");
-					continue;
-				}
-				else{
-					setEndTime(process, time(NULL)); //Setting the end time
-
-					if (WIFEXITED(status))
-						//if the process exited store its exit status
-						setExitStatus(process, WEXITSTATUS(status));
-						
-
-					else	// the process didn't correctly ended, so set an error in the end time
-						setPidError(process);
-
-					//decrement the number of children
-					pthread_mutex_lock(&numChildren_lock);
-					numChildren--;	
-					pthread_mutex_unlock(&numChildren_lock);
-				}
-			}
-			else{ 
-				fprintf(stderr, "An error occurred when wating for a process to exit. %s\n", strerror(errno));
-				break;
-			}
-		}
-
-		sleep(ONE_SECOND);
-	}
-
-	// returns 
-	pthread_exit(NULL);
-
- }
 
 
 
