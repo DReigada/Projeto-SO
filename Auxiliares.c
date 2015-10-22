@@ -78,6 +78,13 @@ void initMutexes (pthread_mutex_t* mutex_id_list[], int n_mutexes){
  */
 void exitThread (pthread_t* thread_id, pthread_mutex_t* mutex_id_list[], int n_mutexes){
 
+	// waits for thread to terminate and when it does checks for errors
+	int thread_err;
+	if ((thread_err = pthread_join(*thread_id, NULL)) != 0)
+		fprintf(stderr, 
+				"Error terminating thread: %s\n", 
+				strerror(thread_err));
+
 	// Destroys the locks 
 	int lock_err, i;
 	for (i = 0; i < n_mutexes; i++){
@@ -85,13 +92,6 @@ void exitThread (pthread_t* thread_id, pthread_mutex_t* mutex_id_list[], int n_m
 			fprintf(stderr, "Error destroying the lock number %d: %s\n", 
 					i+1, strerror(lock_err));
 	}
-
-	// waits for thread to terminate and when it does checks for errors
-	int thread_err;
-	if ((thread_err = pthread_join(*thread_id, NULL)) != 0)
-		fprintf(stderr, 
-				"Error terminating thread: %s\n", 
-				strerror(thread_err));
 }
 
 /**
