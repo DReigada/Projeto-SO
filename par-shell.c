@@ -46,7 +46,7 @@ pthread_mutex_t numChildren_lock;
 
 // global variable that is TRUE while the par-shell is running and is set to 
 // False when the exit command is given
-int par_shell_on = TRUE;
+int par_shell_on;
 
 int main(int argc, char* argv[]){
 
@@ -56,6 +56,12 @@ int main(int argc, char* argv[]){
 		exit(EXIT_FAILURE);
 	}
 
+	// set number of children to 0
+	numChildren = 0;
+
+	// set the par_shell to being on
+	par_shell_on = TRUE;
+	
 	// init the locks
 	int lock_err;
 	lock_err = pthread_mutex_init(&queue_lock, NULL);
@@ -81,9 +87,6 @@ int main(int argc, char* argv[]){
 
 	// stores the number of arguments from the user
 	int narg = 0;
-
-	// set number of children to 0
-	numChildren = 0;
 
 	// initializes the list to store the children 
 	processList = initQueue();
