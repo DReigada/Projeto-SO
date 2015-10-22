@@ -1,5 +1,5 @@
 par-shell: commandlinereader.o process_info.o QUEUE.o Auxiliares.o threadFunction.o par-shell.o
-	gcc -o par-shell par-shell.o commandlinereader.o process_info.o QUEUE.o Auxiliares.o threadFunction.o
+	gcc -o par-shell par-shell.o commandlinereader.o process_info.o QUEUE.o Auxiliares.o threadFunction.o -lpthread
 
 commandlinereader.o: commandlinereader.c commandlinereader.h
 	gcc -Wall -g -c commandlinereader.c
