@@ -92,12 +92,6 @@ void exitThread (pthread_t* thread_id, pthread_mutex_t* mutex_id_list[], int n_m
 		fprintf(stderr, 
 				"Error terminating thread: %s\n", 
 				strerror(thread_err));
-
-	// print info about the terminated thread
-	else {
-		printf("Monitor thread: %d terminated normally.\n", 
-			   (int) thread_id);
-	}
 }
 
 /**
