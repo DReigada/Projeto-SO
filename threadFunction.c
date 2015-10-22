@@ -36,10 +36,19 @@
 	pid_t child_pid;
 
 	// repeat this while the user didn't exit the par-shell or there are still active children
+	pthread_mutex_lock(&numChildren_lock);
+	pthread_mutex_lock(&shell_status_lock);
+
 	while (par_shell_on || numChildren){
 
+		pthread_mutex_unlock(&shell_status_lock);
+		pthread_mutex_unlock(&numChildren_lock);
+
 		// repeat until there are no more active children
+		pthread_mutex_lock(&numChildren_lock);
 		while (numChildren){
+
+			pthread_mutex_unlock(&numChildren_lock);
 
 			child_pid = wait(&status);
 
@@ -76,10 +85,19 @@
 				fprintf(stderr, "An error occurred when wating for a process to exit. %s\n", strerror(errno));
 				break;
 			}
+
+			pthread_mutex_lock(&numChildren_lock);
 		}
 
+		pthread_mutex_unlock(&numChildren_lock);
+		
 		sleep(ONE_SECOND);
+		pthread_mutex_lock(&numChildren_lock);
+		pthread_mutex_lock(&shell_status_lock);
 	}
+
+	pthread_mutex_unlock(&shell_status_lock);
+	pthread_mutex_unlock(&numChildren_lock);
 
 	// returns 
 	pthread_exit(NULL);
