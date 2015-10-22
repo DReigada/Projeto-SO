@@ -28,6 +28,7 @@
 
 #define MAX_N_INPUT 7 // the programs executed in the par-shell are limited to 
 					  // 5 input arguments (the last entry is always set to NULL)
+#define N_MUTEXES 3   // number of mutexes that will be needed
 
 #define ONE_SECOND 1 
 #define EXIT_COMMAND "exit"
@@ -65,18 +66,10 @@ int main(int argc, char* argv[]){
 	par_shell_on = TRUE;
 
 	// init the locks
-	int lock_err;
-	lock_err = pthread_mutex_init(&queue_lock, NULL);
-	if (lock_err != 0)
-		fprintf(stderr, "Error creating the queue lock: %s\n", strerror(lock_err)); 
-
-	lock_err = pthread_mutex_init(&numChildren_lock, NULL);
-	if (lock_err != 0)
-		fprintf(stderr, "Error creating the number of children lock: %s\n", strerror(lock_err));
-
-	lock_err = pthread_mutex_init(&shell_status_lock, NULL);
-	if (lock_err != 0)
-		fprintf(stderr, "Error creating the shell_status lock: %s\n", strerror(lock_err));
+	pthread_mutex_t* mutex_list[N_MUTEXES] = {&queue_lock,
+											  &numChildren_lock, 
+											  &shell_status_lock};
+	initMutexes(mutex_list, N_MUTEXES);
 
 	// variables related to the monitor thread
 	pthread_t thread_id;
@@ -125,22 +118,11 @@ int main(int argc, char* argv[]){
 			par_shell_on = FALSE;
 			pthread_mutex_unlock (&shell_status_lock);
 
+			// terminates thread and destroys the locks 
+			exitThread(&thread_id, mutex_list, N_MUTEXES);
+
 			// prints the final results, terminates the thread and frees the memory allocated
 			exitFree(argVector, processList, thread_id, 1);
-
-
-			// destroy the locks
-			lock_err = pthread_mutex_destroy(&queue_lock);
-			if (lock_err != 0)
-				fprintf(stderr, "Error destroying the queue lock: %s\n", strerror(lock_err)); 
-
-			lock_err = pthread_mutex_destroy(&numChildren_lock);
-			if (lock_err != 0)
-				fprintf(stderr, "Error destroying the number of children lock: %s\n", strerror(lock_err));
-
-			lock_err = pthread_mutex_destroy(&shell_status_lock);
-			if (lock_err != 0)
-				fprintf(stderr, "Error destroying the shell status lock: %s\n", strerror(lock_err));
 
 			// exit the shell with success
 			exit(EXIT_SUCCESS);
@@ -151,19 +133,21 @@ int main(int argc, char* argv[]){
 
 		// check for errors in the creation of a new process
 		if (child_pid == -1){
-			fprintf(stderr, "Error occurred when creating a new process: %s\n", strerror(errno));
+			fprintf(stderr, 
+					"Error occurred when creating a new process: %s\n", 
+					strerror(errno));
 			continue;
 		}
 
 		// child executes this
 		if (child_pid == 0){
 
-			// Change the process image to the program given by the user
-			int err = execv(argVector[0], argVector);
-
-			// Check for errors
-			if (err == -1){
-				fprintf(stderr, "Error occurred when trying to open executable with the pathname: %s\n", strerror(errno)); //print error message
+			// Change the process image to the program given by the user 
+			if (execv(argVector[0], argVector) < 0){ // check for errors
+				//print error message
+				fprintf(stderr, 
+						"Error occurred when trying to open executable with the pathname: %s\n", 
+						strerror(errno)); 
 
 				// free the allocated memory that was copied for the child process
 				exitFree(argVector, processList, thread_id, 0);
