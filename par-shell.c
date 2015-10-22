@@ -1,4 +1,12 @@
-/* Projeto de SO */
+/**
+ *  Projeto de SO - entrega 2
+ *  data          - 22.10.15
+ *  
+ *  Autores       - Daniel Reigada
+ *   			  - Diogo Mesquita
+ *                - Sebastião Araújo
+ */
+
 
 // includes "standards"
 #include <stdio.h>
@@ -22,6 +30,7 @@
 #include "process_info.h"
 #include "Auxiliares.h"
 
+#define NARGS 1 // number of arguments of the par-shell program 
 // boolean values 
 #define TRUE 1 
 #define FALSE 0
@@ -54,7 +63,7 @@ int par_shell_on;
 int main(int argc, char* argv[]){
 
 	// To initiate the par-shell no input arguments are needed
-	if (argc != 1){
+	if (argc != NARGS){
 		printf("Usage: par-shell\n");
 		exit(EXIT_FAILURE);
 	}
