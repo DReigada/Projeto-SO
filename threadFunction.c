@@ -17,6 +17,10 @@
 #include <errno.h>
 #include <unistd.h>
 
+// related to the system calls functions
+#include <sys/wait.h>
+#include <sys/types.h>
+
 #define ONE_SECOND 1 
 
 /**
