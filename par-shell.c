@@ -30,6 +30,7 @@
 					  // 5 input arguments (the last entry is always set to NULL)
 
 #define ONE_SECOND 1 
+#define EXIT_COMMAND "exit"
 
 // prototype
 void* monitorChildProcesses();
@@ -61,7 +62,7 @@ int main(int argc, char* argv[]){
 
 	// set the par_shell to being on
 	par_shell_on = TRUE;
-	
+
 	// init the locks
 	int lock_err;
 	lock_err = pthread_mutex_init(&queue_lock, NULL);
@@ -110,7 +111,7 @@ int main(int argc, char* argv[]){
 		/* see what command the user typed */
 
 		// exit command
-		if (strcmp(argVector[0], "exit") == 0){
+		if (strcmp(argVector[0], EXIT_COMMAND) == 0){
 
 			// gives indication to the thread to terminate
 			par_shell_on = FALSE;
