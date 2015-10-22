@@ -41,7 +41,7 @@ void exitFree (char **argVector, Queue processList, pthread_t thread_id, int mod
 				getEndTime(process) - getStartTime(process));
 		// print the ones that didn't terminate normally
 		else if (mode)
-			printf("Process %d terminated without calling exit.\n", getPid(process));
+			fprintf(stdout, "Process %d terminated without calling exit.\n", getPid(process));
 		freeProcInfo(process);		//free the process info struct
 	}
 
