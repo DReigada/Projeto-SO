@@ -25,11 +25,15 @@ void* xmalloc(unsigned siz);
 void exitFree(char **argVector, Queue processList, pthread_t thread_id, int mode);
 
 /**
- * Initializes the mutexes. 
+ * Initializes the thread and the mutexes. 
+ *
+ * thread_id is a pointer to a thread id.
+ * Upon creation of the thread, the thread executes start_routine - start_routine 
+ * must not take any input arguments.
  *
  * mutex_id_list is a list of length n_mutexes of pointers to the mutexes' ids.
  */
-void initMutexes (pthread_mutex_t* mutex_id_list[], int n_mutexes);
+void initThread (pthread_t* thread_id, void* (*start_routine)(void*), pthread_mutex_t* mutex_id_list[], int n_mutexes);
 
 /**
  * Terminates the monitor thread and destroys the locks.

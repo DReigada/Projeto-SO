@@ -59,21 +59,14 @@ int main(int argc, char* argv[]){
 	// set the par_shell to being on
 	par_shell_on = TRUE;
 
-	// init the locks
+	// declare variable to store the thread id
+	pthread_t thread_id;
+
+	// init the locks and the thread
 	pthread_mutex_t* mutex_list[N_MUTEXES] = {&queue_lock,
 											  &numChildren_lock, 
 											  &shell_status_lock};
-	initMutexes(mutex_list, N_MUTEXES);
-
-	// variables related to the monitor thread
-	pthread_t thread_id;
-
-	// start the thread and check for errors 
-	int thread_err = pthread_create(&thread_id, NULL, &monitorChildProcesses, NULL);
-	if (thread_err != 0){
-		fprintf(stderr, "Erro ao criar a thread: %s\n", strerror(thread_err));
-		exit(EXIT_FAILURE);
-	}
+	initThread(&thread_id, &monitorChildProcesses, mutex_list, N_MUTEXES);
 
 	// allocates the memory for the command that the user inputs
 	char** argVector = (char**) xmalloc(sizeof(char*) * MAX_N_INPUT); 			
