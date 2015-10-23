@@ -1,34 +1,23 @@
-VPATH = utils src includes
+ODIR=build
+SDIR=src
+UDIR=utils
+IDIR=includes
 
-organize: organize_executables
-	mkdir -p build
-	mv *.o build
+_BUILD = QUEUE.o commandlinereader.o process_info.o Auxiliares.o threadFunction.o par-shell.o
+BUILD = $(patsubst %,$(ODIR)/%,$(_BUILD))
 
-organize_executables: par-shell
-	mkdir -p bin
-	mv $< bin/
+_DEPS = Auxiliares.h globalVariables.h QUEUE.h commandlinereader.h process_info.h threadFunction.h
+DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-par-shell: commandlinereader.o QUEUE.o process_info.o Auxiliares.o threadFunction.o par-shell.o
+
+$(ODIR)/%.o: $(SDIR)/%.c $(DEPS)
+	gcc -I./$(IDIR) -c -o $@ $<
+
+$(ODIR)/%.o: $(UDIR)/%.c $(DEPS)
+	gcc -I./$(IDIR) -c -o $@ $<
+
+par-shell: $(BUILD)
 	gcc $^ -o $@ -lpthread
 
-commandlinereader.o: commandlinereader.c commandlinereader.h
-	gcc -I./includes -Wall -g -c $< 
-
-QUEUE.o: QUEUE.c QUEUE.h 
-	gcc -I./includes -Wall -g -c $< 
-
-process_info.o: process_info.c process_info.h 
-	gcc -I./includes -Wall -g -c $<
-
-Auxiliares.o: Auxiliares.c Auxiliares.h
-	gcc -I./includes -Wall -g -c $<
-
-threadFunction.o: threadFunction.c threadFunction.h 
-	gcc -I./includes -Wall -g -c $<
-
-par-shell.o: par-shell.c globalVariables.h 
-	gcc -I./includes -Wall -g -c $<
-
 clean:
-	rm -f -r bin/ build/
-
+	rm -f $(ODIR)/* par-shell
