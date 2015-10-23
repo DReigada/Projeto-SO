@@ -12,6 +12,7 @@ typedef struct process_info_s {
    int exitStatus;
    time_t startTime;
    time_t endTime;
+   int exitCorrectly;
 }* process_info;
 
 /**
@@ -45,17 +46,23 @@ process_info createProcessInfo(int pid, time_t startTime);
 /**
  * Get the exit status of a process.
  * Takes the process_info as input.
- * Returns its return exit status as an int. 
+ * Returns its return exit status as an int.
+ * Only works if process exited correctly 
  */
 #define getExitStatus(P) ((P) -> exitStatus)
+
+/**
+ * Gets the exitCorrectly attribute.
+ * If 1 it exited correctly, else it did not (was killed) so returns 0.
+ */
+#define exitedCorrectly(P) ((P) -> exitCorrectly)
 
 /**
  * Set the pid of a process to an error state.
  * Takes as input the process_info.
  * Returns nothing.
 */
-#define setPidError(P) ((P) -> pid = -1)
-
+#define setExitError(P) ((P) -> exitCorrectly = 0)
 
 /**
  * Set the end time of a process.
@@ -67,6 +74,7 @@ process_info createProcessInfo(int pid, time_t startTime);
 /**
  * Set the exit status of a process.
  * Takes as input the process_info and the status as an int.
+ * Only if exited correctly
  * Returns nothing.
 */
 #define setExitStatus(P, S) ((P) -> exitStatus = (S))
