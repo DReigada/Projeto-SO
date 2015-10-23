@@ -56,11 +56,12 @@ void* monitorChildProcesses(void* p){
 					numChildren--;
 					pthread_mutex_unlock(&numChildren_lock);
 					setEndTime(process, time(NULL)); //Store the time the process terminated
+
 					if (WIFEXITED(status))	//if the process exited store its exit status
 						setExitStatus(process, WEXITSTATUS(status));	
 
 					else	// the process didn't correctly ended, so set an error in the end time
-						setPidError(process);			
+						setExitError(process);			
 				}
 				pthread_mutex_unlock(&queue_lock);
 			}
