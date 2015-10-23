@@ -4,7 +4,7 @@
  *  
  *  Autores       - Daniel Reigada
  *   			  - Diogo Mesquita
- *                - Sebastião Araújos
+ *                - Sebastião Araújo
  */
 
 #define DEFINE_VARIABLES //indicate that we are defining the global variables
@@ -40,7 +40,7 @@
 #define MAX_N_INPUT 7 // the programs executed in the par-shell are limited to 
 					  // 5 input arguments (the last entry is always set to NULL)
 
-#define N_MUTEXES 3   // number of mutexes that will be needed
+#define N_MUTEXES 2   // number of mutexes that will be needed
 
 #define EXIT_COMMAND "exit"
 
@@ -63,8 +63,7 @@ int main(int argc, char* argv[]){
 
 	// init the locks and the thread
 	pthread_mutex_t* mutex_list[N_MUTEXES] = {&queue_lock,
-											  &numChildren_lock, 
-											  &shell_status_lock};
+											  &numChildren_lock};
 	initThread(&thread_id, &monitorChildProcesses, mutex_list, N_MUTEXES);
 
 	// allocates the memory for the command that the user inputs
@@ -100,9 +99,7 @@ int main(int argc, char* argv[]){
 			printf("Waiting for all the processes to terminate\n");
 
 			// gives indication to the thread to terminate
-			pthread_mutex_lock (&shell_status_lock);
 			par_shell_on = FALSE;
-			pthread_mutex_unlock (&shell_status_lock);
 
 			// terminates thread and destroys the locks 
 			exitThread(&thread_id, mutex_list, N_MUTEXES);
