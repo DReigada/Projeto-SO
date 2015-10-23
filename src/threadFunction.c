@@ -52,12 +52,12 @@ void* monitorChildProcesses(){
 														 &child_pid, 
 														 compareProcesses, 
 														 0);
+				pthread_mutex_unlock(&queue_lock);
 
 				//checks for an error on finding the element
 				if (process == NULL){
 					fprintf(stderr, "An error occurred when searching for a "
 							"process in the list. Process not found.\n");
-					pthread_mutex_unlock(&queue_lock);
 					continue;
 				}
 				else{
@@ -77,7 +77,6 @@ void* monitorChildProcesses(){
 					else	
 						setExitError(process);			
 				}
-				pthread_mutex_unlock(&queue_lock);
 			}
 			else{ 
 				//if the error was because there were no child processes

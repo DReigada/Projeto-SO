@@ -4,7 +4,7 @@
  *  
  *  Autores       - Daniel Reigada
  *   			  - Diogo Mesquita
- *                - Sebastião Araújos
+ *                - Sebastião Araújo
  */
 
 #define DEFINE_VARIABLES //indicate that we are defining the global variables
