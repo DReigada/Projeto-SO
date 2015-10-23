@@ -1,9 +1,11 @@
 VPATH = utils src includes
 
 organize: organize_executables
+	mkdir -p build
 	mv *.o build
 
 organize_executables: par-shell
+	mkdir -p bin
 	mv $< bin/
 
 par-shell: commandlinereader.o QUEUE.o process_info.o Auxiliares.o threadFunction.o par-shell.o
@@ -28,5 +30,5 @@ par-shell.o: par-shell.c globalVariables.h
 	gcc -I./includes -Wall -g -c $<
 
 clean:
-	rm -f bin/par-shell build/*
+	rm -f -r bin/ build/
 
