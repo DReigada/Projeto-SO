@@ -1,1 +1,1 @@
-./bin/par-shell < test/in1.txt
+./bin/par-shell < test/input2.test
