@@ -31,7 +31,7 @@
  * Returns the pointer to the new node.
  */
  QLink newNode(void* i, QLink nextNode){
- 	QLink n = (QLink) xmalloc(sizeof(struct nodeQ)); /* allocate memory for the node */
+ 	QLink n = (QLink) xmalloc(sizeof(struct nodeQ)); /* allocate memory for node */
 
  	n->item = i; /* assigning the new node it's item */
  	n->next = nextNode; /* giving it the pointer to the next node */

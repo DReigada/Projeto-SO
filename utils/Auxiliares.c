@@ -29,7 +29,8 @@
  */
 void exitFree (char **argVector, Queue processList, pthread_t thread_id, int mode) {
 
-	while (!isEmptyQueue (processList)) { //while the list is not empty print the info of all processes
+	//while the list is not empty print the info of all processes
+	while (!isEmptyQueue (processList)) { 
 		process_info process = (process_info) getFirstQueue(processList);
 
 		// print the processes that terminated normally
@@ -41,7 +42,9 @@ void exitFree (char **argVector, Queue processList, pthread_t thread_id, int mod
 				getEndTime(process) - getStartTime(process));
 		// print the ones that didn't terminate normally
 		else if (mode)
-			fprintf(stdout, "Process %d terminated without calling exit.\n", getPid(process));
+			fprintf(stdout, 
+					"Process %d terminated without calling exit.\n", 
+					getPid(process));
 		freeProcInfo(process);		//free the process info struct
 	}
 
@@ -60,7 +63,10 @@ void exitFree (char **argVector, Queue processList, pthread_t thread_id, int mod
  *
  * mutex_id_list is a list of length n_mutexes of pointers to the mutexes' ids.
  */
-void initThread (pthread_t* thread_id, void* (*start_routine)(void*), pthread_mutex_t* mutex_id_list[], int n_mutexes){
+void initThread (pthread_t* thread_id, 
+				 void* (*start_routine)(void*), 
+				 pthread_mutex_t* mutex_id_list[], 
+				 int n_mutexes) {
 
 	// init the locks
 	int lock_err, i;

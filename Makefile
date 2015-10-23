@@ -1,24 +1,32 @@
-par-shell: commandlinereader.o process_info.o QUEUE.o Auxiliares.o threadFunction.o par-shell.o
-	gcc -o par-shell par-shell.o commandlinereader.o process_info.o QUEUE.o Auxiliares.o threadFunction.o -lpthread
+SDIR=src
+UDIR=utils
+IDIR=includes
+ODIR=build
+BDIR=bin
 
-commandlinereader.o: commandlinereader.c commandlinereader.h
-	gcc -Wall -g -c commandlinereader.c
+_BUILD = QUEUE.o commandlinereader.o process_info.o Auxiliares.o threadFunction.o par-shell.o
+BUILD = $(patsubst %,$(ODIR)/%,$(_BUILD))
 
-par-shell.o: par-shell.c globalVariables.h threadFunction.o commandlinereader.o QUEUE.o process_info.o Auxiliares.o
-	gcc -Wall -g -c par-shell.c
+_DEPS = Auxiliares.h globalVariables.h QUEUE.h commandlinereader.h process_info.h threadFunction.h
+DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-QUEUE.o: QUEUE.c QUEUE.h Auxiliares.o
-	gcc -Wall -g -c QUEUE.c
+MKDIR = build bin
 
-process_info.o: process_info.c process_info.h 
-	gcc -Wall -g -c process_info.c
+$(ODIR)/%.o: $(SDIR)/%.c $(DEPS) directories
+	gcc -I./$(IDIR) -c -o $@ $<
 
-Auxiliares.o: Auxiliares.c Auxiliares.h process_info.o
-	gcc -Wall -g -c Auxiliares.c
+$(ODIR)/%.o: $(UDIR)/%.c $(DEPS) directories
+	gcc -I./$(IDIR) -c -o $@ $<
 
-threadFunction.o: threadFunction.c threadFunction.h QUEUE.o process_info.o Auxiliares.o
-	gcc -Wall -g -c threadFunction.c
+par-shell: $(BUILD) directories
+	gcc $(BUILD) -o $(addprefix $(BDIR)/,$@) -lpthread
+
+directories: ${MKDIR}
+
+${MKDIR}:
+	mkdir ${MKDIR}
+
+.PHONY: clean
 
 clean:
-	rm -f *.o par-shell
-
+	rm -f -r $(ODIR) $(BDIR)

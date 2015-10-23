@@ -1,9 +1,7 @@
-# The makefile, the fibonacci and the par-shell executable#
+# The makefile, the executables folder and the object files folder#
 #################
-/Makefile
-/fibonacci
-/par-shell
-/somador
+bin/*
+build
 
 # All normal text files #
 #########################

@@ -30,12 +30,16 @@
  * @param arg is it's sole argument
  * Returns 0 if exited with no errors and -1 otherwise
  */
-void* monitorChildProcesses(void* p){
+void* monitorChildProcesses(){
 	int status;
 	pid_t child_pid;
 	
+	// monitor thread indefinately looking for children or for the exit command 
 	while(1){
+
 		pthread_mutex_lock(&numChildren_lock);	
+
+		// if there are active children processes wait for them to finish
 		if (numChildren > 0){
 			pthread_mutex_unlock(&numChildren_lock);
 			child_pid =	wait(&status);
@@ -43,39 +47,55 @@ void* monitorChildProcesses(void* p){
 			if (child_pid > 0){	// case the pid is valid 
 				pthread_mutex_lock(&queue_lock);
 				// get the process that finished from the queue
-				process_info process = (process_info) getSpecificQueue(processList, &child_pid, compareProcesses, 0);
+				process_info process = (process_info) 
+										getSpecificQueue(processList, 
+														 &child_pid, 
+														 compareProcesses, 
+														 0);
 
 				//checks for an error on finding the element
 				if (process == NULL){
-					fprintf(stderr, "An error occurred when searching for a process in the list. Process not found.\n");
+					fprintf(stderr, "An error occurred when searching for a "
+							"process in the list. Process not found.\n");
 					pthread_mutex_unlock(&queue_lock);
 					continue;
 				}
 				else{
+					// decrease the number of active children
 					pthread_mutex_lock(&numChildren_lock);
 					numChildren--;
 					pthread_mutex_unlock(&numChildren_lock);
-					setEndTime(process, time(NULL)); //Store the time the process terminated
 
-					if (WIFEXITED(status))	//if the process exited store its exit status
+					//Store the time the process terminated
+					setEndTime(process, time(NULL)); 
+
+					//if the process exited store its exit status
+					if (WIFEXITED(status))	
 						setExitStatus(process, WEXITSTATUS(status));	
 
-					else	// the process didn't correctly ended, so set an error in the end time
+					// the process didn't exit, so set an error in the end time
+					else	
 						setExitError(process);			
 				}
 				pthread_mutex_unlock(&queue_lock);
 			}
 			else{ 
-				if (errno == ECHILD){	//checks to see if the error that wait() return was because there were no child processes
+				//if the error was because there were no child processes
+				if (errno == ECHILD){
+					fprintf(stderr, "The child disappeared: %s\n", strerror(errno));	
 					exit(EXIT_FAILURE);
 				}
-				else{					//if not prints the error
-					fprintf(stderr, "An error occurred when wating for a process to exit. %s\n", strerror(errno));
+				//if not prints the error
+				else{					
+					fprintf(stderr, 
+							"An error occurred when wating for a process to exit. %s\n", 
+							strerror(errno));
 					
 					continue;
 				}
 			}
 		}
+		// check if the exit command was given
 		else if(!par_shell_on){
 			pthread_mutex_unlock(&numChildren_lock); 
 			break;
