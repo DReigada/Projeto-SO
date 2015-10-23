@@ -4,7 +4,7 @@
  *  
  *  Autores       - Daniel Reigada
  *   			  - Diogo Mesquita
- *                - Sebastião Araújo
+ *                - Sebastião Araújos
  */
 
 #define DEFINE_VARIABLES //indicate that we are defining the global variables
@@ -26,7 +26,6 @@
 #include <sys/types.h>
 
 // our own files
-#include "globalVariables.h"
 #include "commandlinereader.h"
 #include "process_info.h"
 #include "Auxiliares.h"
