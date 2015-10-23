@@ -30,12 +30,16 @@
  * @param arg is it's sole argument
  * Returns 0 if exited with no errors and -1 otherwise
  */
-void* monitorChildProcesses(void* p){
+void* monitorChildProcesses(){
 	int status;
 	pid_t child_pid;
 	
+	// monitor thread indefinately looking for children or for the exit command 
 	while(1){
+
 		pthread_mutex_lock(&numChildren_lock);	
+
+		// if there are active children processes wait for them to finish
 		if (numChildren > 0){
 			pthread_mutex_unlock(&numChildren_lock);
 			child_pid =	wait(&status);
@@ -57,6 +61,7 @@ void* monitorChildProcesses(void* p){
 					continue;
 				}
 				else{
+					// decrease the number of active children
 					pthread_mutex_lock(&numChildren_lock);
 					numChildren--;
 					pthread_mutex_unlock(&numChildren_lock);
@@ -76,7 +81,8 @@ void* monitorChildProcesses(void* p){
 			}
 			else{ 
 				//if the error was because there were no child processes
-				if (errno == ECHILD){	
+				if (errno == ECHILD){
+					fprintf(stderr, "The child disappeared: %s\n", strerror(errno));	
 					exit(EXIT_FAILURE);
 				}
 				//if not prints the error
@@ -89,6 +95,7 @@ void* monitorChildProcesses(void* p){
 				}
 			}
 		}
+		// check if the exit command was given
 		else if(!par_shell_on){
 			pthread_mutex_unlock(&numChildren_lock); 
 			break;
