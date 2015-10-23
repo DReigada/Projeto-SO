@@ -1,0 +1,1 @@
+./bin/par-shell < test/in1.txt

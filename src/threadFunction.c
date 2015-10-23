@@ -43,11 +43,16 @@ void* monitorChildProcesses(void* p){
 			if (child_pid > 0){	// case the pid is valid 
 				pthread_mutex_lock(&queue_lock);
 				// get the process that finished from the queue
-				process_info process = (process_info) getSpecificQueue(processList, &child_pid, compareProcesses, 0);
+				process_info process = (process_info) 
+										getSpecificQueue(processList, 
+														 &child_pid, 
+														 compareProcesses, 
+														 0);
 
 				//checks for an error on finding the element
 				if (process == NULL){
-					fprintf(stderr, "An error occurred when searching for a process in the list. Process not found.\n");
+					fprintf(stderr, "An error occurred when searching for a "
+							"process in the list. Process not found.\n");
 					pthread_mutex_unlock(&queue_lock);
 					continue;
 				}
@@ -55,22 +60,30 @@ void* monitorChildProcesses(void* p){
 					pthread_mutex_lock(&numChildren_lock);
 					numChildren--;
 					pthread_mutex_unlock(&numChildren_lock);
-					setEndTime(process, time(NULL)); //Store the time the process terminated
 
-					if (WIFEXITED(status))	//if the process exited store its exit status
+					//Store the time the process terminated
+					setEndTime(process, time(NULL)); 
+
+					//if the process exited store its exit status
+					if (WIFEXITED(status))	
 						setExitStatus(process, WEXITSTATUS(status));	
 
-					else	// the process didn't correctly ended, so set an error in the end time
+					// the process didn't exit, so set an error in the end time
+					else	
 						setExitError(process);			
 				}
 				pthread_mutex_unlock(&queue_lock);
 			}
 			else{ 
-				if (errno == ECHILD){	//checks to see if the error that wait() return was because there were no child processes
+				//if the error was because there were no child processes
+				if (errno == ECHILD){	
 					exit(EXIT_FAILURE);
 				}
-				else{					//if not prints the error
-					fprintf(stderr, "An error occurred when wating for a process to exit. %s\n", strerror(errno));
+				//if not prints the error
+				else{					
+					fprintf(stderr, 
+							"An error occurred when wating for a process to exit. %s\n", 
+							strerror(errno));
 					
 					continue;
 				}

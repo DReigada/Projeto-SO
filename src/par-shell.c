@@ -107,7 +107,7 @@ int main(int argc, char* argv[]){
 			// terminates thread and destroys the locks 
 			exitThread(&thread_id, mutex_list, N_MUTEXES);
 
-			// prints the final results, terminates the thread and frees the memory allocated
+			// prints final info, terminates thread and frees memory allocated
 			exitFree(argVector, processList, thread_id, 1);
 
 			// exit the shell with success
@@ -132,7 +132,8 @@ int main(int argc, char* argv[]){
 			if (execv(argVector[0], argVector) < 0){ // check for errors
 				//print error message
 				fprintf(stderr, 
-						"Error occurred when trying to open executable with the pathname: %s\n", 
+						"Error occurred when trying to open executable with the "
+						"pathname: %s\n", 
 						strerror(errno)); 
 
 				// free the allocated memory that was copied for the child process
@@ -146,7 +147,7 @@ int main(int argc, char* argv[]){
 		else{
 			process_info process = createProcessInfo(child_pid, time(NULL));
 
-			//add the created process to the list and increment the number of children
+			//add created process to the list and increment number of children
 			pthread_mutex_lock(&numChildren_lock);
 			pthread_mutex_lock(&queue_lock);
 
