@@ -20,11 +20,15 @@
 
 #include "QUEUE.h"
 
+// global variable to store the number of active children
+EXTERN int numChildren;
+
 // global list to store the processes
 EXTERN Queue processList;
 
 // global mutexes 
 EXTERN pthread_mutex_t queue_lock;
+EXTERN pthread_mutex_t numChildren_lock;
 
 //global semaphores
 EXTERN sem_t children_sem;  // indicates the number of active children in any given moment

@@ -47,13 +47,16 @@ void* monitorChildProcesses(){
 			exit(EXIT_FAILURE);
 		}
 
-		// if there are active children processes wait for them to finish
-		// check if the exit command was given
-		if(!par_shell_on){
+		// check if the exit command was given and there are no more children
+		pthread_mutex_lock(&numChildren_lock);
+		if(!par_shell_on && numChildren < 1){
+			pthread_mutex_unlock(&numChildren_lock);
 			break;
 		}
 
-		/* here we know there exists at least 1 active children process */
+		pthread_mutex_unlock(&numChildren_lock);
+
+		/* here we know there is at least 1 active children process */
 		child_pid =	wait(&status);
 
 		if (child_pid > 0){	// case the pid is valid 
@@ -73,6 +76,11 @@ void* monitorChildProcesses(){
 				continue;
 			}
 			else{
+				// decrease the number of active children
+				pthread_mutex_lock(&numChildren_lock);
+				numChildren--;
+				pthread_mutex_unlock(&numChildren_lock);
+
 				//Store the time the process terminated
 				setEndTime(process, time(NULL)); 
 

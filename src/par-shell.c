@@ -41,7 +41,7 @@
 #define MAX_N_INPUT 7 // the programs executed in the par-shell are limited to 
 					  // 5 input arguments (the last entry is always set to NULL)
 
-#define N_MUTEXES 1   // number of mutexes that will be needed
+#define N_MUTEXES 2   // number of mutexes that will be needed
 #define MAXPAR 10	  // maximum number of child processes in any given moment
 
 #define EXIT_COMMAND "exit"
@@ -53,6 +53,9 @@ int main(int argc, char* argv[]){
 		printf("Usage: par-shell\n");
 		exit(EXIT_FAILURE);
 	}
+
+	// set number of children to 0
+	numChildren = 0;
 
 	// set the par_shell to being on
 	par_shell_on = TRUE;
@@ -69,7 +72,7 @@ int main(int argc, char* argv[]){
 	}
 
 	// init the locks and the thread
-	pthread_mutex_t* mutex_list[N_MUTEXES] = {&queue_lock};
+	pthread_mutex_t* mutex_list[N_MUTEXES] = {&queue_lock, &numChildren_lock};
 
 	initThread(&thread_id, &monitorChildProcesses, mutex_list, N_MUTEXES);
 
@@ -167,10 +170,15 @@ int main(int argc, char* argv[]){
 		else{
 			process_info process = createProcessInfo(child_pid, time(NULL));
 
-			//add created process to the list 
+			//add created process to the list and increment number of children
+			pthread_mutex_lock(&numChildren_lock);
 			pthread_mutex_lock(&queue_lock);
+
+			numChildren++;
 			addQueue(process, processList);
+
 			pthread_mutex_unlock(&queue_lock);
+			pthread_mutex_unlock(&numChildren_lock);
 
 			// allow monitor thread to do its job with the child process
 			if ((sem_err = sem_post(&children_sem)) == -1){
