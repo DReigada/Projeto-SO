@@ -6,7 +6,6 @@
  *   			  - Diogo Mesquita
  *                - Sebastião Araújo
  */
-
 #define DEFINE_VARIABLES //indicate that we are defining the global variables
 
 // shared variables and the monitor function
@@ -19,6 +18,8 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
+#include <pthread.h>
+#include <semaphore.h>
 
 // related to the system calls functions
 #include <sys/wait.h>
@@ -40,7 +41,8 @@
 #define MAX_N_INPUT 7 // the programs executed in the par-shell are limited to 
 					  // 5 input arguments (the last entry is always set to NULL)
 
-#define N_MUTEXES 2   // number of mutexes that will be needed
+#define N_MUTEXES 1   // number of mutexes that will be needed
+#define MAXPAR 10	  // maximum number of child processes in any given moment
 
 #define EXIT_COMMAND "exit"
 
@@ -52,18 +54,23 @@ int main(int argc, char* argv[]){
 		exit(EXIT_FAILURE);
 	}
 
-	// set number of children to 0
-	numChildren = 0;
-
 	// set the par_shell to being on
 	par_shell_on = TRUE;
 
 	// declare variable to store the thread id
 	pthread_t thread_id;
 
+	// init semaphore for the number of active child processes - shared with the thread
+	int sem_err;
+	if ((sem_err = sem_init(&children_sem, 0, 0)) == -1){
+		fprintf(stderr, "Error initializing the children semaphore: %s\n", 
+				strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
 	// init the locks and the thread
-	pthread_mutex_t* mutex_list[N_MUTEXES] = {&queue_lock,
-											  &numChildren_lock};
+	pthread_mutex_t* mutex_list[N_MUTEXES] = {&queue_lock};
+
 	initThread(&thread_id, &monitorChildProcesses, mutex_list, N_MUTEXES);
 
 	// allocates the memory for the command that the user inputs
@@ -99,10 +106,26 @@ int main(int argc, char* argv[]){
 			printf("Waiting for all the processes to terminate\n");
 
 			// gives indication to the thread to terminate
-			par_shell_on = FALSE;
+			par_shell_on = FALSE;	
+
+			// allow monitor thread to unlock from waiting for child and exit
+			if ((sem_err = sem_post(&children_sem)) == -1){
+				fprintf(stderr, 
+						"Error freeing 1 resource of the children semaphore: %s\n", 
+						strerror(errno));
+				exit(EXIT_FAILURE);
+			}
 
 			// terminates thread and destroys the locks 
 			exitThread(&thread_id, mutex_list, N_MUTEXES);
+
+			// destroy the semaphores
+			if ((sem_err = sem_destroy(&children_sem)) == -1){
+				fprintf(stderr, 
+						"Error destroying the children semaphore: %s\n", 
+						strerror(errno));
+				exit(EXIT_FAILURE);
+			}
 
 			// prints final info, terminates thread and frees memory allocated
 			exitFree(argVector, processList, thread_id, 1);
@@ -144,15 +167,18 @@ int main(int argc, char* argv[]){
 		else{
 			process_info process = createProcessInfo(child_pid, time(NULL));
 
-			//add created process to the list and increment number of children
-			pthread_mutex_lock(&numChildren_lock);
+			//add created process to the list 
 			pthread_mutex_lock(&queue_lock);
-
-			numChildren++;
 			addQueue(process, processList);
-
 			pthread_mutex_unlock(&queue_lock);
-			pthread_mutex_unlock(&numChildren_lock);
+
+			// allow monitor thread to do its job with the child process
+			if ((sem_err = sem_post(&children_sem)) == -1){
+				fprintf(stderr, 
+						"Error freeing 1 resource of the children semaphore: %s\n", 
+						strerror(errno));
+				exit(EXIT_FAILURE);
+			}
 
 			//free the memory allocated to store new commands
 			free(argVector[0]);
