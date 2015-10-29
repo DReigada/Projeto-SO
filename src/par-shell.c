@@ -99,54 +99,27 @@ int main(int argc, char* argv[]){
 			continue;
 		}
 
-		/* see what command the user typed */
-
 		// exit command
 		if (strcmp(argVector[0], EXIT_COMMAND) == 0){
-
 			printf("Waiting for all the processes to terminate\n");
-
-			// gives indication to the thread to terminate
-			par_shell_on = FALSE;	
-
-			// allow monitor thread to unlock from waiting for child and exit
-			xsem_post(&children_sem);
-
-			// terminates thread and destroys the locks 
-			exitThread(&thread_id, mutex_list, N_MUTEXES);
-
-			// destroy the semaphores
-			xsem_destroy(&children_sem);
-			xsem_destroy(&maxChildren_sem);
-
-			// prints final info, terminates thread and frees memory allocated
-			exitFree(argVector, processList, thread_id, 1);
-
-			// exit the shell with success
-			exit(EXIT_SUCCESS);
+			break;
 		}
 
 		/* else we assume it was given a path to a program to execute */
 
-		// wait if the max number of child processes was reached
-		xsem_wait(&maxChildren_sem);
+		xsem_wait(&maxChildren_sem); // wait if the limit of childs was reached
 
-		pid_t child_pid = fork();
-
-		// check for errors in the creation of a new process
-		if (child_pid == -1){
+		pid_t child_pid = fork();    // create a new child process
+		if (child_pid == -1){        // check for errors
 			fprintf(stderr, 
 					"Error occurred when creating a new process: %s\n", 
 					strerror(errno));
 			continue;
 		}
-
-		// child executes this
-		if (child_pid == 0){
+		if (child_pid == 0){ 		 // child executes this
 
 			// Change the process image to the program given by the user 
 			if (execv(argVector[0], argVector) < 0){ // check for errors
-				//print error message
 				fprintf(stderr, 
 						"Error occurred when trying to open executable with the "
 						"pathname: %s\n", 
@@ -154,7 +127,7 @@ int main(int argc, char* argv[]){
 
 				// free the allocated memory that was copied for the child process
 				exitFree(argVector, processList, thread_id, 0);
-
+				
 				exit(EXIT_FAILURE); //exits
 			}
 		}
@@ -180,6 +153,27 @@ int main(int argc, char* argv[]){
 			free(argVector[0]);
 		}
 	}
+
+	/* exit command was given */ 
+
+	// gives indication to the thread to terminate
+	par_shell_on = FALSE;	
+
+	// allow monitor thread to unlock from waiting for child and exit
+	xsem_post(&children_sem);
+
+	// terminates thread and destroys the locks 
+	exitThread(&thread_id, mutex_list, N_MUTEXES);
+
+	// destroy the semaphores
+	xsem_destroy(&children_sem);
+	xsem_destroy(&maxChildren_sem);
+
+	// prints final info, terminates thread and frees memory allocated
+	exitFree(argVector, processList, thread_id, 1);
+
+	// exit the shell with success
+	exit(EXIT_SUCCESS);
 }
 
 
