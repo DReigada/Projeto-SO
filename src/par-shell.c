@@ -56,7 +56,7 @@ int main(int argc, char* argv[]){
 
 	// init semaphore for maximum number of child processes in one given moment
 	int sem_err;
-	if ((sem_err = sem_init(&maxChildren_sem, 0, 0)) == -1){
+	if ((sem_err = sem_init(&maxChildren_sem, 0, MAXPAR)) == -1){
 		fprintf(stderr, "Error initializing the max number of children semaphore: %s\n", 
 				strerror(errno));
 		exit(EXIT_FAILURE);
