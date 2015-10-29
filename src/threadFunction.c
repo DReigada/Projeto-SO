@@ -96,7 +96,7 @@ void* monitorChildProcesses(){
 			fprintf(stderr, 
 					"An error occurred when wating for a process to exit. %s\n", 
 					strerror(errno));
-			continue;
+			exit(EXIT_FAILURE);
 		}
 	}
 	pthread_exit(NULL);
