@@ -56,6 +56,7 @@ void* monitorChildProcesses(){
 
 		if (child_pid > 0){	// case the pid is valid 
 			mutex_lock(&queue_lock);
+
 			// get the process that finished from the queue
 			process_info process = (process_info) 
 									getSpecificQueue(processList, 
@@ -91,20 +92,11 @@ void* monitorChildProcesses(){
 					setExitError(process);			
 			}
 		}
-		else{ 
-			//if the error was because there were no child processes
-			if (errno == ECHILD){
-				fprintf(stderr, "The child disappeared: %s\n", strerror(errno));	
-				exit(EXIT_FAILURE);
-			}
-			//if not, prints the error
-			else{					
-				fprintf(stderr, 
-						"An error occurred when wating for a process to exit. %s\n", 
-						strerror(errno));
-				
-				continue;
-			}
+		else{   // gets the error  
+			fprintf(stderr, 
+					"An error occurred when wating for a process to exit. %s\n", 
+					strerror(errno));
+			continue;
 		}
 	}
 	pthread_exit(NULL);

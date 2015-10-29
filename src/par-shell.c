@@ -117,7 +117,6 @@ int main(int argc, char* argv[]){
 
 			// destroy the semaphores
 			xsem_destroy(&children_sem);
-
 			xsem_destroy(&maxChildren_sem);
 
 			// prints final info, terminates thread and frees memory allocated
