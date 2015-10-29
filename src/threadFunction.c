@@ -80,16 +80,8 @@ void* monitorChildProcesses(){
 				// allow par-shell to create more processes
 				xsem_post(&maxChildren_sem);
 
-				//Store the time the process terminated
-				setEndTime(process, time(NULL)); 
-
-				//if the process exited store its exit status
-				if (WIFEXITED(status))	
-					setExitStatus(process, WEXITSTATUS(status));	
-
-				// the process didn't exit, so set an error in the end time
-				else	
-					setExitError(process);			
+				// store the necessary info
+				updateTerminatedProcess(process, time(NULL), status);		
 			}
 		}
 		else{   // gets the error  

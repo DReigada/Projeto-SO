@@ -6,6 +6,7 @@
 #include "QUEUE.h"
 #include <pthread.h>
 #include <semaphore.h>
+#include <process_info.h>
 
 /**
  * Uses the same input as malloc, and has the same output, with the only 
@@ -88,6 +89,14 @@ void initThread (pthread_t* thread_id,
  * mutex_id_list is a list of length n_mutexes of pointers to the mutexes' ids.
  */
 void exitThread (pthread_t* thread_id, pthread_mutex_t* mutex_id_list[], int n_mutexes);
+
+/**
+ * Updates everything needed once a process terminates.
+ *
+ * Needs as inputs the process, it's end time and the status with which ti ended.
+ * It doesn't return anything.
+ */
+void updateTerminatedProcess (process_info process, time_t end_time, int status);
 
 /**
  * Auxiliary function that determines if two processes are the same.

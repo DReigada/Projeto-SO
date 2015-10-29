@@ -131,9 +131,7 @@ int main(int argc, char* argv[]){
 				exit(EXIT_FAILURE); //exits
 			}
 		}
-
-		// parent executes this
-		else{
+		else{		// parent executes this
 			process_info process = createProcessInfo(child_pid, time(NULL));
 
 			//add created process to the list and increment number of children
@@ -153,7 +151,6 @@ int main(int argc, char* argv[]){
 			free(argVector[0]);
 		}
 	}
-
 	/* exit command was given */ 
 
 	// gives indication to the thread to terminate
