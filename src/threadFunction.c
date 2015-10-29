@@ -107,5 +107,5 @@ void* monitorChildProcesses(){
 			}
 		}
 	}
-	return NULL;
+	pthread_exit(NULL);
 }
