@@ -40,7 +40,7 @@ void* monitorChildProcesses(){
 	while(1){	
 
 		// wait for a child process to be created or the exit command 
-		if ((sem_err = sem_wait(&children_sem)) == -1){
+		if ((sem_err = sem_wait(children_sem)) == -1){
 			fprintf(stderr, 
 					"Error waiting for the children semaphore: %s\n", 
 					strerror(errno));
@@ -48,26 +48,26 @@ void* monitorChildProcesses(){
 		}
 
 		// check if the exit command was given and there are no more children
-		pthread_mutex_lock(&numChildren_lock);
+		pthread_mutex_lock(numChildren_lock);
 		if(!par_shell_on && numChildren < 1){
-			pthread_mutex_unlock(&numChildren_lock);
+			pthread_mutex_unlock(numChildren_lock);
 			break;
 		}
 
-		pthread_mutex_unlock(&numChildren_lock);
+		pthread_mutex_unlock(numChildren_lock);
 
 		/* here we know there is at least 1 active children process */
 		child_pid =	wait(&status);
 
 		if (child_pid > 0){	// case the pid is valid 
-			pthread_mutex_lock(&queue_lock);
+			pthread_mutex_lock(queue_lock);
 			// get the process that finished from the queue
 			process_info process = (process_info) 
 									getSpecificQueue(processList, 
 													 &child_pid, 
 													 compareProcesses, 
 													 0);
-			pthread_mutex_unlock(&queue_lock);
+			pthread_mutex_unlock(queue_lock);
 
 			//checks for an error on finding the element
 			if (process == NULL){
@@ -77,12 +77,12 @@ void* monitorChildProcesses(){
 			}
 			else{
 				// decrease the number of active children
-				pthread_mutex_lock(&numChildren_lock);
+				pthread_mutex_lock(numChildren_lock);
 				numChildren--;
-				pthread_mutex_unlock(&numChildren_lock);
+				pthread_mutex_unlock(numChildren_lock);
 
 				// allow par-shell to create more processes
-				if ((sem_err = sem_post(&maxChildren_sem)) == -1){
+				if ((sem_err = sem_post(maxChildren_sem)) == -1){
 					fprintf(stderr, 
 							"Error freeing 1 resource of the max number of " 
 							"children semaphore: %s\n", 

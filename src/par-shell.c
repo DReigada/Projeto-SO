@@ -56,7 +56,7 @@ int main(int argc, char* argv[]){
 
 	// init semaphore for maximum number of child processes in one given moment
 	int sem_err;
-	if ((sem_err = sem_init(&maxChildren_sem, 0, MAXPAR)) == -1){
+	if ((sem_err = sem_init(maxChildren_sem, 0, MAXPAR)) == -1){
 		fprintf(stderr, "Error initializing the max number of children semaphore: %s\n", 
 				strerror(errno));
 		exit(EXIT_FAILURE);
@@ -72,14 +72,14 @@ int main(int argc, char* argv[]){
 	pthread_t thread_id;
 
 	// init semaphore to indicate active child processes - shared with the thread
-	if ((sem_err = sem_init(&children_sem, 0, 0)) == -1){
+	if ((sem_err = sem_init(children_sem, 0, 0)) == -1){
 		fprintf(stderr, "Error initializing the children semaphore: %s\n", 
 				strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
 	// init the locks and the thread
-	pthread_mutex_t* mutex_list[N_MUTEXES] = {&queue_lock, &numChildren_lock};
+	pthread_mutex_t* mutex_list[N_MUTEXES] = {queue_lock, numChildren_lock};
 
 	initThread(&thread_id, &monitorChildProcesses, mutex_list, N_MUTEXES);
 
@@ -119,7 +119,7 @@ int main(int argc, char* argv[]){
 			par_shell_on = FALSE;	
 
 			// allow monitor thread to unlock from waiting for child and exit
-			if ((sem_err = sem_post(&children_sem)) == -1){
+			if ((sem_err = sem_post(children_sem)) == -1){
 				fprintf(stderr, 
 						"Error freeing 1 resource of the children semaphore: %s\n", 
 						strerror(errno));
@@ -130,14 +130,14 @@ int main(int argc, char* argv[]){
 			exitThread(&thread_id, mutex_list, N_MUTEXES);
 
 			// destroy the semaphores
-			if ((sem_err = sem_destroy(&children_sem)) == -1){
+			if ((sem_err = sem_destroy(children_sem)) == -1){
 				fprintf(stderr, 
 						"Error destroying the children semaphore: %s\n", 
 						strerror(errno));
 				exit(EXIT_FAILURE);
 			}
 
-			if ((sem_err = sem_destroy(&maxChildren_sem)) == -1){
+			if ((sem_err = sem_destroy(maxChildren_sem)) == -1){
 				fprintf(stderr, 
 						"Error destroying the max number of children semaphore: %s\n", 
 						strerror(errno));
@@ -154,7 +154,7 @@ int main(int argc, char* argv[]){
 		/* else we assume it was given a path to a program to execute */
 
 		// wait if the max number of child processes was reached
-		if ((sem_err = sem_wait(&maxChildren_sem)) == -1){
+		if ((sem_err = sem_wait(maxChildren_sem)) == -1){
 			fprintf(stderr, 
 					"Error waiting for the max number of children semaphore: %s\n", 
 					strerror(errno));
@@ -194,17 +194,17 @@ int main(int argc, char* argv[]){
 			process_info process = createProcessInfo(child_pid, time(NULL));
 
 			//add created process to the list and increment number of children
-			pthread_mutex_lock(&numChildren_lock);
-			pthread_mutex_lock(&queue_lock);
+			pthread_mutex_lock(numChildren_lock);
+			pthread_mutex_lock(queue_lock);
 
 			numChildren++;
 			addQueue(process, processList);
 
-			pthread_mutex_unlock(&queue_lock);
-			pthread_mutex_unlock(&numChildren_lock);
+			pthread_mutex_unlock(queue_lock);
+			pthread_mutex_unlock(numChildren_lock);
 
 			// allow monitor thread to do its job with the child process
-			if ((sem_err = sem_post(&children_sem)) == -1){
+			if ((sem_err = sem_post(children_sem)) == -1){
 				fprintf(stderr, 
 						"Error freeing 1 resource of the children semaphore: %s\n", 
 						strerror(errno));
