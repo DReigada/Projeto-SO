@@ -40,29 +40,29 @@ void* monitorChildProcesses(){
 	while(1){	
 
 		// wait for a child process to be created or the exit command 
-		xsem_wait(children_sem);
+		xsem_wait(&children_sem);
 
 		// check if the exit command was given and there are no more children
-		mutex_lock(numChildren_lock);
+		mutex_lock(&numChildren_lock);
 		if(!par_shell_on && numChildren < 1){
-			mutex_unlock(numChildren_lock);
+			mutex_unlock(&numChildren_lock);
 			break;
 		}
 
-		mutex_unlock(numChildren_lock);
+		mutex_unlock(&numChildren_lock);
 
 		/* here we know there is at least 1 active children process */
 		child_pid =	wait(&status);
 
 		if (child_pid > 0){	// case the pid is valid 
-			mutex_lock(queue_lock);
+			mutex_lock(&queue_lock);
 			// get the process that finished from the queue
 			process_info process = (process_info) 
 									getSpecificQueue(processList, 
 													 &child_pid, 
 													 compareProcesses, 
 													 0);
-			mutex_unlock(queue_lock);
+			mutex_unlock(&queue_lock);
 
 			//checks for an error on finding the element
 			if (process == NULL){
@@ -72,12 +72,12 @@ void* monitorChildProcesses(){
 			}
 			else{
 				// decrease the number of active children
-				mutex_lock(numChildren_lock);
+				mutex_lock(&numChildren_lock);
 				numChildren--;
-				mutex_unlock(numChildren_lock);
+				mutex_unlock(&numChildren_lock);
 
 				// allow par-shell to create more processes
-				xsem_post(maxChildren_sem);
+				xsem_post(&maxChildren_sem);
 
 				//Store the time the process terminated
 				setEndTime(process, time(NULL)); 

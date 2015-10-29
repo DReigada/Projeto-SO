@@ -55,7 +55,7 @@ int main(int argc, char* argv[]){
 	}
 
 	// init semaphore for maximum number of child processes in one given moment
-	xsem_init(maxChildren_sem, 0, MAXPAR);
+	xsem_init(&maxChildren_sem, 0, MAXPAR);
 
 	// set number of children to 0
 	numChildren = 0;
@@ -67,10 +67,10 @@ int main(int argc, char* argv[]){
 	pthread_t thread_id;
 
 	// init semaphore to indicate active child processes - shared with the thread
-	xsem_init(children_sem, 0, 0);
+	xsem_init(&children_sem, 0, 0);
 
 	// init the locks and the thread
-	pthread_mutex_t* mutex_list[N_MUTEXES] = {queue_lock, numChildren_lock};
+	pthread_mutex_t* mutex_list[N_MUTEXES] = {&queue_lock, &numChildren_lock};
 
 	initThread(&thread_id, &monitorChildProcesses, mutex_list, N_MUTEXES);
 
@@ -110,15 +110,15 @@ int main(int argc, char* argv[]){
 			par_shell_on = FALSE;	
 
 			// allow monitor thread to unlock from waiting for child and exit
-			xsem_post(children_sem);
+			xsem_post(&children_sem);
 
 			// terminates thread and destroys the locks 
 			exitThread(&thread_id, mutex_list, N_MUTEXES);
 
 			// destroy the semaphores
-			xsem_destroy(children_sem);
+			xsem_destroy(&children_sem);
 
-			xsem_destroy(maxChildren_sem);
+			xsem_destroy(&maxChildren_sem);
 
 			// prints final info, terminates thread and frees memory allocated
 			exitFree(argVector, processList, thread_id, 1);
@@ -130,7 +130,7 @@ int main(int argc, char* argv[]){
 		/* else we assume it was given a path to a program to execute */
 
 		// wait if the max number of child processes was reached
-		xsem_wait(maxChildren_sem);
+		xsem_wait(&maxChildren_sem);
 
 		pid_t child_pid = fork();
 
@@ -165,17 +165,17 @@ int main(int argc, char* argv[]){
 			process_info process = createProcessInfo(child_pid, time(NULL));
 
 			//add created process to the list and increment number of children
-			mutex_lock(numChildren_lock);
-			mutex_lock(queue_lock);
+			mutex_lock(&numChildren_lock);
+			mutex_lock(&queue_lock);
 
 			numChildren++;
 			addQueue(process, processList);
 
-			mutex_unlock(queue_lock);
-			mutex_unlock(numChildren_lock);
+			mutex_unlock(&queue_lock);
+			mutex_unlock(&numChildren_lock);
 
 			// allow monitor thread to do its job with the child process
-			xsem_post(children_sem);
+			xsem_post(&children_sem);
 
 			//free the memory allocated to store new commands
 			free(argVector[0]);
