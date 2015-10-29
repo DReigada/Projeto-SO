@@ -194,14 +194,14 @@ int main(int argc, char* argv[]){
 			process_info process = createProcessInfo(child_pid, time(NULL));
 
 			//add created process to the list and increment number of children
-			pthread_mutex_lock(numChildren_lock);
-			pthread_mutex_lock(queue_lock);
+			mutex_lock(numChildren_lock);
+			mutex_lock(queue_lock);
 
 			numChildren++;
 			addQueue(process, processList);
 
-			pthread_mutex_unlock(queue_lock);
-			pthread_mutex_unlock(numChildren_lock);
+			mutex_unlock(queue_lock);
+			mutex_unlock(numChildren_lock);
 
 			// allow monitor thread to do its job with the child process
 			if ((sem_err = sem_post(children_sem)) == -1){

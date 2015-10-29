@@ -14,6 +14,20 @@
 void* xmalloc(unsigned siz);
 
 /**
+ * Uses the same input as pthread_mutex_lock (and no output), with the only 
+ * difference being that it stops execution if some error occurred when
+ * calling pthread_mutex_lock.
+ */
+void mutex_lock(pthread_mutex_t* lock);
+
+/**
+ * Uses the same input as pthread_mutex_unlock (and no output), with the only 
+ * difference being that it stops execution if some error occurred when
+ * calling pthread_mutex_unlock.
+ */
+void mutex_unlock(pthread_mutex_t* lock);
+
+/**
  * Frees the memory allocated for the queue, the string 
  * in argVector and the argVector itself. 
  *

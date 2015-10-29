@@ -9,14 +9,43 @@
  * difference being that it stops execution if some error occurred when
  * calling malloc.
  */
-  void* xmalloc (unsigned siz){
+void* xmalloc (unsigned siz){
     void* mem = malloc(siz); /* allocate the needed memory */
 
-	 if (mem == NULL){ fprintf(stderr, "No memory in line %d of file \"%s\".\n",
-	   	 __LINE__, __FILE__); exit(2);} /* check for errors in allocating memory */
+	if (mem == NULL){    /* check for errors in allocating memory */
+		fprintf(stderr, "No memory in line %d of file \"%s\".\n",
+   		__LINE__, __FILE__); exit(2);} 
 
-		  return mem;
-  }
+	return mem;
+}
+
+/**
+ * Uses the same input as pthread_mutex_lock (and no output), with the only 
+ * difference being that it stops execution if some error occurred when
+ * calling pthread_mutex_lock.
+ */
+void mutex_lock(pthread_mutex_t* lock){
+	int err;
+
+	if ((err = pthread_mutex_lock(lock)) != 0){
+		fprintf(stderr, "Error locking the mutex: %s\n", strerror(err));
+		exit(EXIT_FAILURE);
+	}
+}
+
+/**
+ * Uses the same input as pthread_mutex_unlock (and no output), with the only 
+ * difference being that it stops execution if some error occurred when
+ * calling pthread_mutex_unlock.
+ */
+void mutex_unlock(pthread_mutex_t* lock){
+	int err;
+
+	if ((err = pthread_mutex_unlock(lock)) != 0){
+		fprintf(stderr, "Error unlocking the mutex: %s\n", strerror(err));
+		exit(EXIT_FAILURE);
+	}
+}
 
 /**
  * Frees the memory allocated for the queue, the string 
