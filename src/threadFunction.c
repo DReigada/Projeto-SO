@@ -81,6 +81,15 @@ void* monitorChildProcesses(){
 				numChildren--;
 				pthread_mutex_unlock(&numChildren_lock);
 
+				// allow par-shell to create more processes
+				if ((sem_err = sem_post(&maxChildren_sem)) == -1){
+					fprintf(stderr, 
+							"Error freeing 1 resource of the max number of " 
+							"children semaphore: %s\n", 
+							strerror(errno));
+					exit(EXIT_FAILURE);
+				}
+
 				//Store the time the process terminated
 				setEndTime(process, time(NULL)); 
 

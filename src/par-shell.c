@@ -54,6 +54,14 @@ int main(int argc, char* argv[]){
 		exit(EXIT_FAILURE);
 	}
 
+	// init semaphore for maximum number of child processes in one given moment
+	int sem_err;
+	if ((sem_err = sem_init(&maxChildren_sem, 0, 0)) == -1){
+		fprintf(stderr, "Error initializing the max number of children semaphore: %s\n", 
+				strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
 	// set number of children to 0
 	numChildren = 0;
 
@@ -63,8 +71,7 @@ int main(int argc, char* argv[]){
 	// declare variable to store the thread id
 	pthread_t thread_id;
 
-	// init semaphore for the number of active child processes - shared with the thread
-	int sem_err;
+	// init semaphore to indicate active child processes - shared with the thread
 	if ((sem_err = sem_init(&children_sem, 0, 0)) == -1){
 		fprintf(stderr, "Error initializing the children semaphore: %s\n", 
 				strerror(errno));
@@ -130,6 +137,13 @@ int main(int argc, char* argv[]){
 				exit(EXIT_FAILURE);
 			}
 
+			if ((sem_err = sem_destroy(&maxChildren_sem)) == -1){
+				fprintf(stderr, 
+						"Error destroying the max number of children semaphore: %s\n", 
+						strerror(errno));
+				exit(EXIT_FAILURE);
+			}
+
 			// prints final info, terminates thread and frees memory allocated
 			exitFree(argVector, processList, thread_id, 1);
 
@@ -137,7 +151,16 @@ int main(int argc, char* argv[]){
 			exit(EXIT_SUCCESS);
 		}
 
-		// else we assume it was given a path to a program to execute
+		/* else we assume it was given a path to a program to execute */
+
+		// wait if the max number of child processes was reached
+		if ((sem_err = sem_wait(&maxChildren_sem)) == -1){
+			fprintf(stderr, 
+					"Error waiting for the max number of children semaphore: %s\n", 
+					strerror(errno));
+			exit(EXIT_FAILURE);
+		}
+
 		pid_t child_pid = fork();
 
 		// check for errors in the creation of a new process
