@@ -3,6 +3,7 @@
 #include "process_info.h"
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 /**
  * Uses the same input as malloc, and has the same output, with the only 
@@ -43,6 +44,70 @@ void mutex_unlock(pthread_mutex_t* lock){
 
 	if ((err = pthread_mutex_unlock(lock)) != 0){
 		fprintf(stderr, "Error unlocking the mutex: %s\n", strerror(err));
+		exit(EXIT_FAILURE);
+	}
+}
+
+/**
+ * Uses the same input as sem_init (and no output), with the only 
+ * difference being that it stops execution if some error occurred when
+ * calling sem_init.
+ */
+void xsem_init(sem_t* sem, int pshared, unsigned int value){
+	int err;
+
+	if ((err = sem_init(sem, 0, value)) == -1){
+		fprintf(stderr, "Error initializing the semaphore: %s\n", 
+				strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+}
+
+/**
+ * Uses the same input as sem_destroy (and no output), with the only 
+ * difference being that it stops execution if some error occurred when
+ * calling sem_destroy.
+ */
+void xsem_destroy(sem_t* sem){
+	int err;
+
+	if ((err = sem_destroy(sem)) == -1){
+		fprintf(stderr, 
+				"Error destroying the semaphore: %s\n", 
+				strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+}
+
+
+/**
+ * Uses the same input as sem_wait (and no output), with the only 
+ * difference being that it stops execution if some error occurred when
+ * calling sem_wait.
+ */
+void xsem_wait(sem_t* sem){
+	int err;
+
+	if ((err = sem_wait(sem)) == -1){
+		fprintf(stderr, 
+				"Error waiting for the semaphore: %s\n", 
+				strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+}
+
+/**
+ * Uses the same input as sem_post (and no output), with the only 
+ * difference being that it stops execution if some error occurred when
+ * calling sem_post.
+ */
+void xsem_post(sem_t* sem){
+	int err;
+
+	if ((err = sem_post(sem)) == -1){
+		fprintf(stderr, 
+				"Error freeing 1 resource of the children semaphore: %s\n", 
+				strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 }

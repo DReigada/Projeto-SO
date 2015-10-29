@@ -40,12 +40,7 @@ void* monitorChildProcesses(){
 	while(1){	
 
 		// wait for a child process to be created or the exit command 
-		if ((sem_err = sem_wait(children_sem)) == -1){
-			fprintf(stderr, 
-					"Error waiting for the children semaphore: %s\n", 
-					strerror(errno));
-			exit(EXIT_FAILURE);
-		}
+		xsem_wait(children_sem);
 
 		// check if the exit command was given and there are no more children
 		mutex_lock(numChildren_lock);
@@ -82,13 +77,7 @@ void* monitorChildProcesses(){
 				mutex_unlock(numChildren_lock);
 
 				// allow par-shell to create more processes
-				if ((sem_err = sem_post(maxChildren_sem)) == -1){
-					fprintf(stderr, 
-							"Error freeing 1 resource of the max number of " 
-							"children semaphore: %s\n", 
-							strerror(errno));
-					exit(EXIT_FAILURE);
-				}
+				xsem_post(maxChildren_sem);
 
 				//Store the time the process terminated
 				setEndTime(process, time(NULL)); 
