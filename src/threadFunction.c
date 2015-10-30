@@ -25,17 +25,14 @@
 #define ONE_SECOND 1 
 
 /**
- * Monitors the active children processes. Waits for them to finish and
- * when they have it terminates them and sets their end time
- * 
- * @param arg is it's sole argument
- * Returns 0 if exited with no errors and -1 otherwise
+ * Monitors the active children processes. Waits for them to finish and,
+ * when they have, terminates them and sets their end time
  */
 void* monitorChildProcesses(){
 	int status;
 	pid_t child_pid;
 	
-	// monitor thread indefinately looking for children or for the exit command 
+	// indefinitely looking for children or for the exit command 
 	while(1){	
 
 		// wait for a child process to be created or the exit command 
@@ -51,9 +48,11 @@ void* monitorChildProcesses(){
 		mutex_unlock(&numChildren_lock);
 
 		/* here we know there is at least 1 active children process */
+
+		// wait for it to finish
 		child_pid =	wait(&status);
 
-		if (child_pid > 0){	// case the pid is valid 
+		if (child_pid > 0){	// case the childs pid is valid 
 			mutex_lock(&queue_lock);
 
 			// get the process that finished from the queue
@@ -64,7 +63,7 @@ void* monitorChildProcesses(){
 													 0);
 			mutex_unlock(&queue_lock);
 
-			//checks for an error on finding the element
+			// check for an error on finding the element
 			if (process == NULL){
 				fprintf(stderr, "An error occurred when searching for a "
 						"process in the list. Process not found.\n");

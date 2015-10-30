@@ -1,6 +1,6 @@
 /**
- *  Projeto de SO - entrega 2
- *  data          - 22.10.15
+ *  Projeto de SO - entrega 3
+ *  data          - 30.10.15
  *  
  *  Autores       - Daniel Reigada
  *   			  - Diogo Mesquita
@@ -33,16 +33,15 @@
 
 // Constants
 #define NARGS 1 // number of arguments of the par-shell program 
+#define MAX_N_INPUT 7  // the programs executed in the par-shell are limited to 
+					   // 5 input arguments (the last entry is always set to NULL)
+
+#define N_MUTEXES 2  // number of mutexes that will be needed
+#define MAXPAR 4	 // maximum number of child processes in any given moment
 
 // boolean values 
 #define TRUE 1 
 #define FALSE 0
-
-#define MAX_N_INPUT 7 // the programs executed in the par-shell are limited to 
-					  // 5 input arguments (the last entry is always set to NULL)
-
-#define N_MUTEXES 2   // number of mutexes that will be needed
-#define MAXPAR 4	  // maximum number of child processes in any given moment
 
 #define EXIT_COMMAND "exit"
 
@@ -89,17 +88,17 @@ int main(int argc, char* argv[]){
 		// read the user input
 		narg = readLineArguments(argVector, MAX_N_INPUT);
 
-		// checks for errors reading the input and reads again if there were
+		// check for errors reading the input and read again if there were any
 		if (narg == -1){
 			fprintf(stderr, "Some error occurred reading the user's input.\n");
 			continue;
 		}
-		else if (narg == 0){ //in case no command was inputted
+		else if (narg == 0){ // in case no command was inserted
 			fprintf(stdout, "Please input a valid command\n");
 			continue;
 		}
 
-		// exit command
+		// case the command is exit
 		if (strcmp(argVector[0], EXIT_COMMAND) == 0){
 			printf("Waiting for all the processes to terminate\n");
 			break;
@@ -121,12 +120,14 @@ int main(int argc, char* argv[]){
 			// Change the process image to the program given by the user 
 			if (execv(argVector[0], argVector) < 0){ // check for errors
 				fprintf(stderr, 
-						"Error occurred when trying to open executable with the "
-						"pathname: %s\n", 
+						"Error occurred when trying to open the executable with "
+						"the pathname: %s\n", 
 						strerror(errno)); 
 
+				// case there was an error calling execv
+
 				// free the allocated memory that was copied for the child process
-				exitFree(argVector, processList, thread_id, 0);
+				exitFree(argVector, processList, 0);
 				
 				exit(EXIT_FAILURE); //exits
 			}
@@ -134,7 +135,7 @@ int main(int argc, char* argv[]){
 		else{		// parent executes this
 			process_info process = createProcessInfo(child_pid, time(NULL));
 
-			//add created process to the list and increment number of children
+			// add created process to the list and increment number of children
 			mutex_lock(&numChildren_lock);
 			mutex_lock(&queue_lock);
 
@@ -144,7 +145,7 @@ int main(int argc, char* argv[]){
 			mutex_unlock(&queue_lock);
 			mutex_unlock(&numChildren_lock);
 
-			// allow monitor thread to do its job with the child process
+			// allow monitor thread to run (unblock it)
 			xsem_post(&children_sem);
 
 			//free the memory allocated to store new commands
@@ -153,21 +154,21 @@ int main(int argc, char* argv[]){
 	}
 	/* exit command was given */ 
 
-	// gives indication to the thread to terminate
+	// indicate the thread to terminate
 	par_shell_on = FALSE;	
 
-	// allow monitor thread to unlock from waiting for child and exit
+	// unlock monitor thread from waiting for child and exit
 	xsem_post(&children_sem);
 
-	// terminates thread and destroys the locks 
+	// terminate thread and destroy the locks 
 	exitThread(&thread_id, mutex_list, N_MUTEXES);
 
 	// destroy the semaphores
 	xsem_destroy(&children_sem);
 	xsem_destroy(&maxChildren_sem);
 
-	// prints final info, terminates thread and frees memory allocated
-	exitFree(argVector, processList, thread_id, 1);
+	// print final info and free allocated memory
+	exitFree(argVector, processList, 1);
 
 	// exit the shell with success
 	exit(EXIT_SUCCESS);

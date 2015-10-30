@@ -66,7 +66,7 @@ void xsem_post(sem_t* sem);
  *
  * Doesn't have a return value.
  */
-void exitFree(char **argVector, Queue processList, pthread_t thread_id, int mode);
+void exitFree(char **argVector, Queue processList, int mode);
 
 /**
  * Initializes the thread and the mutexes. 
@@ -93,7 +93,7 @@ void exitThread (pthread_t* thread_id, pthread_mutex_t* mutex_id_list[], int n_m
 /**
  * Updates everything needed once a process terminates.
  *
- * Needs as inputs the process, it's end time and the status with which ti ended.
+ * Needs as inputs the process, it's end time and the status with which it ended.
  * It doesn't return anything.
  */
 void updateTerminatedProcess (process_info process, time_t end_time, int status);
