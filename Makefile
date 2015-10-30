@@ -31,19 +31,19 @@ directories: ${MKDIR}
 ${MKDIR}:
 	mkdir ${MKDIR}
 
-.PHONY: clean
-
-test1: fibonacci
+test1: all $(TDIR)/fibonacci
 	$(BDIR)/par-shell < $(TDIR)/input1.test
 
-test2: fibonacci div0
+test2: all $(TDIR)/fibonacci $(TDIR)/div0
 	$(BDIR)/par-shell < $(TDIR)/input2.test
 
-fibonacci: $(TDIR)/fibonacci.c
+$(TDIR)/fibonacci: $(TDIR)/fibonacci.c
 	gcc -o $(TDIR)/fibonacci $(TDIR)/fibonacci.c
 
-div0: $(TDIR)/div.c
+$(TDIR)/div0: $(TDIR)/div.c
 	gcc -o $(TDIR)/div0 $(TDIR)/div.c
+
+.PHONY: clean
 
 clean:
 	rm -f -r $(ODIR) $(BDIR) $(TDIR)/fibonacci $(TDIR)/div0
