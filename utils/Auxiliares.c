@@ -69,7 +69,7 @@ void xsem_init(sem_t* sem, int pshared, unsigned int value){
  */
 void xsem_destroy(sem_t* sem){
 
-	if (sem_destroy(sem) == -1){
+	if (sem_destroy(sem) != 0){
 		fprintf(stderr, 
 				"Error destroying the semaphore: %s\n", 
 				strerror(errno));
@@ -85,7 +85,7 @@ void xsem_destroy(sem_t* sem){
  */
 void xsem_wait(sem_t* sem){
 
-	if (sem_wait(sem) == -1){
+	if (sem_wait(sem) != 0){
 		fprintf(stderr, 
 				"Error waiting for the semaphore: %s\n", 
 				strerror(errno));
@@ -100,7 +100,7 @@ void xsem_wait(sem_t* sem){
  */
 void xsem_post(sem_t* sem){
 
-	if (err = sem_post(sem) == -1){
+	if (sem_post(sem) != 0){
 		fprintf(stderr, 
 				"Error freeing 1 resource of the children semaphore: %s\n", 
 				strerror(errno));
