@@ -11,8 +11,10 @@
 #define EXTERN extern
 #endif 
 
-// related to creating threads
+// related to creating and managing threads
 #include <pthread.h>
+
+// related to creating and managing semaphores
 #include <semaphore.h>
 
 #include "QUEUE.h"
@@ -27,7 +29,7 @@ EXTERN Queue processList;
 EXTERN pthread_mutex_t queue_lock;
 EXTERN pthread_mutex_t numChildren_lock;
 
-//global semaphores
+// global semaphores
 EXTERN sem_t children_sem;    // the number of active children
 EXTERN sem_t maxChildren_sem; // how many processes can still be created
 
