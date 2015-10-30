@@ -12,14 +12,18 @@ DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 MKDIR = build bin
 
-$(ODIR)/%.o: $(SDIR)/%.c $(DEPS) directories
+all: directories par-shell
+
+par-shell: $(BDIR)/par-shell
+
+$(BDIR)/par-shell: $(BUILD) 
+	gcc $(BUILD) -o $@ -lpthread
+
+$(ODIR)/%.o: $(SDIR)/%.c $(DEPS)
 	gcc -I./$(IDIR) -c -o $@ $<
 
-$(ODIR)/%.o: $(UDIR)/%.c $(DEPS) directories
+$(ODIR)/%.o: $(UDIR)/%.c $(DEPS)
 	gcc -I./$(IDIR) -c -o $@ $<
-
-par-shell: $(BUILD) directories
-	gcc $(BUILD) -o $(addprefix $(BDIR)/,$@) -lpthread
 
 directories: ${MKDIR}
 
@@ -28,5 +32,18 @@ ${MKDIR}:
 
 .PHONY: clean
 
+test1: fibonacci
+	$(BDIR)/par-shell < test/input1.test
+
+test2: fibonacci div0
+	$(BDIR)/par-shell < test/i2.test
+
+fibonacci: test/fibonacci.c
+	gcc -o test/fibonacci test/fibonacci.c
+
+div0: test/div.c
+	gcc -o test/div0 test/div.c
+
 clean:
 	rm -f -r $(ODIR) $(BDIR)
+
