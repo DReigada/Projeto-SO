@@ -56,7 +56,7 @@ void mutex_unlock(pthread_mutex_t* lock){
 void xsem_init(sem_t* sem, int pshared, unsigned int value){
 	int err;
 
-	if ((err = sem_init(sem, 0, value)) == -1){
+	if ((err = sem_init(sem, pshared, value)) == -1){
 		fprintf(stderr, "Error initializing the semaphore: %s\n", 
 				strerror(errno));
 		exit(EXIT_FAILURE);

@@ -57,6 +57,9 @@ int main(int argc, char* argv[]){
 	// init semaphore for maximum number of child processes in one given moment
 	xsem_init(&maxChildren_sem, 0, MAXPAR);
 
+	// init semaphore to indicate active child processes - shared with the thread
+	xsem_init(&children_sem, 0, 0);
+
 	// set number of children to 0
 	numChildren = 0;
 
@@ -65,9 +68,6 @@ int main(int argc, char* argv[]){
 
 	// declare variable to store the thread id
 	pthread_t thread_id;
-
-	// init semaphore to indicate active child processes - shared with the thread
-	xsem_init(&children_sem, 0, 0);
 
 	// init the locks and the thread
 	pthread_mutex_t* mutex_list[N_MUTEXES] = {&queue_lock, &numChildren_lock};
