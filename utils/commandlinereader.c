@@ -26,7 +26,7 @@ Return value:
 int readLineArguments(char **argVector, int vectorSize)
 {
   int numtokens = 0;
-  char *s = " \n\t";
+  char *s = " \n\t\r";
 
   char *str = NULL;
   size_t size = 0;
