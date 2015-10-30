@@ -54,9 +54,8 @@ void mutex_unlock(pthread_mutex_t* lock){
  * calling sem_init.
  */
 void xsem_init(sem_t* sem, int pshared, unsigned int value){
-	int err;
 
-	if ((err = sem_init(sem, pshared, value)) == -1){
+	if (sem_init(sem, pshared, value) == -1){
 		fprintf(stderr, "Error initializing the semaphore: %s\n", 
 				strerror(errno));
 		exit(EXIT_FAILURE);
@@ -69,9 +68,8 @@ void xsem_init(sem_t* sem, int pshared, unsigned int value){
  * calling sem_destroy.
  */
 void xsem_destroy(sem_t* sem){
-	int err;
 
-	if ((err = sem_destroy(sem)) == -1){
+	if (sem_destroy(sem) == -1){
 		fprintf(stderr, 
 				"Error destroying the semaphore: %s\n", 
 				strerror(errno));
@@ -86,9 +84,8 @@ void xsem_destroy(sem_t* sem){
  * calling sem_wait.
  */
 void xsem_wait(sem_t* sem){
-	int err;
 
-	if ((err = sem_wait(sem)) == -1){
+	if (sem_wait(sem) == -1){
 		fprintf(stderr, 
 				"Error waiting for the semaphore: %s\n", 
 				strerror(errno));
@@ -102,9 +99,8 @@ void xsem_wait(sem_t* sem){
  * calling sem_post.
  */
 void xsem_post(sem_t* sem){
-	int err;
 
-	if ((err = sem_post(sem)) == -1){
+	if (err = sem_post(sem) == -1){
 		fprintf(stderr, 
 				"Error freeing 1 resource of the children semaphore: %s\n", 
 				strerror(errno));
