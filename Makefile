@@ -3,6 +3,7 @@ UDIR=utils
 IDIR=includes
 ODIR=build
 BDIR=bin
+TDIR=test
 
 _BUILD = QUEUE.o commandlinereader.o process_info.o Auxiliares.o threadFunction.o par-shell.o
 BUILD = $(patsubst %,$(ODIR)/%,$(_BUILD))
@@ -33,17 +34,16 @@ ${MKDIR}:
 .PHONY: clean
 
 test1: fibonacci
-	$(BDIR)/par-shell < test/input1.test
+	$(BDIR)/par-shell < $(TDIR)/input1.test
 
 test2: fibonacci div0
-	$(BDIR)/par-shell < test/i2.test
+	$(BDIR)/par-shell < $(TDIR)/input2.test
 
-fibonacci: test/fibonacci.c
-	gcc -o test/fibonacci test/fibonacci.c
+fibonacci: $(TDIR)/fibonacci.c
+	gcc -o $(TDIR)/fibonacci $(TDIR)/fibonacci.c
 
-div0: test/div.c
-	gcc -o test/div0 test/div.c
+div0: $(TDIR)/div.c
+	gcc -o $(TDIR)/div0 $(TDIR)/div.c
 
 clean:
-	rm -f -r $(ODIR) $(BDIR)
-
+	rm -f -r $(ODIR) $(BDIR) $(TDIR)/fibonacci $(TDIR)/div0

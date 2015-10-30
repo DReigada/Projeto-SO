@@ -1,1 +1,0 @@
-./bin/par-shell < test/i2.test
