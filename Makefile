@@ -3,6 +3,7 @@ UDIR=utils
 IDIR=includes
 ODIR=build
 BDIR=bin
+TDIR=test
 
 _BUILD = QUEUE.o commandlinereader.o process_info.o Auxiliares.o threadFunction.o par-shell.o
 BUILD = $(patsubst %,$(ODIR)/%,$(_BUILD))
@@ -12,21 +13,37 @@ DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 MKDIR = build bin
 
-$(ODIR)/%.o: $(SDIR)/%.c $(DEPS) directories
+all: directories par-shell
+
+par-shell: $(BDIR)/par-shell
+
+$(BDIR)/par-shell: $(BUILD) 
+	gcc $(BUILD) -o $@ -lpthread
+
+$(ODIR)/%.o: $(SDIR)/%.c $(DEPS)
 	gcc -I./$(IDIR) -c -o $@ $<
 
-$(ODIR)/%.o: $(UDIR)/%.c $(DEPS) directories
+$(ODIR)/%.o: $(UDIR)/%.c $(DEPS)
 	gcc -I./$(IDIR) -c -o $@ $<
-
-par-shell: $(BUILD) directories
-	gcc $(BUILD) -o $(addprefix $(BDIR)/,$@) -lpthread
 
 directories: ${MKDIR}
 
 ${MKDIR}:
 	mkdir ${MKDIR}
 
+test1: all $(TDIR)/fibonacci
+	$(BDIR)/par-shell < $(TDIR)/input1.test
+
+test2: all $(TDIR)/fibonacci $(TDIR)/div0
+	$(BDIR)/par-shell < $(TDIR)/input2.test
+
+$(TDIR)/fibonacci: $(TDIR)/fibonacci.c
+	gcc -o $(TDIR)/fibonacci $(TDIR)/fibonacci.c
+
+$(TDIR)/div0: $(TDIR)/div.c
+	gcc -o $(TDIR)/div0 $(TDIR)/div.c
+
 .PHONY: clean
 
 clean:
-	rm -f -r $(ODIR) $(BDIR)
+	rm -f -r $(ODIR) $(BDIR) $(TDIR)/fibonacci $(TDIR)/div0

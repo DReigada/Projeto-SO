@@ -1,1 +1,0 @@
-./bin/par-shell < test/input2.test

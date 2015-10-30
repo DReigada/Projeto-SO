@@ -2,6 +2,8 @@
 #################
 bin/*
 build
+test/fibonacci
+test/div0
 
 # All normal text files #
 #########################

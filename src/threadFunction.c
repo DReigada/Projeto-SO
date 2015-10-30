@@ -10,6 +10,7 @@
 #include "Auxiliares.h"
 
 // GNU C libraries
+#include <semaphore.h>
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -24,85 +25,69 @@
 #define ONE_SECOND 1 
 
 /**
- * Monitors the active children processes. Waits for them to finish and
- * when they have it terminates them and sets their end time
- * 
- * @param arg is it's sole argument
- * Returns 0 if exited with no errors and -1 otherwise
+ * Monitors the active children processes. Waits for them to finish and,
+ * when they have, terminates them and sets their end time
  */
 void* monitorChildProcesses(){
 	int status;
 	pid_t child_pid;
 	
-	// monitor thread indefinately looking for children or for the exit command 
-	while(1){
+	// indefinitely looking for children or for the exit command 
+	while(1){	
 
-		pthread_mutex_lock(&numChildren_lock);	
+		// wait for a child process to be created or the exit command 
+		xsem_wait(&children_sem);
 
-		// if there are active children processes wait for them to finish
-		if (numChildren > 0){
-			pthread_mutex_unlock(&numChildren_lock);
-			child_pid =	wait(&status);
-
-			if (child_pid > 0){	// case the pid is valid 
-				pthread_mutex_lock(&queue_lock);
-				// get the process that finished from the queue
-				process_info process = (process_info) 
-										getSpecificQueue(processList, 
-														 &child_pid, 
-														 compareProcesses, 
-														 0);
-				pthread_mutex_unlock(&queue_lock);
-
-				//checks for an error on finding the element
-				if (process == NULL){
-					fprintf(stderr, "An error occurred when searching for a "
-							"process in the list. Process not found.\n");
-					continue;
-				}
-				else{
-					// decrease the number of active children
-					pthread_mutex_lock(&numChildren_lock);
-					numChildren--;
-					pthread_mutex_unlock(&numChildren_lock);
-
-					//Store the time the process terminated
-					setEndTime(process, time(NULL)); 
-
-					//if the process exited store its exit status
-					if (WIFEXITED(status))	
-						setExitStatus(process, WEXITSTATUS(status));	
-
-					// the process didn't exit, so set an error in the end time
-					else	
-						setExitError(process);			
-				}
-			}
-			else{ 
-				//if the error was because there were no child processes
-				if (errno == ECHILD){
-					fprintf(stderr, "The child disappeared: %s\n", strerror(errno));	
-					exit(EXIT_FAILURE);
-				}
-				//if not prints the error
-				else{					
-					fprintf(stderr, 
-							"An error occurred when wating for a process to exit. %s\n", 
-							strerror(errno));
-					
-					continue;
-				}
-			}
-		}
-		// check if the exit command was given
-		else if(!par_shell_on){
-			pthread_mutex_unlock(&numChildren_lock); 
+		// check if the exit command was given and there are no more children
+		mutex_lock(&numChildren_lock);
+		if(!par_shell_on && numChildren < 1){
+			mutex_unlock(&numChildren_lock);
 			break;
 		}
-		else{
-			pthread_mutex_unlock(&numChildren_lock);
-			sleep(1);
+
+		mutex_unlock(&numChildren_lock);
+
+		/* here we know there is at least 1 active children process */
+
+		// wait for it to finish
+		child_pid =	wait(&status);
+
+		if (child_pid > 0){	// case the childs pid is valid 
+			mutex_lock(&queue_lock);
+
+			// get the process that finished from the queue
+			process_info process = (process_info) 
+									getSpecificQueue(processList, 
+													 &child_pid, 
+													 compareProcesses, 
+													 0);
+			mutex_unlock(&queue_lock);
+
+			// check for an error on finding the element
+			if (process == NULL){
+				fprintf(stderr, "An error occurred when searching for a "
+						"process in the list. Process not found.\n");
+				continue;
+			}
+			else{
+				// decrease the number of active children
+				mutex_lock(&numChildren_lock);
+				numChildren--;
+				mutex_unlock(&numChildren_lock);
+
+				// allow par-shell to create more processes
+				xsem_post(&maxChildren_sem);
+
+				// store the necessary info
+				updateTerminatedProcess(process, time(NULL), status);		
+			}
+		}
+		else{   // gets the error  
+			fprintf(stderr, 
+					"An error occurred when wating for a process to exit. %s\n", 
+					strerror(errno));
+			exit(EXIT_FAILURE);
 		}
 	}
-	return NULL;
+	pthread_exit(NULL);
 }

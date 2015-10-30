@@ -5,17 +5,17 @@
 #ifndef _GLOBALVARIABLES_H_
 #define _GLOBALVARIABLES_H_
 
-#include <pthread.h>
-#include "QUEUE.h"
-
 #ifdef DEFINE_VARIABLES
 #define EXTERN /* nothing */
 #else
 #define EXTERN extern
 #endif 
 
-// related to creating threads
+// related to creating and managing threads
 #include <pthread.h>
+
+// related to creating and managing semaphores
+#include <semaphore.h>
 
 #include "QUEUE.h"
 
@@ -28,7 +28,10 @@ EXTERN Queue processList;
 // global mutexes 
 EXTERN pthread_mutex_t queue_lock;
 EXTERN pthread_mutex_t numChildren_lock;
-EXTERN pthread_mutex_t shell_status_lock;
+
+// global semaphores
+EXTERN sem_t children_sem;    // the number of active children
+EXTERN sem_t maxChildren_sem; // how many processes can still be created
 
 // global variable that is TRUE while the par-shell is running and is set to 
 // False when the exit command is given

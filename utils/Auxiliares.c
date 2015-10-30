@@ -3,20 +3,110 @@
 #include "process_info.h"
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 /**
  * Uses the same input as malloc, and has the same output, with the only 
  * difference being that it stops execution if some error occurred when
  * calling malloc.
  */
-  void* xmalloc (unsigned siz){
+void* xmalloc (unsigned siz){
     void* mem = malloc(siz); /* allocate the needed memory */
 
-	 if (mem == NULL){ fprintf(stderr, "No memory in line %d of file \"%s\".\n",
-	   	 __LINE__, __FILE__); exit(2);} /* check for errors in allocating memory */
+	if (mem == NULL){    /* check for errors in allocating memory */
+		fprintf(stderr, "No memory in line %d of file \"%s\".\n",
+   		__LINE__, __FILE__); exit(2);} 
 
-		  return mem;
-  }
+	return mem;
+}
+
+/**
+ * Uses the same input as pthread_mutex_lock (and no output), with the only 
+ * difference being that it stops execution if some error occurred when
+ * calling pthread_mutex_lock.
+ */
+void mutex_lock(pthread_mutex_t* lock){
+	int err;
+
+	if ((err = pthread_mutex_lock(lock)) != 0){
+		fprintf(stderr, "Error locking the mutex: %s\n", strerror(err));
+		exit(EXIT_FAILURE);
+	}
+}
+
+/**
+ * Uses the same input as pthread_mutex_unlock (and no output), with the only 
+ * difference being that it stops execution if some error occurred when
+ * calling pthread_mutex_unlock.
+ */
+void mutex_unlock(pthread_mutex_t* lock){
+	int err;
+
+	if ((err = pthread_mutex_unlock(lock)) != 0){
+		fprintf(stderr, "Error unlocking the mutex: %s\n", strerror(err));
+		exit(EXIT_FAILURE);
+	}
+}
+
+/**
+ * Uses the same input as sem_init (and no output), with the only 
+ * difference being that it stops execution if some error occurred when
+ * calling sem_init.
+ */
+void xsem_init(sem_t* sem, int pshared, unsigned int value){
+
+	if (sem_init(sem, pshared, value) == -1){
+		fprintf(stderr, "Error initializing the semaphore: %s\n", 
+				strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+}
+
+/**
+ * Uses the same input as sem_destroy (and no output), with the only 
+ * difference being that it stops execution if some error occurred when
+ * calling sem_destroy.
+ */
+void xsem_destroy(sem_t* sem){
+
+	if (sem_destroy(sem) != 0){
+		fprintf(stderr, 
+				"Error destroying the semaphore: %s\n", 
+				strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+}
+
+
+/**
+ * Uses the same input as sem_wait (and no output), with the only 
+ * difference being that it stops execution if some error occurred when
+ * calling sem_wait.
+ */
+void xsem_wait(sem_t* sem){
+
+	if (sem_wait(sem) != 0){
+		fprintf(stderr, 
+				"Error waiting for the semaphore: %s\n", 
+				strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+}
+
+/**
+ * Uses the same input as sem_post (and no output), with the only 
+ * difference being that it stops execution if some error occurred when
+ * calling sem_post.
+ */
+void xsem_post(sem_t* sem){
+
+	if (sem_post(sem) != 0){
+		fprintf(stderr, 
+				"Error signaling a semaphore: %s\n", 
+				strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+}
 
 /**
  * Frees the memory allocated for the queue, the string 
@@ -27,7 +117,7 @@
  *
  * Doesn't have a return value.
  */
-void exitFree (char **argVector, Queue processList, pthread_t thread_id, int mode) {
+void exitFree (char **argVector, Queue processList, int mode) {
 
 	//while the list is not empty print the info of all processes
 	while (!isEmptyQueue (processList)) { 
@@ -81,7 +171,7 @@ void initThread (pthread_t* thread_id,
 	// init the thread 
 	int thread_err;
 	if ((thread_err = pthread_create(thread_id, NULL, start_routine, NULL)) != 0){
-		fprintf(stderr, "Erro ao criar a thread: %s\n", strerror(thread_err));
+		fprintf(stderr, "Error creating thread: %s\n", strerror(thread_err));
 		exit(EXIT_FAILURE);
 	}		
 }
@@ -108,6 +198,24 @@ void exitThread (pthread_t* thread_id, pthread_mutex_t* mutex_id_list[], int n_m
 			fprintf(stderr, "Error destroying the lock number %d: %s\n", 
 					i+1, strerror(lock_err));
 	}
+}
+
+/**
+ * Updates everything needed once a process terminates.
+ *
+ * Needs as inputs the process, it's end time and the status with which it ended.
+ * It doesn't return anything.
+ */
+void updateTerminatedProcess (process_info process, time_t end_time, int status){
+
+	//Store the time the process terminated
+	setEndTime(process, end_time); 
+
+	//if the process exited store its exit status
+	if (WIFEXITED(status))	setExitStatus(process, WEXITSTATUS(status));	
+
+	// the process didn't exit, so set an error in the end time
+	else	setExitError(process);
 }
 
 /**

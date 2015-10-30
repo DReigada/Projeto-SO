@@ -1,4 +1,8 @@
-test/fibonacci 1000
-test/fibonacci 3000
-test/fibonacci 6000
+test/fibonacci 45000
+test/fibonacci 45000
+test/fibonacci 45000
+test/fibonacci 45000
+test/fibonacci 45000
+test/fibonacci 45000
+test/fibonacci 45000
 exit	
