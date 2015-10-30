@@ -5,9 +5,6 @@
 #ifndef _GLOBALVARIABLES_H_
 #define _GLOBALVARIABLES_H_
 
-#include <pthread.h>
-#include "QUEUE.h"
-
 #ifdef DEFINE_VARIABLES
 #define EXTERN /* nothing */
 #else
