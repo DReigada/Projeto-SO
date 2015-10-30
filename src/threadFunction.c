@@ -34,7 +34,6 @@
 void* monitorChildProcesses(){
 	int status;
 	pid_t child_pid;
-	int sem_err;
 	
 	// monitor thread indefinately looking for children or for the exit command 
 	while(1){	
