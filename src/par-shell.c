@@ -42,7 +42,7 @@
 					  // 5 input arguments (the last entry is always set to NULL)
 
 #define N_MUTEXES 2   // number of mutexes that will be needed
-#define MAXPAR 10	  // maximum number of child processes in any given moment
+#define MAXPAR 4	  // maximum number of child processes in any given moment
 
 #define EXIT_COMMAND "exit"
 
