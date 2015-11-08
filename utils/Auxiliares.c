@@ -48,6 +48,57 @@ void mutex_unlock(pthread_mutex_t* lock){
 	}
 }
 
+/**
+ * Uses the same input as pthread_cond_init (and no output), with the only
+ * difference being that it stops execution if some error occurred when
+ * calling pthread_cond_init.
+ */
+void xcond_init(pthread_cond_t *cond, const pthread_condattr_t *attr){
+
+  if (pthread_cond_init(cond, attr) != 0){
+    fprintf(stderr, "Error initializing the condition variable.\n");
+    exit(EXIT_FAILURE);
+  }
+}
+
+/**
+ * Uses the same input as pthread_cond_destroy (and no output), with the only
+ * difference being that it stops execution if some error occurred when
+ * calling pthread_cond_destroy.
+ */
+void xcond_destroy(pthread_cond_t *cond){
+
+  if (pthread_cond_destroy(cond) != 0){
+    fprintf(stderr, "Error destroying the condition variable.\n");
+    exit(EXIT_FAILURE);
+  }
+}
+
+/**
+ * Uses the same input as pthread_cond_wait (and no output), with the only
+ * difference being that it stops execution if some error occurred when
+ * calling pthread_cond_wait.
+ */
+void xcond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex){
+
+  if (pthread_cond_wait(cond, mutex) != 0){
+    fprintf(stderr, "Error waiting for the condition variable");
+    exit(EXIT_FAILURE);
+  }
+}
+
+/**
+ * Uses the same input as pthread_cond_signal (and no output), with the only
+ * difference being that it stops execution if some error occurred when
+ * calling pthread_cond_signal.
+ */
+void xcond_signal(pthread_cond_t *cond){
+
+  if (pthread_cond_signal(cond) != 0){
+    fprintf(stderr, "Error unlocking the condition variable");
+    exit(EXIT_FAILURE);
+  }
+}
 
 /**
  * Frees the memory allocated for the queue, the string

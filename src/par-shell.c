@@ -59,7 +59,7 @@ int main(int argc, char* argv[]){
 	par_shell_on = TRUE;
 
 	// initialize the condition variable for the number of child processes
-	pthread_cond_init(&numChildren_cond_variable, NULL);
+	xcond_init(&numChildren_cond_variable, NULL);
 
 	// declare variable to store the thread id
 	pthread_t thread_id;
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]){
 		// wait if the limit of childs was reached
 		mutex_lock(&numChildren_lock);
 		while (numChildren >= MAXPAR)
-			pthread_cond_wait(&numChildren_cond_variable, &numChildren_lock);
+			xcond_wait(&numChildren_cond_variable, &numChildren_lock);
 		mutex_unlock(&numChildren_lock);
 
 
@@ -147,7 +147,7 @@ int main(int argc, char* argv[]){
 			mutex_unlock(&numChildren_lock);
 
 			// allow monitor thread to run (unblock it)
-			pthread_cond_signal(&numChildren_cond_variable);
+			xcond_signal(&numChildren_cond_variable);
 
 			//free the memory allocated to store new commands
 			free(argVector[0]);
@@ -159,13 +159,13 @@ int main(int argc, char* argv[]){
 	par_shell_on = FALSE;
 
 	// unlock monitor thread from waiting for child and exit
-	pthread_cond_signal(&numChildren_cond_variable);
+	xcond_signal(&numChildren_cond_variable);
 
 	// terminate thread and destroy the locks
 	exitThread(&thread_id, mutex_list, N_MUTEXES);
 
-	pthread_cond_destroy(&numChildren_cond_variable);
-	
+	xcond_destroy(&numChildren_cond_variable);
+
 	// print final info and free allocated memory
 	exitFree(argVector, processList, 1);
 

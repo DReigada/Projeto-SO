@@ -37,7 +37,7 @@ void* monitorChildProcesses(){
 		// wait for a child process to be created or the exit command
 		mutex_lock(&numChildren_lock);
 		while (par_shell_on && numChildren < 1)
-			pthread_cond_wait(&numChildren_cond_variable, &numChildren_lock);
+			xcond_wait(&numChildren_cond_variable, &numChildren_lock);
 		mutex_unlock(&numChildren_lock);
 
 		// check if the exit command was given and there are no more child processes
@@ -73,7 +73,7 @@ void* monitorChildProcesses(){
 				mutex_unlock(&numChildren_lock);
 
 				// allow par-shell to create more processes
-				pthread_cond_signal(&numChildren_cond_variable);
+				xcond_signal(&numChildren_cond_variable);
 
 				// store the necessary info
 				updateTerminatedProcess(process, time(NULL), status);
