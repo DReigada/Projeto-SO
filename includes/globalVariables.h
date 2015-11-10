@@ -38,6 +38,8 @@ EXTERN int par_shell_on;
 // the file to store the information about the processes
 EXTERN FILE *logFile;
 
-
+// variables to store the data from the log file
+int iterationNum;
+int execTime;
 
 #endif
