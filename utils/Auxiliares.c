@@ -232,7 +232,7 @@ int compareProcesses (void* pid, void* process){
 FILE *xfopen(const char *path, const char *mode){
    FILE *file;
    if((file = fopen(path, mode)) == NULL){
-     fprintf(stderr, "Error opening/creating log file %s\n", strerror(errno));
+     fprintf(stderr, "Error opening/creating log file: %s\n", strerror(errno));
      exit(EXIT_FAILURE);
    }
    return file;
@@ -245,7 +245,7 @@ FILE *xfopen(const char *path, const char *mode){
   */
 void xfclose(FILE *fp){
    if(fclose(fp) != 0){
-     fprintf(stderr, "Error closing log file %s\n", strerror(errno));
+     fprintf(stderr, "Error closing log file: %s\n", strerror(errno));
      exit(EXIT_FAILURE);
    }
  }
