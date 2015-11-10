@@ -11,8 +11,11 @@
 #define EXTERN extern
 #endif
 
+#include <stdio.h>
+
 // related to creating and managing threads
 #include <pthread.h>
+
 
 #include "QUEUE.h"
 
@@ -32,6 +35,9 @@ EXTERN pthread_cond_t numChildren_cond_variable;
 // global variable that is TRUE while the par-shell is running and is set to
 // False when the exit command is given
 EXTERN int par_shell_on;
+
+// the file to store the information about the processes
+EXTERN FILE *logFile;
 
 
 
