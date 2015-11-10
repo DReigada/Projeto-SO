@@ -1,9 +1,10 @@
 /*File that defines two functions for a better use of malloc and realloc*/
 #include "Auxiliares.h"
 #include "process_info.h"
-#include <stdio.h>
+
 #include <string.h>
 #include <errno.h>
+
 
 /**
  * Uses the same input as malloc, and has the same output, with the only
@@ -221,3 +222,16 @@ int compareProcesses (void* pid, void* process){
 	return *(pid_t*) pid ==  getPid((process_info) process);
 
 }
+
+/**
+ * Uses the same input as fopen but if some error occurs when calling fopen
+ * it does not return null, instead it stops the execution.
+ */
+ FILE *xfopen(const char *path, const char *mode){
+   FILE *file;
+   if((file = fopen(path, mode)) == NULL){
+     fprintf(stderr, "Error opening/creating log file %s", strerror(errno));
+     exit(EXIT_FAILURE);
+   }
+   return file;
+ }

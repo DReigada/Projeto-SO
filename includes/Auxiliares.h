@@ -3,9 +3,11 @@
 #define _AUXILIARES_H_
 
 #include <stdlib.h>
-#include "QUEUE.h"
+#include <stdio.h>
 #include <pthread.h>
 #include <process_info.h>
+
+#include "QUEUE.h"
 
 /**
  * Uses the same input as malloc, and has the same output, with the only
@@ -104,5 +106,11 @@ void updateTerminatedProcess (process_info process, time_t end_time, int status)
  * Returns 1 if it is the same process and 0 otherwise.
  */
 int compareProcesses(void* pid, void* process);
+
+/**
+ * Uses the same input as fopen but if some error occurs when calling fopen
+ * it does not return null, instead it stops the execution.
+ */
+ FILE *xfopen(const char *path, const char *mode);
 
 #endif
