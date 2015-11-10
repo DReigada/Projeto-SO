@@ -111,12 +111,13 @@ int compareProcesses(void* pid, void* process);
  * Uses the same input as fopen but if some error occurs when calling fopen
  * it does not return null, instead it stops the execution.
  */
- FILE *xfopen(const char *path, const char *mode);
+FILE *xfopen(const char *path, const char *mode);
 
  /**
   * Uses the same input as fclose (and no output), with the only
   * difference being that it stops execution if some error occurred when
   * calling fclose.
   */
- void xfclose(FILE *fp);
+void xfclose(FILE *fp);
+
 #endif

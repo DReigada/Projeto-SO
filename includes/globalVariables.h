@@ -16,7 +16,6 @@
 // related to creating and managing threads
 #include <pthread.h>
 
-
 #include "QUEUE.h"
 
 // global variable to store the number of active children

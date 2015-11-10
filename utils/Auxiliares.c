@@ -5,6 +5,8 @@
 #include <string.h>
 #include <errno.h>
 
+#include <stdarg.h>
+
 
 /**
  * Uses the same input as malloc, and has the same output, with the only
@@ -227,10 +229,10 @@ int compareProcesses (void* pid, void* process){
  * Uses the same input as fopen but if some error occurs when calling fopen
  * it does not return null, instead it stops the execution.
  */
- FILE *xfopen(const char *path, const char *mode){
+FILE *xfopen(const char *path, const char *mode){
    FILE *file;
    if((file = fopen(path, mode)) == NULL){
-     fprintf(stderr, "Error opening/creating log file %s", strerror(errno));
+     fprintf(stderr, "Error opening/creating log file %s\n", strerror(errno));
      exit(EXIT_FAILURE);
    }
    return file;
@@ -241,9 +243,9 @@ int compareProcesses (void* pid, void* process){
   * difference being that it stops execution if some error occurred when
   * calling fclose.
   */
- void xfclose(FILE *fp){
+void xfclose(FILE *fp){
    if(fclose(fp) != 0){
-     fprintf(stderr, "Error closing log file %s", strerror(errno));
+     fprintf(stderr, "Error closing log file %s\n", strerror(errno));
      exit(EXIT_FAILURE);
    }
  }
