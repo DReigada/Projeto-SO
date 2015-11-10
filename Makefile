@@ -17,7 +17,7 @@ all: directories par-shell
 
 par-shell: $(BDIR)/par-shell
 
-$(BDIR)/par-shell: $(BUILD) 
+$(BDIR)/par-shell: $(BUILD)
 	gcc $(BUILD) -o $@ -lpthread
 
 $(ODIR)/%.o: $(SDIR)/%.c $(DEPS)
@@ -30,6 +30,9 @@ directories: ${MKDIR}
 
 ${MKDIR}:
 	mkdir ${MKDIR}
+
+run:
+	./bin/par-shell
 
 test1: all $(TDIR)/fibonacci
 	$(BDIR)/par-shell < $(TDIR)/input1.test
