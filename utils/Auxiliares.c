@@ -10,6 +10,7 @@
 #define MAXLINESIZE 50
 
 #define ITERATION_FORMAT "iteracao %d\n"
+#define PID_FORMAT "pid: %d execution time: %d s\n"
 #define EXECTIME_FORMAT "total execution time: %d s\n"
 
 /**
@@ -275,13 +276,33 @@ void readLog(int *iterationsNumber, int *executionTime, FILE *log){
   }
 
   // case the file was empty
-  if((strlen(iteration) == 0) || (strlen(totalTime) == 0)){
+  if((strlen(iteration) < 2) || (strlen(totalTime) < 2)){
     iterationsNumber = 0;
     executionTime = 0;
   }
   // else get the required ints from the lines
   else{
     sscanf(iteration, ITERATION_FORMAT, iterationsNumber);
+    (*iterationsNumber)++;
     sscanf(totalTime, EXECTIME_FORMAT, executionTime);
   }
+}
+
+/**
+ * Writes to the log file the data of a terminated process
+ * and updates the interation number and total execution time
+ * Takes as inputs two pointers to the interation number and execution time,
+ * a pointer to the process and the log file
+ */
+void writeLog(int *iterationNum, int *execTime, process_info process, FILE *log){
+  // run time of the process
+  int time = getEndTime(process) - getStartTime(process);
+
+  // print the data to the file
+  fprintf(log, ITERATION_FORMAT , (*iterationNum)++);
+  fprintf(log, PID_FORMAT, getPid(process), time);
+  fprintf(log, EXECTIME_FORMAT, *execTime += time);
+
+  // flush the file
+  fflush(log);
 }

@@ -126,5 +126,13 @@ void xfclose(FILE *fp);
  */
 void readLog(int *iterationsNumber, int *executionTime, FILE *log);
 
+/**
+ * Writes to the log file the data of a terminated process
+ * and updates the interation number and total execution time
+ * Takes as inputs two pointers to the interation number and execution time,
+ * a pointer to the process and the log file
+ */
+void writeLog(int *iterationNum, int *execTime, process_info process, FILE *log);
+
 
 #endif
