@@ -64,6 +64,9 @@ int main(int argc, char* argv[]){
 	// open the log file
 	logFile = xfopen(LOGFILE, READAPPEND);
 
+	// read data from logFile
+	readLog(&iterationNum, &execTime, logFile);
+
 	// initialize the condition variable for the number of child processes
 	xcond_init(&numChildren_cond_variable, NULL);
 

@@ -77,6 +77,10 @@ void* monitorChildProcesses(){
 
 				// store the necessary info
 				updateTerminatedProcess(process, time(NULL), status);
+
+				// writes the process data to the log file
+				 writeLog(&iterationNum, &execTime, process, logFile);
+
 			}
 		}
 		else{   // gets the error
