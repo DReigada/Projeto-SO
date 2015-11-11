@@ -120,4 +120,10 @@ FILE *xfopen(const char *path, const char *mode);
   */
 void xfclose(FILE *fp);
 
+/**
+ * Reads the number of total iterarions and total execution time from log file.
+ * Takes as inputs two pointers to integers to store the values and the log file
+ */
+ void readLog(int *iterationsNumber, int *executionTime, FILE *log);
+
 #endif

@@ -7,6 +7,7 @@
 
 #include <stdarg.h>
 
+#define MAXLINESIZE 50
 
 /**
  * Uses the same input as malloc, and has the same output, with the only
@@ -249,3 +250,35 @@ void xfclose(FILE *fp){
      exit(EXIT_FAILURE);
    }
  }
+
+/**
+ * Reads the number of total iterarions and total execution time from log file.
+ * Takes as inputs two pointers to integers to store the values and the log file
+ */
+void readLog(int *iterationsNumber, int *executionTime, FILE *log){
+
+  // initialize the needed strings
+  char iteration[MAXLINESIZE],
+       pid[MAXLINESIZE],
+       totalTime[MAXLINESIZE],
+       aux[MAXLINESIZE];
+
+  // read all the lines until it reaches the end of the file
+  // only stores the last 3 lines
+  while (fgets(aux, MAXLINESIZE, log) != NULL) {
+    strcpy(iteration, pid);
+    strcpy(pid, totalTime);
+    strcpy(totalTime, aux);
+  }
+
+  // case the file was empty
+  if((strlen(iteration) == 0) || (strlen(totalTime) == 0)){
+    iterationsNumber = 0;
+    executionTime = 0;
+  }
+  // else get the required ints from the lines
+  else{
+    sscanf(iteration, "iteracao %d", iterationsNumber);
+    sscanf(totalTime, "total execution time: %d", executionTime);
+  }
+}
