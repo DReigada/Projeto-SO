@@ -9,6 +9,9 @@
 
 #define MAXLINESIZE 50
 
+#define ITERATION_FORMAT "iteracao %d"
+#define EXECTIME_FORMAT "total execution time: %d s"
+
 /**
  * Uses the same input as malloc, and has the same output, with the only
  * difference being that it stops execution if some error occurred when
@@ -278,7 +281,8 @@ void readLog(int *iterationsNumber, int *executionTime, FILE *log){
   }
   // else get the required ints from the lines
   else{
-    sscanf(iteration, "iteracao %d", iterationsNumber);
-    sscanf(totalTime, "total execution time: %d", executionTime);
+    char format[MAXLINESIZE];
+    sscanf(iteration, strcpy(format, ITERATION_FORMAT), iterationsNumber);
+    sscanf(totalTime, strcpy(format, EXECTIME_FORMAT), executionTime);
   }
 }
