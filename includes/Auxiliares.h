@@ -151,4 +151,7 @@ void writeLog(int *iterationNum, int *execTime, process_info process, FILE *log)
  */
 int testlines(char *iteration, char *pid, char *time);
 
+
+int countTokens(char *str, const char *delim);
+
 #endif

@@ -341,9 +341,22 @@ int testlines(char *iteration, char *pid, char *time){
 
   // tests if the strings match the required format
   if (sscanf(iteration, ITERATION_FORMAT, &dummy1) != 1 ||
+      countTokens(iteration, " \n\r\t") != 2 ||
       sscanf(pid, PID_FORMAT, &dummy1, &dummy2) != 2 ||
-      sscanf(time, EXECTIME_FORMAT, &dummy1) != 1)
+      countTokens(pid, " \n\r\t") != 6 ||
+      sscanf(time, EXECTIME_FORMAT, &dummy1) != 1 ||
+      countTokens(time, " \n\r\t") != 5) 
     return 0;
 
   return 1;
+}
+
+int countTokens(char *str, const char *delim){
+  int count = 0;
+  char *ptr = str;
+  while((ptr = strpbrk(ptr, delim)) != NULL) {
+      count++;
+      ptr++;
+  }
+  return count;
 }
