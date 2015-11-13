@@ -124,8 +124,8 @@ void xfclose(FILE *fp);
  * Reads the number of total iterarions and total execution time from log file.
  * Takes as inputs two pointers to integers to store the values and the log file
  */
-void readLog(int *iterationsNumber, int *executionTime, FILE *log);
-
+ int readLog(int *iterationsNumber, int *executionTime, FILE *log);
+ 
 /**
  * Writes to the log file the data of a terminated process
  * and updates the interation number and total execution time

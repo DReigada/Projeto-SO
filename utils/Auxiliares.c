@@ -255,11 +255,12 @@ void xfclose(FILE *fp){
    }
  }
 
-/**
- * Reads the number of total iterarions and total execution time from log file.
- * Takes as inputs two pointers to integers to store the values and the log file
- */
-void readLog(int *iterationsNumber, int *executionTime, FILE *log){
+ /**
+  * Reads the number of total iterarions and total execution time from log file.
+  * Takes as inputs two pointers to integers to store the values and the log file
+  * Returns 0 if the log file is corrupted
+  */
+int readLog(int *iterationsNumber, int *executionTime, FILE *log){
 
   // initialize the needed strings
   char iteration[MAXLINESIZE],
@@ -267,24 +268,29 @@ void readLog(int *iterationsNumber, int *executionTime, FILE *log){
        totalTime[MAXLINESIZE],
        aux[MAXLINESIZE];
 
+  int corrupted = 0;
+
   // read all the lines until it reaches the end of the file
   // only stores the last 3 lines
-  while (fgets(aux, MAXLINESIZE, log) != NULL) {
-    strcpy(iteration, pid);
-    strcpy(pid, totalTime);
-    strcpy(totalTime, aux);
+  while (fgets(aux, MAXLINESIZE, log) != NULL){
+    strcpy(iteration, aux);
+    if (fgets(pid, MAXLINESIZE, log) == NULL ||
+        fgets(totalTime, MAXLINESIZE, log) == NULL)
+      corrupted = 1;
   }
 
-  // case the file was empty
-  if((strlen(iteration) < 2) || (strlen(totalTime) < 2)){
+  // case the file is corrupted
+  if(corrupted){
     iterationsNumber = 0;
     executionTime = 0;
+    return 0;
   }
   // else get the required ints from the lines
   else{
     sscanf(iteration, ITERATION_FORMAT, iterationsNumber);
     (*iterationsNumber)++;
     sscanf(totalTime, EXECTIME_FORMAT, executionTime);
+    return 1;
   }
 }
 
