@@ -292,10 +292,12 @@ int readLog(int *iterationsNumber, int *executionTime, FILE *logfile){
     fgets(totalTime, MAXLINESIZE, logfile);
 
     // if a line does not match the required format then the log file is corrupted
-    if(testlines(iteration,pid, totalTime) != 0)
+    if(testlines(iteration, pid, totalTime) != 0)
       corrupted = FALSE;
-    else
+    else{
       corrupted = TRUE;
+      break;
+    }
   }
 
   // case the file is corrupted
