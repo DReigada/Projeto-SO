@@ -151,7 +151,10 @@ void writeLog(int *iterationNum, int *execTime, process_info process, FILE *log)
  */
 int testlines(char *iteration, char *pid, char *time);
 
-
+/**
+ * Counts the number of tokens delimited by delim chars in a string
+ * Returns the number of tokens
+ */
 int countTokens(char *str, const char *delim);
 
 #endif

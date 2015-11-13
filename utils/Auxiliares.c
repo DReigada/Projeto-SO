@@ -13,6 +13,8 @@
 #define PID_FORMAT "pid: %d execution time: %d s\n"
 #define EXECTIME_FORMAT "total execution time: %d s\n"
 
+#define TOKEN_DELIMITER " \n\r\t"
+
 /**
  * Uses the same input as malloc, and has the same output, with the only
  * difference being that it stops execution if some error occurred when
@@ -341,16 +343,20 @@ int testlines(char *iteration, char *pid, char *time){
 
   // tests if the strings match the required format
   if (sscanf(iteration, ITERATION_FORMAT, &dummy1) != 1 ||
-      countTokens(iteration, " \n\r\t") != 2 ||
+      countTokens(iteration, TOKEN_DELIMITER) != 2 ||
       sscanf(pid, PID_FORMAT, &dummy1, &dummy2) != 2 ||
-      countTokens(pid, " \n\r\t") != 6 ||
+      countTokens(pid, TOKEN_DELIMITER) != 6 ||
       sscanf(time, EXECTIME_FORMAT, &dummy1) != 1 ||
-      countTokens(time, " \n\r\t") != 5) 
+      countTokens(time, TOKEN_DELIMITER) != 5)
     return 0;
 
   return 1;
 }
 
+/**
+ * Counts the number of tokens delimited by the delimiters in a string
+ * Returns the number of tokens
+ */
 int countTokens(char *str, const char *delim){
   int count = 0;
   char *ptr = str;
