@@ -243,6 +243,18 @@ FILE *xfopen(const char *path, const char *mode){
    return file;
  }
 
+/**
+ * Uses the same input as freopen but if some error occurs when calling freopen
+ * it does not return null, instead it stops the execution.
+ */
+FILE *xfreopen(const char *path, const char *mode, FILE *stream){
+   if((stream = fopen(path, mode)) == NULL){
+     fprintf(stderr, "Error reopening log file: %s\n", strerror(errno));
+     exit(EXIT_FAILURE);
+   }
+   return stream;
+ }
+
  /**
   * Uses the same input as fclose (and no output), with the only
   * difference being that it stops execution if some error occurred when
@@ -255,36 +267,47 @@ void xfclose(FILE *fp){
    }
  }
 
-/**
- * Reads the number of total iterarions and total execution time from log file.
- * Takes as inputs two pointers to integers to store the values and the log file
- */
-void readLog(int *iterationsNumber, int *executionTime, FILE *log){
 
+ /**
+  * Reads the number of total iterarions and total execution time from log file.
+  * Takes as inputs two pointers to integers to store the values and the log file
+  * Returns 0 if the log file is corrupted
+  */
+int readLog(int *iterationsNumber, int *executionTime, FILE *log){
   // initialize the needed strings
   char iteration[MAXLINESIZE],
        pid[MAXLINESIZE],
        totalTime[MAXLINESIZE],
        aux[MAXLINESIZE];
 
+  int corrupted = TRUE;
+
   // read all the lines until it reaches the end of the file
   // only stores the last 3 lines
-  while (fgets(aux, MAXLINESIZE, log) != NULL) {
-    strcpy(iteration, pid);
-    strcpy(pid, totalTime);
-    strcpy(totalTime, aux);
+  while (fgets(aux, MAXLINESIZE, log) != NULL){
+    strcpy(iteration, aux);
+    fgets(pid, MAXLINESIZE, log);
+    fgets(totalTime, MAXLINESIZE, log);
+
+    // if a line does not match the required format then the log file is corrupted
+    if(testlines(iteration,pid, totalTime) != 0)
+      corrupted = FALSE;
+    else
+      corrupted = TRUE;
   }
 
-  // case the file was empty
-  if((strlen(iteration) < 2) || (strlen(totalTime) < 2)){
+  // case the file is corrupted
+  if(corrupted){
     iterationsNumber = 0;
     executionTime = 0;
+    return 0;
   }
   // else get the required ints from the lines
   else{
     sscanf(iteration, ITERATION_FORMAT, iterationsNumber);
     (*iterationsNumber)++;
     sscanf(totalTime, EXECTIME_FORMAT, executionTime);
+    return 1;
   }
 }
 
@@ -305,4 +328,22 @@ void writeLog(int *iterationNum, int *execTime, process_info process, FILE *log)
 
   // flush the file
   fflush(log);
+}
+
+
+/**
+ * Tests if the given strings match the format specified for the log file lines
+ * Returns 0 if they dont match
+ */
+int testlines(char *iteration, char *pid, char *time){
+  // dummy variables
+  int dummy1, dummy2;
+
+  // tests if the strings match the required format
+  if (sscanf(iteration, ITERATION_FORMAT, &dummy1) != 1 ||
+      sscanf(pid, PID_FORMAT, &dummy1, &dummy2) != 2 ||
+      sscanf(time, EXECTIME_FORMAT, &dummy1) != 1)
+    return 0;
+
+  return 1;
 }

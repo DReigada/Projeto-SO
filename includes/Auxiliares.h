@@ -9,6 +9,10 @@
 
 #include "QUEUE.h"
 
+// boolean values
+#define TRUE 1
+#define FALSE 0
+
 /**
  * Uses the same input as malloc, and has the same output, with the only
  * difference being that it stops execution if some error occurred when
@@ -113,6 +117,12 @@ int compareProcesses(void* pid, void* process);
  */
 FILE *xfopen(const char *path, const char *mode);
 
+/**
+ * Uses the same input as freopen but if some error occurs when calling freopen
+ * it does not return null, instead it stops the execution.
+ */
+FILE *xfreopen(const char *path, const char *mode, FILE *stream);
+
  /**
   * Uses the same input as fclose (and no output), with the only
   * difference being that it stops execution if some error occurred when
@@ -120,11 +130,12 @@ FILE *xfopen(const char *path, const char *mode);
   */
 void xfclose(FILE *fp);
 
+
 /**
  * Reads the number of total iterarions and total execution time from log file.
  * Takes as inputs two pointers to integers to store the values and the log file
  */
-void readLog(int *iterationsNumber, int *executionTime, FILE *log);
+ int readLog(int *iterationsNumber, int *executionTime, FILE *log);
 
 /**
  * Writes to the log file the data of a terminated process
@@ -134,5 +145,10 @@ void readLog(int *iterationsNumber, int *executionTime, FILE *log);
  */
 void writeLog(int *iterationNum, int *execTime, process_info process, FILE *log);
 
+/**
+ * Tests if the given strings match the format specified for the log file lines
+ * Returns 0 if they dont match
+ */
+int testlines(char *iteration, char *pid, char *time);
 
 #endif
