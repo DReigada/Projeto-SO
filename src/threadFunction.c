@@ -79,7 +79,7 @@ void* monitorChildProcesses(){
 				updateTerminatedProcess(process, time(NULL), status);
 
 				// writes the process data to the log file
-				 writeLog(&iterationNum, &execTime, process, logFile);
+				writeLog(&iterationNum, &execTime, process, logFile);
 
 			}
 		}
