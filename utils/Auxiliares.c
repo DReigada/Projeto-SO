@@ -267,7 +267,7 @@ int readLog(int *iterationsNumber, int *executionTime, FILE *log){
        totalTime[MAXLINESIZE],
        aux[MAXLINESIZE];
 
-  int corrupted = FALSE;
+  int corrupted = TRUE;
 
   // read all the lines until it reaches the end of the file
   // only stores the last 3 lines
@@ -277,7 +277,9 @@ int readLog(int *iterationsNumber, int *executionTime, FILE *log){
     fgets(totalTime, MAXLINESIZE, log);
 
     // if a line does not match the required format then the log file is corrupted
-    if(testlines(iteration,pid, totalTime) == 0)
+    if(testlines(iteration,pid, totalTime) != 0)
+      corrupted = FALSE;
+    else
       corrupted = TRUE;
   }
 
