@@ -130,6 +130,12 @@ FILE *xfreopen(const char *path, const char *mode, FILE *stream);
   */
 void xfclose(FILE *fp);
 
+/**
+ * Uses the same input as fflush (and no output), with the only
+ * difference being that it stops execution if some error occurred when
+ * calling flush.
+ */
+void xfflush(FILE *stream);
 
 /**
  * Reads the number of total iterarions and total execution time from log file.

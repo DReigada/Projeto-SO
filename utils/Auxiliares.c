@@ -250,7 +250,7 @@ FILE *xfopen(const char *path, const char *mode){
  * it does not return null, instead it stops the execution.
  */
 FILE *xfreopen(const char *path, const char *mode, FILE *stream){
-   if((stream = fopen(path, mode)) == NULL){
+   if((stream = freopen(path, mode, stream)) == NULL){
      fprintf(stderr, "Error reopening log file: %s\n", strerror(errno));
      exit(EXIT_FAILURE);
    }
@@ -269,6 +269,17 @@ void xfclose(FILE *fp){
    }
  }
 
+ /**
+  * Uses the same input as fflush (and no output), with the only
+  * difference being that it stops execution if some error occurred when
+  * calling flush.
+  */
+void xfflush(FILE *stream){
+  if (fflush(stream) != 0) {
+    fprintf(stderr, "Error flushing log file: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+}
 
  /**
   * Reads the number of total iterarions and total execution time from log file.
@@ -331,7 +342,7 @@ void writeLog(int *iterationNum, int *execTime, process_info process, FILE *logf
   fprintf(logfile, EXECTIME_FORMAT, *execTime += exectime);
 
   // flush the file
-  fflush(logfile);
+  xfflush(logfile);
 }
 
 
