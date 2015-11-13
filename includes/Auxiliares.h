@@ -3,9 +3,11 @@
 #define _AUXILIARES_H_
 
 #include <stdlib.h>
-#include "QUEUE.h"
+#include <stdio.h>
 #include <pthread.h>
 #include <process_info.h>
+
+#include "QUEUE.h"
 
 /**
  * Uses the same input as malloc, and has the same output, with the only
@@ -104,5 +106,33 @@ void updateTerminatedProcess (process_info process, time_t end_time, int status)
  * Returns 1 if it is the same process and 0 otherwise.
  */
 int compareProcesses(void* pid, void* process);
+
+/**
+ * Uses the same input as fopen but if some error occurs when calling fopen
+ * it does not return null, instead it stops the execution.
+ */
+FILE *xfopen(const char *path, const char *mode);
+
+ /**
+  * Uses the same input as fclose (and no output), with the only
+  * difference being that it stops execution if some error occurred when
+  * calling fclose.
+  */
+void xfclose(FILE *fp);
+
+/**
+ * Reads the number of total iterarions and total execution time from log file.
+ * Takes as inputs two pointers to integers to store the values and the log file
+ */
+void readLog(int *iterationsNumber, int *executionTime, FILE *log);
+
+/**
+ * Writes to the log file the data of a terminated process
+ * and updates the interation number and total execution time
+ * Takes as inputs two pointers to the interation number and execution time,
+ * a pointer to the process and the log file
+ */
+void writeLog(int *iterationNum, int *execTime, process_info process, FILE *log);
+
 
 #endif

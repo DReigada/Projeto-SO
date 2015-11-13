@@ -38,6 +38,9 @@
 #define N_MUTEXES 2  // number of mutexes that will be needed
 #define MAXPAR 4	 // maximum number of child processes in any given moment
 
+#define LOGFILE "log.txt" // the location of the log file
+#define READAPPEND "a+" 	// define the fopen mode
+
 // boolean values
 #define TRUE 1
 #define FALSE 0
@@ -57,6 +60,12 @@ int main(int argc, char* argv[]){
 
 	// set the par_shell to being on
 	par_shell_on = TRUE;
+
+	// open the log file
+	logFile = xfopen(LOGFILE, READAPPEND);
+
+	// read data from logFile
+	readLog(&iterationNum, &execTime, logFile);
 
 	// initialize the condition variable for the number of child processes
 	xcond_init(&numChildren_cond_variable, NULL);
@@ -130,6 +139,9 @@ int main(int argc, char* argv[]){
 				// free the allocated memory that was copied for the child process
 				exitFree(argVector, processList, 0);
 
+				// close the log file
+				xfclose(logFile);
+
 				exit(EXIT_FAILURE); //exits
 			}
 		}
@@ -168,6 +180,9 @@ int main(int argc, char* argv[]){
 
 	// print final info and free allocated memory
 	exitFree(argVector, processList, 1);
+
+	// close the log file
+	xfclose(logFile);
 
 	// exit the shell with success
 	exit(EXIT_SUCCESS);

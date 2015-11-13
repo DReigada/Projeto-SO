@@ -1,9 +1,17 @@
 /*File that defines two functions for a better use of malloc and realloc*/
 #include "Auxiliares.h"
 #include "process_info.h"
-#include <stdio.h>
+
 #include <string.h>
 #include <errno.h>
+
+#include <stdarg.h>
+
+#define MAXLINESIZE 50
+
+#define ITERATION_FORMAT "iteracao %d\n"
+#define PID_FORMAT "pid: %d execution time: %d s\n"
+#define EXECTIME_FORMAT "total execution time: %d s\n"
 
 /**
  * Uses the same input as malloc, and has the same output, with the only
@@ -220,4 +228,81 @@ int compareProcesses (void* pid, void* process){
 
 	return *(pid_t*) pid ==  getPid((process_info) process);
 
+}
+
+/**
+ * Uses the same input as fopen but if some error occurs when calling fopen
+ * it does not return null, instead it stops the execution.
+ */
+FILE *xfopen(const char *path, const char *mode){
+   FILE *file;
+   if((file = fopen(path, mode)) == NULL){
+     fprintf(stderr, "Error opening/creating log file: %s\n", strerror(errno));
+     exit(EXIT_FAILURE);
+   }
+   return file;
+ }
+
+ /**
+  * Uses the same input as fclose (and no output), with the only
+  * difference being that it stops execution if some error occurred when
+  * calling fclose.
+  */
+void xfclose(FILE *fp){
+   if(fclose(fp) != 0){
+     fprintf(stderr, "Error closing log file: %s\n", strerror(errno));
+     exit(EXIT_FAILURE);
+   }
+ }
+
+/**
+ * Reads the number of total iterarions and total execution time from log file.
+ * Takes as inputs two pointers to integers to store the values and the log file
+ */
+void readLog(int *iterationsNumber, int *executionTime, FILE *log){
+
+  // initialize the needed strings
+  char iteration[MAXLINESIZE],
+       pid[MAXLINESIZE],
+       totalTime[MAXLINESIZE],
+       aux[MAXLINESIZE];
+
+  // read all the lines until it reaches the end of the file
+  // only stores the last 3 lines
+  while (fgets(aux, MAXLINESIZE, log) != NULL) {
+    strcpy(iteration, pid);
+    strcpy(pid, totalTime);
+    strcpy(totalTime, aux);
+  }
+
+  // case the file was empty
+  if((strlen(iteration) < 2) || (strlen(totalTime) < 2)){
+    iterationsNumber = 0;
+    executionTime = 0;
+  }
+  // else get the required ints from the lines
+  else{
+    sscanf(iteration, ITERATION_FORMAT, iterationsNumber);
+    (*iterationsNumber)++;
+    sscanf(totalTime, EXECTIME_FORMAT, executionTime);
+  }
+}
+
+/**
+ * Writes to the log file the data of a terminated process
+ * and updates the interation number and total execution time
+ * Takes as inputs two pointers to the interation number and execution time,
+ * a pointer to the process and the log file
+ */
+void writeLog(int *iterationNum, int *execTime, process_info process, FILE *log){
+  // run time of the process
+  int time = getEndTime(process) - getStartTime(process);
+
+  // print the data to the file
+  fprintf(log, ITERATION_FORMAT , (*iterationNum)++);
+  fprintf(log, PID_FORMAT, getPid(process), time);
+  fprintf(log, EXECTIME_FORMAT, *execTime += time);
+
+  // flush the file
+  fflush(log);
 }
