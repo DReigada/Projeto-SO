@@ -243,6 +243,18 @@ FILE *xfopen(const char *path, const char *mode){
    return file;
  }
 
+/**
+ * Uses the same input as freopen but if some error occurs when calling freopen
+ * it does not return null, instead it stops the execution.
+ */
+FILE *xfreopen(const char *path, const char *mode, FILE *stream){
+   if((stream = fopen(path, mode)) == NULL){
+     fprintf(stderr, "Error reopening log file: %s\n", strerror(errno));
+     exit(EXIT_FAILURE);
+   }
+   return stream;
+ }
+
  /**
   * Uses the same input as fclose (and no output), with the only
   * difference being that it stops execution if some error occurred when
@@ -254,6 +266,7 @@ void xfclose(FILE *fp){
      exit(EXIT_FAILURE);
    }
  }
+
 
  /**
   * Reads the number of total iterarions and total execution time from log file.

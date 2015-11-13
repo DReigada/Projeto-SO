@@ -117,12 +117,19 @@ int compareProcesses(void* pid, void* process);
  */
 FILE *xfopen(const char *path, const char *mode);
 
+/**
+ * Uses the same input as freopen but if some error occurs when calling freopen
+ * it does not return null, instead it stops the execution.
+ */
+FILE *xfreopen(const char *path, const char *mode, FILE *stream);
+
  /**
   * Uses the same input as fclose (and no output), with the only
   * difference being that it stops execution if some error occurred when
   * calling fclose.
   */
 void xfclose(FILE *fp);
+
 
 /**
  * Reads the number of total iterarions and total execution time from log file.

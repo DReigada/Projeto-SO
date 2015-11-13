@@ -63,7 +63,7 @@ int main(int argc, char* argv[]){
 	logFile = xfopen(LOGFILE, READAPPEND);
 	// if the file is corrupted delete its content
 	if(readLog(&iterationNum, &execTime, logFile) == 0)
-		logFile = freopen(LOGFILE, "w+", logFile); //TODO: change to xfreopen
+		logFile = xfreopen(LOGFILE, "w+", logFile);
 
 
 	// initialize the condition variable for the number of child processes
