@@ -9,6 +9,10 @@
 
 #include "QUEUE.h"
 
+// boolean values
+#define TRUE 1
+#define FALSE 0
+
 /**
  * Uses the same input as malloc, and has the same output, with the only
  * difference being that it stops execution if some error occurred when
@@ -125,7 +129,7 @@ void xfclose(FILE *fp);
  * Takes as inputs two pointers to integers to store the values and the log file
  */
  int readLog(int *iterationsNumber, int *executionTime, FILE *log);
- 
+
 /**
  * Writes to the log file the data of a terminated process
  * and updates the interation number and total execution time
@@ -134,5 +138,10 @@ void xfclose(FILE *fp);
  */
 void writeLog(int *iterationNum, int *execTime, process_info process, FILE *log);
 
+/**
+ * Tests if the given strings match the format specified for the log file lines
+ * Returns 0 if they dont match
+ */
+int testlines(char *iteration, char *pid, char *time);
 
 #endif

@@ -261,22 +261,24 @@ void xfclose(FILE *fp){
   * Returns 0 if the log file is corrupted
   */
 int readLog(int *iterationsNumber, int *executionTime, FILE *log){
-
   // initialize the needed strings
   char iteration[MAXLINESIZE],
        pid[MAXLINESIZE],
        totalTime[MAXLINESIZE],
        aux[MAXLINESIZE];
 
-  int corrupted = 0;
+  int corrupted = FALSE;
 
   // read all the lines until it reaches the end of the file
   // only stores the last 3 lines
   while (fgets(aux, MAXLINESIZE, log) != NULL){
     strcpy(iteration, aux);
-    if (fgets(pid, MAXLINESIZE, log) == NULL ||
-        fgets(totalTime, MAXLINESIZE, log) == NULL)
-      corrupted = 1;
+    fgets(pid, MAXLINESIZE, log);
+    fgets(totalTime, MAXLINESIZE, log);
+
+    // if a line does not match the required format then the log file is corrupted
+    if(testlines(iteration,pid, totalTime) == 0)
+      corrupted = TRUE;
   }
 
   // case the file is corrupted
@@ -311,4 +313,22 @@ void writeLog(int *iterationNum, int *execTime, process_info process, FILE *log)
 
   // flush the file
   fflush(log);
+}
+
+
+/**
+ * Tests if the given strings match the format specified for the log file lines
+ * Returns 0 if they dont match
+ */
+int testlines(char *iteration, char *pid, char *time){
+  // dummy variables
+  int dummy1, dummy2;
+
+  // tests if the strings match the required format
+  if (sscanf(iteration, ITERATION_FORMAT, &dummy1) != 1 ||
+      sscanf(pid, PID_FORMAT, &dummy1, &dummy2) != 2 ||
+      sscanf(time, EXECTIME_FORMAT, &dummy1) != 1)
+    return 0;
+
+  return 1;
 }

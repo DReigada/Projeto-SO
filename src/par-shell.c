@@ -43,10 +43,6 @@
 
 #define LOGFILE "log.txt" // the location of the log file
 
-// boolean values
-#define TRUE 1
-#define FALSE 0
-
 #define EXIT_COMMAND "exit"
 
 int main(int argc, char* argv[]){
