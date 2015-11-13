@@ -149,7 +149,7 @@ void writeLog(int *iterationNum, int *execTime, process_info process, FILE *log)
  * Tests if the given strings match the format specified for the log file lines
  * Returns 0 if they dont match
  */
-int testlines(char *iteration, char *pid, char *time);
+int testlines(char *iteration, char *pid, char *exectime);
 
 /**
  * Counts the number of tokens delimited by delim chars in a string

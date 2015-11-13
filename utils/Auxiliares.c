@@ -275,7 +275,7 @@ void xfclose(FILE *fp){
   * Takes as inputs two pointers to integers to store the values and the log file
   * Returns 0 if the log file is corrupted
   */
-int readLog(int *iterationsNumber, int *executionTime, FILE *log){
+int readLog(int *iterationsNumber, int *executionTime, FILE *logfile){
   // initialize the needed strings
   char iteration[MAXLINESIZE],
        pid[MAXLINESIZE],
@@ -286,10 +286,10 @@ int readLog(int *iterationsNumber, int *executionTime, FILE *log){
 
   // read all the lines until it reaches the end of the file
   // only stores the last 3 lines
-  while (fgets(aux, MAXLINESIZE, log) != NULL){
+  while (fgets(aux, MAXLINESIZE, logfile) != NULL){
     strcpy(iteration, aux);
-    fgets(pid, MAXLINESIZE, log);
-    fgets(totalTime, MAXLINESIZE, log);
+    fgets(pid, MAXLINESIZE, logfile);
+    fgets(totalTime, MAXLINESIZE, logfile);
 
     // if a line does not match the required format then the log file is corrupted
     if(testlines(iteration,pid, totalTime) != 0)
@@ -319,17 +319,17 @@ int readLog(int *iterationsNumber, int *executionTime, FILE *log){
  * Takes as inputs two pointers to the interation number and execution time,
  * a pointer to the process and the log file
  */
-void writeLog(int *iterationNum, int *execTime, process_info process, FILE *log){
+void writeLog(int *iterationNum, int *execTime, process_info process, FILE *logfile){
   // run time of the process
-  int time = getEndTime(process) - getStartTime(process);
+  int exectime = getEndTime(process) - getStartTime(process);
 
   // print the data to the file
-  fprintf(log, ITERATION_FORMAT , (*iterationNum)++);
-  fprintf(log, PID_FORMAT, getPid(process), time);
-  fprintf(log, EXECTIME_FORMAT, *execTime += time);
+  fprintf(logfile, ITERATION_FORMAT , (*iterationNum)++);
+  fprintf(logfile, PID_FORMAT, getPid(process), exectime);
+  fprintf(logfile, EXECTIME_FORMAT, *execTime += exectime);
 
   // flush the file
-  fflush(log);
+  fflush(logfile);
 }
 
 
@@ -337,7 +337,7 @@ void writeLog(int *iterationNum, int *execTime, process_info process, FILE *log)
  * Tests if the given strings match the format specified for the log file lines
  * Returns 0 if they dont match
  */
-int testlines(char *iteration, char *pid, char *time){
+int testlines(char *iteration, char *pid, char *exectime){
   // dummy variables
   int dummy1, dummy2;
 
@@ -346,8 +346,8 @@ int testlines(char *iteration, char *pid, char *time){
       countTokens(iteration, TOKEN_DELIMITER) != 2 ||
       sscanf(pid, PID_FORMAT, &dummy1, &dummy2) != 2 ||
       countTokens(pid, TOKEN_DELIMITER) != 6 ||
-      sscanf(time, EXECTIME_FORMAT, &dummy1) != 1 ||
-      countTokens(time, TOKEN_DELIMITER) != 5)
+      sscanf(exectime, EXECTIME_FORMAT, &dummy1) != 1 ||
+      countTokens(exectime, TOKEN_DELIMITER) != 5)
     return 0;
 
   return 1;
