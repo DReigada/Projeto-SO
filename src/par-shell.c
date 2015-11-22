@@ -20,10 +20,12 @@
 #include <errno.h>
 #include <pthread.h>
 
-// related to the system calls functions
+// related to the system calls functions and files functions
 #include <sys/wait.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 // our own files
 #include "commandlinereader.h"
@@ -38,12 +40,16 @@
 #define N_MUTEXES 2  // number of mutexes that will be needed
 #define MAXPAR 4	 // maximum number of child processes in any given moment
 
+#define EXIT_COMMAND "exit"
+
 // define the fopen modes
 #define READAPPEND "a+"
 
-#define LOGFILE "log.txt" // the location of the log file
+// the location of the log file
+#define LOGFILE "log.txt"
 
-#define EXIT_COMMAND "exit"
+// the format of the output file for the created processes
+#define OUTPUT_FILE_FORMAT "par-shell-out-%d.txt"
 
 int main(int argc, char* argv[]){
 
@@ -126,6 +132,12 @@ int main(int argc, char* argv[]){
 		}
 		if (child_pid == 0){ 		 // child executes this
 
+			// close the stdout and open the output file in its place
+			xclose(1);
+			char filename[50];
+			sprintf(filename, OUTPUT_FILE_FORMAT, getpid());
+			xopen(filename, O_WRONLY | O_CREAT, 0666);
+			
 			// Change the process image to the program given by the user
 			if (execv(argVector[0], argVector) < 0){ // check for errors
 				fprintf(stderr,
