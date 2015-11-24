@@ -387,6 +387,7 @@ int countTokens(char *str, const char *delim){
 /**
  * Uses the same input as open but if some error occurs when calling open
  * it does not return null, instead it stops the execution.
+ * Returns the file descriptor in success.
  */
 int xopen(const char *pathname, int flags, mode_t mode){
   int fd;
@@ -394,6 +395,8 @@ int xopen(const char *pathname, int flags, mode_t mode){
     fprintf(stderr, "Error opening file: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
+
+  return fd;
 }
 
 /**
@@ -406,4 +409,5 @@ void xclose(int fd){
     fprintf(stderr, "Error closing file: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
+
 }
