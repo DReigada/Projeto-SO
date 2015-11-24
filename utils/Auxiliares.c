@@ -5,7 +5,11 @@
 #include <string.h>
 #include <errno.h>
 
-#include <stdarg.h>
+#include <unistd.h>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #define MAXLINESIZE 50
 
@@ -378,4 +382,32 @@ int countTokens(char *str, const char *delim){
       ptr++;
   }
   return count;
+}
+
+/**
+ * Uses the same input as open but if some error occurs when calling open
+ * it does not return null, instead it stops the execution.
+ * Returns the file descriptor in success.
+ */
+int xopen(const char *pathname, int flags, mode_t mode){
+  int fd;
+  if((fd = open(pathname, flags, mode)) == -1){
+    fprintf(stderr, "Error opening file: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  return fd;
+}
+
+/**
+ * Uses the same input as close (and no output), with the only
+ * difference being that it stops execution if some error occurred when
+ * calling close.
+ */
+void xclose(int fd){
+  if(close(fd) == -1){
+    fprintf(stderr, "Error closing file: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
 }

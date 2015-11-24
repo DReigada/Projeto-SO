@@ -163,4 +163,18 @@ int testlines(char *iteration, char *pid, char *exectime);
  */
 int countTokens(char *str, const char *delim);
 
+/**
+ * Uses the same input as open but if some error occurs when calling open
+ * it does not return null, instead it stops the execution.
+ */
+int xopen(const char *pathname, int flags, mode_t mode);
+
+/**
+ * Uses the same input as close (and no output), with the only
+ * difference being that it stops execution if some error occurred when
+ * calling close.
+ */
+void xclose(int fd);
+
+
 #endif
