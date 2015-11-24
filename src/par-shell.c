@@ -48,8 +48,11 @@
 // the location of the log file
 #define LOGFILE "log.txt"
 
-// the format of the output file for the created processes
+// filename format of the created processes output, its max size and permissions
 #define OUTPUT_FILE_FORMAT "par-shell-out-%d.txt"
+#define OUTPUT_NAME_MAX_SIZE 50
+#define PERMISSIONS 0666
+
 
 int main(int argc, char* argv[]){
 
@@ -134,9 +137,9 @@ int main(int argc, char* argv[]){
 
 			// close the stdout and open the output file in its place
 			xclose(1);
-			char filename[50];
+			char filename[OUTPUT_NAME_MAX_SIZE];
 			sprintf(filename, OUTPUT_FILE_FORMAT, getpid());
-			xopen(filename, O_WRONLY | O_CREAT, 0666);
+			xopen(filename, O_WRONLY | O_CREAT, PERMISSIONS);
 			
 			// Change the process image to the program given by the user
 			if (execv(argVector[0], argVector) < 0){ // check for errors
