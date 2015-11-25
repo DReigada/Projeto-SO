@@ -391,7 +391,7 @@ int countTokens(char *str, const char *delim){
  */
 int xopen(const char *pathname, int flags, mode_t mode){
   int fd;
-  if((fd = open(pathname, flags, mode)) == -1){
+  if((fd = open(pathname, flags, mode)) < 0){
     fprintf(stderr, "Error opening file: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
@@ -425,4 +425,33 @@ void x_mkfifo(const char *path, mode_t mode){
   }
 }
 
+/**
+ * Uses the same input as the write function but if some error occurs when
+ * calling write it does not return null, instead it stops the execution.
+ * Returns the number of bytes written.
+ */
+ssize_t xwrite(int fildes, const void *buf, size_t nbyte){
+  ssize_t n;
+  if((n = write(fildes, buf, nbyte)) < 0){
+    fprintf(stderr, "Error writting to fifo: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  return n;
+}
+
+/**
+ * Uses the same input as the read function but if some error occurs when
+ * calling read it does not return null, instead it stops the execution.
+ * Returns the number of bytes read.
+ */
+ssize_t xread(int fildes, void *buf, size_t nbyte){
+  ssize_t n;
+  if((n = read(fildes, buf, nbyte)) < 0){
+    fprintf(stderr, "Error reading from fifo: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  return n;
+}
 

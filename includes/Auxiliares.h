@@ -191,6 +191,19 @@ void xclose(int fd);
  */
 void x_mkfifo(const char *path, mode_t mode);
 
+/**
+ * Uses the same input as the write function but if some error occurs when
+ * calling write it does not return null, instead it stops the execution.
+ * Returns the number of bytes written.
+ */
+ssize_t xwrite(int fildes, const void *buf, size_t nbyte);
+
+/**
+ * Uses the same input as the read function but if some error occurs when
+ * calling read it does not return null, instead it stops the execution.
+ * Returns the number of bytes read.
+ */
+ssize_t xread(int fildes, void *buf, size_t nbyte);
 
 #endif
 
