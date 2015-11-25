@@ -91,14 +91,18 @@ int main(int argc, char* argv[]){
 	processList = initQueue();
 
 	// open named pipe
-	x_mkfifo(PARSHELL_IN_FIFO, READ_WRITE_EXEC_ALL);
+	mkfifo(PARSHELL_IN_FIFO, READ_WRITE_EXEC_ALL);
 	int f_parshell = xopen(PARSHELL_IN_FIFO, O_RDONLY | O_CREAT, READ_WRITE_EXEC_ALL);
+
+	close(0);
+	dup(f_parshell);
+	close(f_parshell);
 
 	// Continue until the exit command is executed
 	while (TRUE){
 
 		// read the user input
-		narg = readLineArguments(argVector, MAX_N_INPUT);
+		narg = getArguments(argVector, MAX_N_INPUT);
 
 		// check for errors reading the input and read again if there were any
 		if (narg == -1){

@@ -8,7 +8,7 @@ TDIR=test
 _BUILD1 = QUEUE.o commandlinereader.o process_info.o Auxiliares.o threadFunction.o par-shell.o
 BUILD1 = $(patsubst %,$(ODIR)/%,$(_BUILD1))
 
-_BUILD2 = QUEUE.o process_info.o Auxiliares.o par-shell-terminal.o
+_BUILD2 = QUEUE.o commandlinereader.o process_info.o Auxiliares.o par-shell-terminal.o
 BUILD2 = $(patsubst %,$(ODIR)/%,$(_BUILD2))
 
 _DEPS = Auxiliares.h globalVariables.h QUEUE.h commandlinereader.h process_info.h threadFunction.h
