@@ -42,16 +42,12 @@
 
 #define EXIT_COMMAND "exit"
 
-// define the fopen modes
-#define READAPPEND "a+"
-
 // the location of the log file
 #define LOGFILE "log.txt"
 
 // filename format of the created processes output, its max size and permissions
 #define OUTPUT_FILE_FORMAT "par-shell-out-%d.txt"
 #define OUTPUT_NAME_MAX_SIZE 50
-#define PERMISSIONS 0666
 
 
 int main(int argc, char* argv[]){
@@ -94,6 +90,10 @@ int main(int argc, char* argv[]){
 
 	// initializes the list to store the children
 	processList = initQueue();
+
+	// open named pipe
+	x_mkfifo(PARSHELL_IN_FIFO, READ_WRITE_EXEC_ALL);
+	int f_parshell = xopen(PARSHELL_IN_FIFO, O_RDONLY, READ_WRITE_EXEC_ALL);
 
 	// Continue until the exit command is executed
 	while (TRUE){
@@ -139,7 +139,7 @@ int main(int argc, char* argv[]){
 			xclose(1);
 			char filename[OUTPUT_NAME_MAX_SIZE];
 			sprintf(filename, OUTPUT_FILE_FORMAT, getpid());
-			xopen(filename, O_WRONLY | O_CREAT, PERMISSIONS);
+			xopen(filename, O_WRONLY | O_CREAT, READ_WRITE_ALL);
 			
 			// Change the process image to the program given by the user
 			if (execv(argVector[0], argVector) < 0){ // check for errors
@@ -195,6 +195,9 @@ int main(int argc, char* argv[]){
 	// print final info and free allocated memory
 	exitFree(argVector, processList, 1);
 
+	// terminate the fifo
+	xclose(f_parshell);
+	unlink(PARSHELL_IN_FIFO);
 	// close the log file
 	xfclose(logFile);
 

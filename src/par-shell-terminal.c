@@ -1,4 +1,5 @@
 #include <fcntl.h>
+#include <unistd.h>
 
 #include "Auxiliares.h"
 
@@ -13,8 +14,9 @@ int main(int argc, char const *argv[])
 	}
 
 	// open the fifo to write
-	f_write = xopen(PARSHELL_IN_FIFO, O_WRONLY, READ_WRITE_EXEC_ALL);
+	int f_write = xopen(PARSHELL_IN, O_WRONLY, READ_WRITE_EXEC_ALL);
 
-	
+	xclose(f_write);
+
 	return 0;
 }
