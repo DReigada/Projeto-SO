@@ -70,7 +70,6 @@ int main(int argc, char* argv[]){
 	if(readLog(&iterationNum, &execTime, logFile) == 0)
 		logFile = xfreopen(LOGFILE, "w+", logFile);
 
-
 	// initialize the condition variable for the number of child processes
 	xcond_init(&numChildren_cond_variable, NULL);
 
@@ -93,7 +92,7 @@ int main(int argc, char* argv[]){
 
 	// open named pipe
 	x_mkfifo(PARSHELL_IN_FIFO, READ_WRITE_EXEC_ALL);
-	int f_parshell = xopen(PARSHELL_IN_FIFO, O_RDONLY, READ_WRITE_EXEC_ALL);
+	int f_parshell = xopen(PARSHELL_IN_FIFO, O_RDONLY | O_CREAT, READ_WRITE_EXEC_ALL);
 
 	// Continue until the exit command is executed
 	while (TRUE){

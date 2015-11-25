@@ -1,6 +1,13 @@
+#include <stdlib.h>
+#include <stdio.h>
+
 #include <fcntl.h>
 #include <unistd.h>
 
+#include <pthread.h>
+#include <process_info.h>
+
+#include "QUEUE.h"
 #include "Auxiliares.h"
 
 // number of input arguments
@@ -14,7 +21,7 @@ int main(int argc, char const *argv[])
 	}
 
 	// open the fifo to write
-	int f_write = xopen(PARSHELL_IN, O_WRONLY, READ_WRITE_EXEC_ALL);
+	int f_write = xopen(PARSHELL_IN_FIFO, O_WRONLY, READ_WRITE_EXEC_ALL);
 
 	xclose(f_write);
 
