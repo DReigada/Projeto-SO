@@ -13,6 +13,14 @@
 #define TRUE 1
 #define FALSE 0
 
+//general conventions used
+#define READ_WRITE_ALL 0666
+#define READ_WRITE_EXEC_ALL 0777
+#define READAPPEND "a+"
+
+// par-shell's fifo (where to send the commands)
+#define PARSHELL_IN_FIFO "par-shell-in"
+
 /**
  * Uses the same input as malloc, and has the same output, with the only
  * difference being that it stops execution if some error occurred when
@@ -176,5 +184,14 @@ int xopen(const char *pathname, int flags, mode_t mode);
  */
 void xclose(int fd);
 
+/**
+ * Uses the same input as mkfifo (and no output), with the only
+ * difference being that it stops execution if some error occurred when
+ * calling mkfifo.
+ */
+void x_mkfifo(const char *path, mode_t mode);
+
 
 #endif
+
+

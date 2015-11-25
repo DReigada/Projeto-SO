@@ -411,3 +411,18 @@ void xclose(int fd){
   }
 
 }
+
+/**
+ * Uses the same input as mkfifo (and no output), with the only
+ * difference being that it stops execution if some error occurred when
+ * calling mkfifo.
+ */
+void x_mkfifo(const char *path, mode_t mode){
+
+  if (mkfifo < 0){
+    fprintf(stderr, "Error creating named pipe %s: %s\n", path, strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+}
+
+
