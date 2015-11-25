@@ -7,6 +7,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define TOO_LONG -1
+#define EMPTY_INPUT 0
+#define OK 1
+
 /* 
 Reads up to 'vectorSize' space-separated arguments from the standard input
 and saves them in the entries of the 'argVector' argument.
@@ -23,7 +27,7 @@ Return value:
  The number of arguments that were read, or -1 if some error occurred.
 */
 
-int readLineArguments(char **argVector, int vectorSize)
+int getArguments(char **argVector, int vectorSize)
 {
   int numtokens = 0;
   char *s = " \n\t\r";
@@ -62,5 +66,44 @@ int readLineArguments(char **argVector, int vectorSize)
   }
    
   return numtokens;
+}
+
+
+/**
+ * It is the same as the fgets (it uses it) with the only difference being that
+ * it restricts the input stream to stdin and tests if the string that was read
+ * is NULL and if there was overflow.
+ *
+ * Returns 1 if successful; 0 if there was no input or an error ocurred using 
+ * fgets; -1 if there was overflow
+ */
+int getLine(char* str, size_t sz){
+  char c;
+
+  fgets(str, sz, stdin);
+
+  if (str == NULL){
+    return EMPTY_INPUT;
+  }
+
+  int len = strlen(str);
+
+  //check if there was overflow 
+  if (str[len - 1] != '\n'){
+
+    int feedback = OK;
+    //if there was overflow, flush the excess so it doesnt influence future readings
+    while ((c = getchar() != '\n') && (c != EOF)){
+      feedback = TOO_LONG;
+    }
+
+    str[len - 1] = '\0';
+    return feedback;
+  }
+
+  // remove new line
+  str[len - 1] = '\0';
+
+  return OK;
 }
 
