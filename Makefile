@@ -57,4 +57,4 @@ $(TDIR)/div0: $(TDIR)/div.c
 .PHONY: clean
 
 clean:
-	rm -f -r $(ODIR) $(BDIR) $(TDIR)/fibonacci $(TDIR)/div0 log.txt par-shell-out-*.txt
+	rm -f -r $(ODIR) $(BDIR) $(TDIR)/fibonacci $(TDIR)/div0 log.txt par-shell-out-*.txt par-shell-in
