@@ -417,7 +417,7 @@ void xclose(int fd){
  */
 void x_mkfifo(const char *path, mode_t mode){
 
-  if (mkfifo < 0){
+  if (mkfifo(path, mode) < 0){
     fprintf(stderr, "Error creating named pipe %s: %s\n", path, strerror(errno));
     exit(EXIT_FAILURE);
   }

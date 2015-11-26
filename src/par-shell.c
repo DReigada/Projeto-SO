@@ -42,7 +42,7 @@
 
 // par-shell's fifo (where to send the commands)
 #define PARSHELL_IN_FIFO "par-shell-in"
- 
+
 // exit the par-shell closing all remote terminals and open processes in order
 #define EXIT_COMMAND "exit-global"
 
@@ -99,7 +99,7 @@ int main(int argc, char* argv[]){
 	processList = initQueue();
 
 	// open named pipe
-	mkfifo(PARSHELL_IN_FIFO, READ_WRITE_EXEC_ALL);
+	x_mkfifo(PARSHELL_IN_FIFO, READ_WRITE_EXEC_ALL);
 	int f_parshell = xopen(PARSHELL_IN_FIFO, O_RDONLY, READ_WRITE_EXEC_ALL);
 
 	// Continue until the exit command is executed
