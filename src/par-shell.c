@@ -28,7 +28,7 @@
 #include <fcntl.h>
 
 // our own files
-#include "commandlinereader.h"
+#include "parseInput.h"
 #include "process_info.h"
 #include "Auxiliares.h"
 

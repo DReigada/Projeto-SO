@@ -1,10 +1,11 @@
 /*
-// Command line reader (header file), version 2
+// Parse input (header file), version 1
+// Based on commandlinereader version 2 from 
 // Sistemas Operativos, DEI/IST/ULisboa 2015-16
 */
 
-#ifndef COMMANDLINEREADER_H
-#define COMMANDLINEREADER_H
+#ifndef PARSEINPUT_H
+#define PARSEINPUT_H
 
 /* 
 Reads up to 'vectorSize' space-separated arguments from the string str

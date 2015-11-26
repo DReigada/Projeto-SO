@@ -9,7 +9,7 @@
 
 #include "QUEUE.h"
 #include "Auxiliares.h"
-#include "commandlinereader.h"
+#include "parseInput.h"
 
 // number of input arguments
 #define N_ARGS 2
