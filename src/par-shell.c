@@ -109,19 +109,20 @@ int main(int argc, char* argv[]){
 	// Continue until the exit command is executed
 	while (TRUE){
 
+		// read the message from the fifo - if it's empty dont do anything
 		if ((n = xread(f_parshell, buf, BUFSIZ)) == 0) continue; 
 
-		if (buf[0] == '\a'){
-			char* buf_temp = buf;
-			char* temp = strchr(++buf_temp, ' ');
-			strcpy(command, ++temp);
-			remote_pid = atoi(strtok(buf_temp, " "));
+		// its a new terminal sending if the message's first character is an \a
+		if (buf[0] == '\a'){  		
+			
+			// parse the message with the terminal pid accordingly
+			remote_pid = parseCommandWithPid(buf, command);
 
-		} else{
+		} else{  // if it's a known terminal just copy the message
 			strcpy(command, buf);
 		}
 
-		// read the user input
+		// get the command's arguments
 		narg = getArguments(command, argVector, MAX_N_INPUT);
 
 		// check for errors reading the input and read again if there were any

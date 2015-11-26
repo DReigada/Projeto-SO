@@ -208,6 +208,19 @@ ssize_t xwrite(int fildes, const void *buf, size_t nbyte);
  */
 ssize_t xread(int fildes, void *buf, size_t nbyte);
 
+/**
+ * Parses the first message sent by a terminal.
+ * This message follows the following format: '\apid command'. Where pid
+ * is the pid of the terminal's process.
+ * 
+ * Takes as input buf, which contains the original message and an empty string
+ * command where the function will store the command.
+ *
+ * Returns the retrieved pid from the message and stores in 'commmand' the 
+ * retrieved command from the message. Also modifies buf to be an empty string.
+ */
+pid_t parseCommandWithPid(char* buf, char command[]);
+
 #endif
 
 
