@@ -44,7 +44,7 @@
 #define PARSHELL_IN_FIFO "par-shell-in"
 
 // exit the par-shell closing all remote terminals and open processes in order
-#define EXIT_COMMAND "exit-global"
+#define GLOBAL_EXIT_COMMAND "exit-global"
 
 // the location of the log file
 #define LOGFILE "log.txt"
@@ -93,10 +93,14 @@ int main(int argc, char* argv[]){
 	int n;
 
 	// buffer to store the command that is sent via the fifo
-	char buf[BUFSIZ-1];
+	char* buf = (char*) xmalloc(sizeof(char*) * SZ);
+	char command[SZ];
 
 	// initializes the list to store the children
 	processList = initQueue();
+
+	// stores the pid of the remote terminal that sent a message
+	pid_t remote_pid;
 
 	// open named pipe
 	x_mkfifo(PARSHELL_IN_FIFO, READ_WRITE_EXEC_ALL);
@@ -107,8 +111,18 @@ int main(int argc, char* argv[]){
 
 		if ((n = xread(f_parshell, buf, BUFSIZ)) == 0) continue; 
 
+		if (buf[0] == '\a'){
+			char* buf_temp = buf;
+			char* temp = strchr(++buf_temp, ' ');
+			strcpy(command, ++temp);
+			remote_pid = atoi(strtok(buf_temp, " "));
+
+		} else{
+			strcpy(command, buf);
+		}
+
 		// read the user input
-		narg = getArguments(buf, argVector, MAX_N_INPUT);
+		narg = getArguments(command, argVector, MAX_N_INPUT);
 
 		// check for errors reading the input and read again if there were any
 		if (narg == -1){
@@ -117,7 +131,7 @@ int main(int argc, char* argv[]){
 		}
 
 		// case the command is exit
-		if (strcmp(argVector[0], EXIT_COMMAND) == 0){
+		if (strcmp(argVector[0], GLOBAL_EXIT_COMMAND) == 0){
 			printf("Waiting for all the processes to terminate\n");
 			break;
 		}
@@ -149,8 +163,9 @@ int main(int argc, char* argv[]){
 			// Change the process image to the program given by the user
 			if (execv(argVector[0], argVector) < 0){ // check for errors
 				fprintf(stderr,
-						"Error occurred when trying to open the executable with "
-						"the pathname: %s\n",
+						"Error occurred when trying to open the executable"
+						" '%s': %s\n",
+						argVector[0],
 						strerror(errno));
 
 				// case there was an error calling execv
@@ -199,6 +214,9 @@ int main(int argc, char* argv[]){
 
 	// print final info and free allocated memory
 	exitFree(argVector, processList, 1);
+
+	// free allocated buffer
+	free(buf);
 
 	// terminate the fifo
 	xclose(f_parshell);

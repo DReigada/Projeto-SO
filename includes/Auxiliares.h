@@ -18,6 +18,13 @@
 #define READ_WRITE_EXEC_ALL 0777
 #define READAPPEND "a+"
 
+#define MAX_PID_SIZE 20
+
+// exit command
+#define EXIT_COMMAND "exit"
+
+#define SZ BUFSIZ + MAX_PID_SIZE
+
 /**
  * Uses the same input as malloc, and has the same output, with the only
  * difference being that it stops execution if some error occurred when
