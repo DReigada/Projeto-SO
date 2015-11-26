@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -14,7 +15,8 @@
 // number of input arguments
 #define N_ARGS 2
 
-#define SZ BUFSIZ
+// exit command
+#define EXIT_COMMAND "exit"
 
 int main(int argc, char const *argv[])
 {
@@ -24,6 +26,7 @@ int main(int argc, char const *argv[])
 	}
 
 	// open the fifo to write
+	//TODO: MUDAR ISTO PARA LEVAR O argv[1]
 	int f_write = xopen(PARSHELL_IN_FIFO, O_WRONLY, READ_WRITE_EXEC_ALL);
 
 	// str to store the input
@@ -46,13 +49,16 @@ int main(int argc, char const *argv[])
 			fprintf(stdout, "Please input a valid command\n");
 			continue;
 		}
-		//TODO: testar se vem o comando exit
 
 		// escrever para o fifo
 		xwrite(f_write, str, BUFSIZ);
 
+		// if the command sent was to exit, exit. Still send the command to the fifo
+		// to avoid erros 
+		if (strcmp(str, EXIT_COMMAND) == 0) break;
 
 	}
+
 	xclose(f_write);
 
 	return 0;
