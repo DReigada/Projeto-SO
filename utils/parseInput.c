@@ -10,6 +10,7 @@
 #define TOO_LONG -1
 #define EMPTY_INPUT 0
 #define OK 1
+#define EMPTY_STRING 2
 
 /* 
 Reads up to 'vectorSize' space-separated arguments from the string str
@@ -93,7 +94,8 @@ int getLine(char* str, size_t sz){
 
     str[len - 1] = '\0';
     return feedback;
-  }
+
+  } else if (len == 1) return EMPTY_STRING;
 
   // remove new line
   str[len - 1] = '\0';

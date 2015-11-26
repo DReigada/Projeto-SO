@@ -47,8 +47,8 @@ int main(int argc, char const *argv[])
 		if (out == -1){
 			fprintf(stderr, "Some error occurred reading the user's input.\n");
 			continue;
-		}
-		else if (out == 0){ // in case no command was inserted
+		
+		} else if (out == 2){ // in case no command was inserted 
 			fprintf(stdout, "Please input a valid command\n");
 			continue;
 		}
