@@ -40,6 +40,9 @@
 #define N_MUTEXES 2  // number of mutexes that will be needed
 #define MAXPAR 4	 // maximum number of child processes in any given moment
 
+// par-shell's fifo (where to send the commands)
+#define PARSHELL_IN_FIFO "par-shell-in"
+ 
 // exit the par-shell closing all remote terminals and open processes in order
 #define EXIT_COMMAND "exit-global"
 

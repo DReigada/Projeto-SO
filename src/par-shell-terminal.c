@@ -26,8 +26,7 @@ int main(int argc, char const *argv[])
 	}
 
 	// open the fifo to write
-	//TODO: MUDAR ISTO PARA LEVAR O argv[1]
-	int f_write = xopen(PARSHELL_IN_FIFO, O_WRONLY, READ_WRITE_EXEC_ALL);
+	int f_write = xopen(argv[1], O_WRONLY, READ_WRITE_EXEC_ALL);
 
 	// str to store the input
 	char str[BUFSIZ - 1];
