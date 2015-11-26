@@ -115,14 +115,18 @@ void xcond_signal(pthread_cond_t *cond){
 }
 
 /**
- * Frees the memory allocated for the queue and the argVector.
+ * Frees the memory allocated for the queues, the argVector and the buffer.
  *
  * If mode is 1 it also prints the terminating info about all the processes
  * that were correctly endend.
  *
  * Doesn't have a return value.
  */
-void exitFree (char **argVector, Queue processList, int mode) {
+void exitFree (char **argVector, 
+               Queue processList,
+               Queue activeRemoteList,
+               char* buf,
+               int mode) {
 
 	//while the list is not empty print the info of all processes
 	while (!isEmptyQueue (processList)) {
@@ -144,8 +148,21 @@ void exitFree (char **argVector, Queue processList, int mode) {
 	}
 
 	// free memory
+  freeQ(activeRemoteList);
 	freeQ(processList);
 	free(argVector);
+  free(buf);
+}
+
+/**
+ * Closes the fifo file, unlinks the fifo and closes the log file.
+ *
+ * No return value.
+ */
+void closeAll(int fifoFileDes, char* fifoPath, FILE* logFile){
+  xclose(fifoFileDes);
+  unlink(fifoPath);
+  xfclose(logFile);
 }
 
 /**
@@ -231,6 +248,20 @@ void updateTerminatedProcess (process_info process, time_t end_time, int status)
 int compareProcesses (void* pid, void* process){
 
 	return *(pid_t*) pid ==  getPid((process_info) process);
+
+}
+
+/**
+ * Auxiliary function that determines if two remote terminals are the same.
+ * Two remote terminals are the same if they have the same pid.
+ * Takes as input a pointer to the two pids, because in our queue the remote
+ * terminals are only represented by their pids.
+ *
+ * Returns 1 if it is the same process and 0 otherwise.
+ */
+int compareActiveRemotes (void* pid1, void* pid2){
+
+  return *(pid_t*) pid1 == *(pid_t*) pid2;
 
 }
 

@@ -99,24 +99,37 @@ int main(int argc, char* argv[]){
 	// initializes the list to store the children
 	processList = initQueue();
 
-	// stores the pid of the remote terminal that sent a message
-	pid_t remote_pid;
+	// initializes the list to store the pids of the active remote terminals
+	Queue activeRemoteList = initQueue();
 
 	// open named pipe
 	x_mkfifo(PARSHELL_IN_FIFO, READ_WRITE_EXEC_ALL);
-	int f_parshell = xopen(PARSHELL_IN_FIFO, O_RDONLY, READ_WRITE_EXEC_ALL);
+	int parshell_fifo = xopen(PARSHELL_IN_FIFO, O_RDONLY, READ_WRITE_EXEC_ALL);
 
 	// Continue until the exit command is executed
 	while (TRUE){
 
 		// read the message from the fifo - if it's empty dont do anything
-		if ((n = xread(f_parshell, buf, BUFSIZ)) == 0) continue; 
+		if ((n = xread(parshell_fifo, buf, BUFSIZ)) == 0) continue; 
 
-		// its a new terminal sending if the message's first character is an \a
+		// first character is '\a', then its a new terminal or a terminating one
 		if (buf[0] == '\a'){  		
-			
+
 			// parse the message with the terminal pid accordingly
-			remote_pid = parseCommandWithPid(buf, command);
+			pid_t remote_pid = parseCommandWithPid(buf, command);
+
+			//remove the remote terminal if it exited
+			if (strcmp(command, EXIT_COMMAND) == 0){
+				getSpecificQueue(activeRemoteList, 
+								 &remote_pid, 
+								 &compareActiveRemotes, 
+								 1
+				);
+				continue;
+
+			} else{    //add the new active remote terminal to the list
+				addQueue(&remote_pid, activeRemoteList);
+			}
 
 		} else{  // if it's a known terminal just copy the message
 			strcpy(command, buf);
@@ -131,11 +144,13 @@ int main(int argc, char* argv[]){
 			continue;
 		}
 
-		// case the command is exit
+		// case the command is a global exit
 		if (strcmp(argVector[0], GLOBAL_EXIT_COMMAND) == 0){
 			printf("Waiting for all the processes to terminate\n");
 			break;
 		}
+
+		// case a terminal has exited remove it from the list
 
 		/* else we assume it was given a path to a program to execute */
 
@@ -172,7 +187,7 @@ int main(int argc, char* argv[]){
 				// case there was an error calling execv
 
 				// free the allocated memory that was copied for the child process
-				exitFree(argVector, processList, 0);
+				exitFree(argVector, processList, activeRemoteList, buf, 0);
 
 				// close the log file
 				xfclose(logFile);
@@ -214,16 +229,10 @@ int main(int argc, char* argv[]){
 	xcond_destroy(&numChildren_cond_variable);
 
 	// print final info and free allocated memory
-	exitFree(argVector, processList, 1);
+	exitFree(argVector, processList, activeRemoteList, buf, 1);
 
-	// free allocated buffer
-	free(buf);
-
-	// terminate the fifo
-	xclose(f_parshell);
-	unlink(PARSHELL_IN_FIFO);
-	// close the log file
-	xfclose(logFile);
+	// close the fifo file, unlink the fifo and close the log file
+	closeAll(parshell_fifo, PARSHELL_IN_FIFO, logFile);
 
 	// exit the shell with success
 	exit(EXIT_SUCCESS);

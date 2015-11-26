@@ -75,14 +75,25 @@ void xcond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
 void xcond_signal(pthread_cond_t *cond);
 
 /**
- * Frees the memory allocated for the queue and the argVector.
+ * Frees the memory allocated for the queues, the argVector and the buffer.
  *
  * If mode is 1 it also prints the terminating info about all the processes
  * that were correctly endend.
  *
  * Doesn't have a return value.
  */
-void exitFree(char **argVector, Queue processList, int mode);
+void exitFree (char **argVector, 
+               Queue processList,
+               Queue activeRemoteList,
+               char* buf,
+               int mode);
+
+/**
+ * Closes the fifo file, unlinks the fifo and closes the log file.
+ *
+ * No return value.
+ */
+void closeAll(int fifoFile, char* fifoPath, FILE* logFile);
 
 /**
  * Initializes the thread and the mutexes.
@@ -120,7 +131,17 @@ void updateTerminatedProcess (process_info process, time_t end_time, int status)
  * Takes as input a pointer to the pid and the pointer to a process.
  * Returns 1 if it is the same process and 0 otherwise.
  */
-int compareProcesses(void* pid, void* process);
+int compareProcesses (void* pid, void* process);
+
+/**
+ * Auxiliary function that determines if two remote terminals are the same.
+ * Two remote terminals are the same if they have the same pid.
+ * Takes as input a pointer to the two pids, because in our queue the remote
+ * terminals are only represented by their pids.
+ *
+ * Returns 1 if it is the same process and 0 otherwise.
+ */
+int compareActiveRemotes (void* pid1, void* pid2);
 
 /**
  * Uses the same input as fopen but if some error occurs when calling fopen

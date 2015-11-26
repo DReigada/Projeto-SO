@@ -54,7 +54,7 @@ int main(int argc, char const *argv[])
 		}
 
 		// add the pid to the string to send if it is the first message
-		if (first_command){
+		if (first_command || strcmp(buf, EXIT_COMMAND) == 0){
 			pid_t my_pid = getpid();
 			sprintf(str_to_send, "\a%d ", my_pid);
 			first_command = FALSE;
