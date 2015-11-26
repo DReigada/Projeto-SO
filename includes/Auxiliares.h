@@ -71,8 +71,7 @@ void xcond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
 void xcond_signal(pthread_cond_t *cond);
 
 /**
- * Frees the memory allocated for the queue, the string
- * in argVector and the argVector itself.
+ * Frees the memory allocated for the queue and the argVector.
  *
  * If mode is 1 it also prints the terminating info about all the processes
  * that were correctly endend.

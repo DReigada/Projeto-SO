@@ -87,30 +87,27 @@ int main(int argc, char* argv[]){
 	// stores the number of arguments from the user
 	int narg = 0;
 
+	// buffer to store the command that is sent via the fifo
+	char buf[BUFSIZ-1];
+
 	// initializes the list to store the children
 	processList = initQueue();
 
 	// open named pipe
 	mkfifo(PARSHELL_IN_FIFO, READ_WRITE_EXEC_ALL);
-	int f_parshell = xopen(PARSHELL_IN_FIFO, O_RDONLY | O_CREAT, READ_WRITE_EXEC_ALL);
-
-	close(0);
-	dup(f_parshell);
-	close(f_parshell);
+	int f_parshell = xopen(PARSHELL_IN_FIFO, O_RDONLY, READ_WRITE_EXEC_ALL);
 
 	// Continue until the exit command is executed
 	while (TRUE){
 
+		xread(f_parshell, buf, BUFSIZ);
+
 		// read the user input
-		narg = getArguments(argVector, MAX_N_INPUT);
+		narg = getArguments(buf, argVector, MAX_N_INPUT);
 
 		// check for errors reading the input and read again if there were any
 		if (narg == -1){
-			fprintf(stderr, "Some error occurred reading the user's input.\n");
-			continue;
-		}
-		else if (narg == 0){ // in case no command was inserted
-			fprintf(stdout, "Please input a valid command\n");
+			fprintf(stderr, "Some error occurred getting the input from the fifo.\n");
 			continue;
 		}
 
@@ -178,8 +175,6 @@ int main(int argc, char* argv[]){
 			// allow monitor thread to run (unblock it)
 			xcond_signal(&numChildren_cond_variable);
 
-			//free the memory allocated to store new commands
-			free(argVector[0]);
 		}
 	}
 	/* exit command was given */

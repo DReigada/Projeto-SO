@@ -29,11 +29,23 @@ int main(int argc, char const *argv[])
 	// str to store the input
 	char str[BUFSIZ - 1];
 
+	// stores the output of the getLine function
+	int out;
+
 	while (TRUE){
 
 		// get the command
-		getLine(str, BUFSIZ);
+		out = getLine(str, BUFSIZ);
 
+		// check for errors reading the input and read again if there were any
+		if (out == -1){
+			fprintf(stderr, "Some error occurred reading the user's input.\n");
+			continue;
+		}
+		else if (out == 0){ // in case no command was inserted
+			fprintf(stdout, "Please input a valid command\n");
+			continue;
+		}
 		//TODO: testar se vem o comando exit
 
 		// escrever para o fifo

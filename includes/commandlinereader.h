@@ -7,12 +7,13 @@
 #define COMMANDLINEREADER_H
 
 /* 
-Reads up to 'vectorSize' space-separated arguments from the standard input
+Reads up to 'vectorSize' space-separated arguments from the string str
 and saves them in the entries of the 'argVector' argument.
 This function returns once enough arguments are read or the end of the line 
 is reached
 
 Arguments: 
+ 'str' should be a str 
  'argVector' should be a vector of char* previously allocated with
  as many entries as 'vectorSize'
  'vectorSize' is the size of the above vector. A vector of size N allows up to 
@@ -21,8 +22,7 @@ Arguments:
 Return value:
  The number of arguments that were read, or -1 if some error occurred.
 */
-
-int getArguments(char **argVector, int vectorSize);
+int getArguments(char* str, char **argVector, int vectorSize);
 
 /**
  * It is the same as the fgets (it uses it) with the only difference being that

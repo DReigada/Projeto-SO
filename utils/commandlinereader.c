@@ -12,12 +12,13 @@
 #define OK 1
 
 /* 
-Reads up to 'vectorSize' space-separated arguments from the standard input
+Reads up to 'vectorSize' space-separated arguments from the string str
 and saves them in the entries of the 'argVector' argument.
 This function returns once enough arguments are read or the end of the line 
 is reached
 
 Arguments: 
+ 'str' should be a str 
  'argVector' should be a vector of char* previously allocated with
  as many entries as 'vectorSize'
  'vectorSize' is the size of the above vector. A vector of size N allows up to 
@@ -26,24 +27,17 @@ Arguments:
 Return value:
  The number of arguments that were read, or -1 if some error occurred.
 */
-
-int getArguments(char **argVector, int vectorSize)
+int getArguments(char* str, char **argVector, int vectorSize)
 {
   int numtokens = 0;
   char *s = " \n\t\r";
 
-  char *str = NULL;
-  size_t size = 0;
   int i;
 
   char *token;
 
-  if (argVector == NULL || vectorSize == 0)
-    return 0;
-
-  if (getline(&str, &size, stdin) < 0) {
+  if (argVector == NULL || vectorSize == 0 || str == NULL)
     return -1;
-  }
    
   /* get the first token */
   token = strtok(str, s);
