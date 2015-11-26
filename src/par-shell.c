@@ -40,7 +40,8 @@
 #define N_MUTEXES 2  // number of mutexes that will be needed
 #define MAXPAR 4	 // maximum number of child processes in any given moment
 
-#define EXIT_COMMAND "exit"
+// exit the par-shell closing all remote terminals and open processes in order
+#define EXIT_COMMAND "exit-global"
 
 // the location of the log file
 #define LOGFILE "log.txt"
@@ -84,8 +85,9 @@ int main(int argc, char* argv[]){
 	// allocates the memory for the command that the user inputs
 	char** argVector = (char**) xmalloc(sizeof(char*) * MAX_N_INPUT);
 
-	// stores the number of arguments from the user
-	int narg = 0;
+	// variables to store the output of getArguments and xread respectively
+	int narg;
+	int n;
 
 	// buffer to store the command that is sent via the fifo
 	char buf[BUFSIZ-1];
@@ -100,7 +102,7 @@ int main(int argc, char* argv[]){
 	// Continue until the exit command is executed
 	while (TRUE){
 
-		xread(f_parshell, buf, BUFSIZ);
+		if ((n = xread(f_parshell, buf, BUFSIZ)) == 0) continue; 
 
 		// read the user input
 		narg = getArguments(buf, argVector, MAX_N_INPUT);
@@ -178,6 +180,8 @@ int main(int argc, char* argv[]){
 		}
 	}
 	/* exit command was given */
+
+	// TODO: close all remote terminals!!!!
 
 	// indicate the thread to terminate
 	par_shell_on = FALSE;
