@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <string.h>
 
 #include "Auxiliares.h"
 
@@ -23,5 +24,13 @@ int main(int argc, char const *argv[]) {
   // close the stdout and redirect the outputs to the par-shell pipe
   xclose(1);
   xopen(argv[1], O_WRONLY, 0666); //TODO 2 arguments
+
+  char *line = NULL;
+  size_t size = 0;
+
+  getline(&line, &size, stdin);
+  printf("%s", line);
+
+  free(line);
   return 0;
 }
