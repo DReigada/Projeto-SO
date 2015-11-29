@@ -22,14 +22,17 @@ int main(int argc, char const *argv[]) {
   }
 
   // close the stdout and redirect the outputs to the par-shell pipe
-  xclose(1);
+  xclose(STDOUT_FILENO);
   xopen(argv[1], O_WRONLY, 0666); //TODO 2 arguments
 
   char *line = NULL;
   size_t size = 0;
 
-  getline(&line, &size, stdin);
-  printf("%s", line);
+while (1) {
+  int i = getline(&line, &size, stdin);
+  write(STDOUT_FILENO, line, i); // TODO xwrite
+}
+
 
   free(line);
   return 0;

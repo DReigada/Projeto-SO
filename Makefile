@@ -37,11 +37,11 @@ directories: ${MKDIR}
 ${MKDIR}:
 	mkdir ${MKDIR}
 
-server:
+server: all
 	./bin/par-shell
 
-client:
-	./bin/par-shell-terminal ./bin/par-shell-in
+client: all
+	./bin/par-shell-terminal par-shell-in
 
 test1: all $(TDIR)/fibonacci
 	$(BDIR)/par-shell < $(TDIR)/input1.test
