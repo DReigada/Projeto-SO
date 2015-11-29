@@ -8,6 +8,10 @@
 
 #include "Auxiliares.h"
 
+#define EXIT_COMMAND "exit"
+
+#define MESSAGE_MAX_SIZE 50
+#define EXIT_MESSAGE "\a exit %d"
 
 // the number of arguments of the par-shell-terminal
 #define NARGS 2
@@ -22,6 +26,7 @@ int main(int argc, char const *argv[]) {
   }
 
   // close the stdout and redirect the outputs to the par-shell pipe
+  int std = dup(STDOUT_FILENO);
   xclose(STDOUT_FILENO);
   xopen(argv[1], O_WRONLY, 0666); //TODO 2 arguments
 
@@ -29,10 +34,21 @@ int main(int argc, char const *argv[]) {
   size_t size = 0;
 
 while (1) {
-  int i = getline(&line, &size, stdin);
-  xwrite(STDOUT_FILENO, line, i);
-}
+  int s = getline(&line, &size, stdin); // get the input from the user
 
+  // the exit command
+  if (strncmp(line, EXIT_COMMAND, s - 1) == 0) {
+    char message[MESSAGE_MAX_SIZE];
+    sprintf(message, EXIT_MESSAGE, getpid());
+    break;
+  }
+
+  // if the input was not a command send it to par-shell
+  else{
+    xwrite(STDOUT_FILENO, line, s);
+  }
+
+}
 
   free(line);
   return 0;
