@@ -113,3 +113,15 @@ ssize_t xwrite(int fd, const void *buf, size_t count){
     exit(EXIT_FAILURE);
   }
 }
+
+/**
+ * Uses the same input as unlink (and no output), with the only
+ * difference being that it stops execution if some error occurred when
+ * calling unlink.
+ */
+void xunlink(const char *pathname){
+  if (unlink(pathname) == -1) {
+    fprintf(stderr, "Error unlinking file %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+}
