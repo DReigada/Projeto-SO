@@ -30,7 +30,7 @@ int main(int argc, char const *argv[]) {
 
 while (1) {
   int i = getline(&line, &size, stdin);
-  write(STDOUT_FILENO, line, i); // TODO xwrite
+  xwrite(STDOUT_FILENO, line, i);
 }
 
 

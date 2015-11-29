@@ -101,3 +101,15 @@ void xclose(int fd){
   }
 
 }
+
+/**
+ * Uses the same input as write but if some error occurs when calling write
+ * it does not return -1, instead it stops the execution.
+ * Returns the  number  of bytes written.
+ */
+ssize_t xwrite(int fd, const void *buf, size_t count){
+  if (write(fd, buf, count) == -1) {
+    fprintf(stderr, "Error writing to file/pipe %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+}

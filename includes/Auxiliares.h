@@ -56,5 +56,11 @@ int xopen(const char *pathname, int flags, mode_t mode);
  */
 void xclose(int fd);
 
+/**
+ * Uses the same input as wirte but if some error occurs when calling write
+ * it does not return -1, instead it stops the execution.
+ * Returns the  number  of bytes written.
+ */
+ssize_t xwrite(int fd, const void *buf, size_t count);
 
 #endif
