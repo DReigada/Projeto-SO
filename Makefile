@@ -5,20 +5,26 @@ ODIR=build
 BDIR=bin
 TDIR=test
 
-_BUILD = QUEUE.o commandlinereader.o process_info.o Auxiliares.o threadFunction.o par-shell.o
-BUILD = $(patsubst %,$(ODIR)/%,$(_BUILD))
+_SHELL-BUILD = QUEUE.o commandlinereader.o process_info.o Auxiliares.o Auxiliares-par-shell.o threadFunction.o par-shell.o
+SHELL-BUILD = $(patsubst %,$(ODIR)/%,$(_SHELL-BUILD))
 
-_DEPS = Auxiliares.h globalVariables.h QUEUE.h commandlinereader.h process_info.h threadFunction.h
+_TERMINAL-BUILD = Auxiliares.o par-shell-terminal.o
+TERMINAL-BUILD =  $(patsubst %,$(ODIR)/%,$(_TERMINAL-BUILD))
+
+_DEPS = Auxiliares.h Auxiliares-par-shell.h globalVariables.h QUEUE.h commandlinereader.h process_info.h threadFunction.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 MKDIR = build bin
 
-all: directories par-shell
+all: directories execs
 
-par-shell: $(BDIR)/par-shell
+execs: $(BDIR)/par-shell $(BDIR)/par-shell-terminal
 
-$(BDIR)/par-shell: $(BUILD)
-	gcc $(BUILD) -o $@ -lpthread
+$(BDIR)/par-shell: $(SHELL-BUILD)
+	gcc $(SHELL-BUILD) -o $@ -lpthread
+
+$(BDIR)/par-shell-terminal: $(TERMINAL-BUILD)
+	gcc $(TERMINAL-BUILD) -o $@ -lpthread
 
 $(ODIR)/%.o: $(SDIR)/%.c $(DEPS)
 	gcc -I./$(IDIR) -c -o $@ $<
