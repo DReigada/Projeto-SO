@@ -31,6 +31,7 @@
 #include "commandlinereader.h"
 #include "process_info.h"
 #include "Auxiliares.h"
+#include "Auxiliares-par-shell.h"
 
 // Constants
 #define NARGS 1 // number of arguments of the par-shell program
@@ -140,7 +141,7 @@ int main(int argc, char* argv[]){
 			char filename[OUTPUT_NAME_MAX_SIZE];
 			sprintf(filename, OUTPUT_FILE_FORMAT, getpid());
 			xopen(filename, O_WRONLY | O_CREAT, PERMISSIONS);
-			
+
 			// Change the process image to the program given by the user
 			if (execv(argVector[0], argVector) < 0){ // check for errors
 				fprintf(stderr,
