@@ -3,7 +3,7 @@
  *  data          - 30.10.15
  *
  *  Autores       - Daniel Reigada
- *   			  - Diogo Mesquita
+ *   			  			- Diogo Mesquita
  *                - Sebastião Araújo
  */
 #define DEFINE_VARIABLES //indicate that we are defining the global variables
@@ -54,6 +54,8 @@
 #define OUTPUT_NAME_MAX_SIZE 50
 #define PERMISSIONS 0666
 
+// the name of the FIFO for inputs
+#define FIFO_NAME "par-shell-in"
 
 int main(int argc, char* argv[]){
 
@@ -62,6 +64,13 @@ int main(int argc, char* argv[]){
 		printf("Usage: par-shell\n");
 		exit(EXIT_FAILURE);
 	}
+
+	// close the stdin and open the FIFO in its place
+	xclose(0);
+	xunlink(FIFO_NAME);
+	mkfifo(FIFO_NAME, PERMISSIONS);
+	xopen(FIFO_NAME, O_RDONLY | O_CREAT, PERMISSIONS);
+
 
 	// set number of children to 0
 	numChildren = 0;
