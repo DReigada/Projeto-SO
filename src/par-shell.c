@@ -72,6 +72,7 @@ int main(int argc, char* argv[]){
 	xopen(FIFO_NAME, O_RDONLY | O_CREAT, PERMISSIONS);
 
 
+	int numTerminals = 0;
 	// set number of children to 0
 	numChildren = 0;
 
@@ -116,8 +117,27 @@ int main(int argc, char* argv[]){
 			fprintf(stderr, "Some error occurred reading the user's input.\n");
 			continue;
 		}
-		else if (narg == 0){ // in case no command was inserted
+		// in case no command was inserted
+		else if (narg == 0){
 			fprintf(stdout, "Please input a valid command\n");
+			continue;
+		}
+
+		// in case read returned EOF and there were active terminals
+		if (narg == -2 && numTerminals > 1) {
+			numTerminals = 0;
+			close(xopen(FIFO_NAME, O_RDONLY, PERMISSIONS));
+			continue;
+		}
+
+		// if one of the terminals sent the exit message
+		if ((strcmp(argVector[0], "\a") == 0) &&
+					(strcmp(argVector[1], "exit") == 0)){
+
+			if(--numTerminals == 0) break;
+			// TODO see the best way to do this
+			//close(0);
+			close(xopen(FIFO_NAME, O_RDONLY, PERMISSIONS));
 			continue;
 		}
 
