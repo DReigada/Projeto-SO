@@ -126,18 +126,27 @@ int main(int argc, char* argv[]){
 		// in case read returned EOF and there were active terminals
 		if (narg == -2 && numTerminals > 1) {
 			numTerminals = 0;
-			close(xopen(FIFO_NAME, O_RDONLY, PERMISSIONS));
+			// wait for a terminal to open the pipe
+			xclose(xopen(FIFO_NAME, O_RDONLY, PERMISSIONS));
 			continue;
+		}
+
+		// if a terninal sent its first message
+		if ((strcmp(argVector[0], "\a") == 0) &&
+		      (strcmp(argVector[1],"start") == 0)) {
+		  numTerminals++;
+		  continue;
 		}
 
 		// if one of the terminals sent the exit message
 		if ((strcmp(argVector[0], "\a") == 0) &&
 					(strcmp(argVector[1], "exit") == 0)){
 
-			if(--numTerminals == 0) break;
+			if(--numTerminals == 0) break; // TODO test only
 			// TODO see the best way to do this
 			//close(0);
-			close(xopen(FIFO_NAME, O_RDONLY, PERMISSIONS));
+			// wait for a terminal to open the pipe
+			xclose(xopen(FIFO_NAME, O_RDONLY, PERMISSIONS));
 			continue;
 		}
 
