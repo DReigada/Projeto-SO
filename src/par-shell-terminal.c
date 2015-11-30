@@ -8,11 +8,12 @@
 #include <errno.h>
 
 #include "Auxiliares.h"
+#include "Auxiliares-terminal.h"
 
 #define EXIT_COMMAND "exit"
 
-#define MESSAGE_MAX_SIZE 50
 #define EXIT_MESSAGE "\a exit %d"
+#define START_MESSAGE "\a start %d"
 
 // the number of arguments of the par-shell-terminal
 #define NARGS 2
@@ -28,6 +29,8 @@ int main(int argc, char const *argv[]) {
 
   // open the par-shell pipe
   int parshellFd = xopen(argv[1], O_WRONLY, 0666); //TODO 2 arguments
+
+  sendMessage(START_MESSAGE, parshellFd);
 
   char *line = NULL;
   size_t size = 0;
@@ -46,9 +49,7 @@ while (1) {
   }
   // the exit command
   if (strncmp(line, EXIT_COMMAND, s - 1) == 0) {
-    char message[MESSAGE_MAX_SIZE];
-    sprintf(message, EXIT_MESSAGE, getpid());
-    xwrite(parshellFd, message, sizeof(message));
+    sendMessage(EXIT_MESSAGE, parshellFd);
     break;
   }
 
