@@ -26,8 +26,7 @@ int main(int argc, char const *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  // close the stdout and redirect the outputs to the par-shell pipe
-//  xclose(STDOUT_FILENO);
+  // open the par-shell pipe
   int parshellFd = xopen(argv[1], O_WRONLY, 0666); //TODO 2 arguments
 
   char *line = NULL;
