@@ -56,15 +56,15 @@ void xcond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
 void xcond_signal(pthread_cond_t *cond);
 
 /**
- * Frees the memory allocated for the queue, the string
- * in argVector and the argVector itself.
+ * Frees the memory allocated for the processes queue, the string
+ * in argVector, the argVector itself and the terminalsList.
  *
  * If mode is 1 it also prints the terminating info about all the processes
  * that were correctly endend.
  *
  * Doesn't have a return value.
  */
-void exitFree(char **argVector, Queue processList, int mode);
+void exitFree (char **argVector, Queue processList, int mode, Queue terminalsList);
 
 /**
  * Initializes the thread and the mutexes.

@@ -106,7 +106,7 @@ int main(int argc, char* argv[]){
 
 	// allocates the memory for the command that the user inputs
 	char** argVector = (char**) xmalloc(sizeof(char*) * MAX_N_INPUT);
-
+	argVector[0] = NULL;
 	// stores the number of arguments from the user
 	int narg = 0;
 
@@ -116,6 +116,9 @@ int main(int argc, char* argv[]){
 	// Continue until the exit command is executed
 	while (TRUE){
 
+		//free the memory allocated to store new commands
+		free(argVector[0]);
+		
 		// read the user input
 		narg = readLineArguments(argVector, MAX_N_INPUT);
 
@@ -166,6 +169,7 @@ int main(int argc, char* argv[]){
 				while((pid = getFirstQueue(terminalsList)) != NULL){
 					printf("Killing terminal with pid %d\n", *pid);
 					kill(*pid, SIGTERM); // TODO check errors
+					free(pid);
 				}
 				break;
 			}
@@ -214,7 +218,7 @@ int main(int argc, char* argv[]){
 				// case there was an error calling execv
 
 				// free the allocated memory that was copied for the child process
-				exitFree(argVector, processList, 0);
+				exitFree(argVector, processList, 0, terminalsList);
 
 				// close the log file
 				xfclose(logFile);
@@ -237,9 +241,6 @@ int main(int argc, char* argv[]){
 
 			// allow monitor thread to run (unblock it)
 			xcond_signal(&numChildren_cond_variable);
-
-			//free the memory allocated to store new commands
-			free(argVector[0]);
 		}
 	}
 	/* exit command was given */
@@ -256,7 +257,7 @@ int main(int argc, char* argv[]){
 	xcond_destroy(&numChildren_cond_variable);
 
 	// print final info and free allocated memory
-	exitFree(argVector, processList, 1);
+	exitFree(argVector, processList, 1, terminalsList);
 
 	// close the log file
 	xfclose(logFile);
