@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
+#include <errno.h>
 
 #include "Auxiliares.h"
 
@@ -26,9 +27,8 @@ int main(int argc, char const *argv[]) {
   }
 
   // close the stdout and redirect the outputs to the par-shell pipe
-  int std = dup(STDOUT_FILENO);
-  xclose(STDOUT_FILENO);
-  xopen(argv[1], O_WRONLY, 0666); //TODO 2 arguments
+//  xclose(STDOUT_FILENO);
+  int parshellFd = xopen(argv[1], O_WRONLY, 0666); //TODO 2 arguments
 
   char *line = NULL;
   size_t size = 0;
@@ -36,20 +36,31 @@ int main(int argc, char const *argv[]) {
 while (1) {
   int s = getline(&line, &size, stdin); // get the input from the user
 
+  // case it returned an error
+  if (s == -1) {
+    fprintf(stderr, "Some error occurred reading the user's input. %s\n", strerror(errno));
+    continue;
+  }
+  if (s < 2) {
+    fprintf(stdout, "Please input a valid command\n");
+    continue;
+  }
   // the exit command
   if (strncmp(line, EXIT_COMMAND, s - 1) == 0) {
     char message[MESSAGE_MAX_SIZE];
     sprintf(message, EXIT_MESSAGE, getpid());
+    xwrite(parshellFd, message, sizeof(message));
     break;
   }
 
   // if the input was not a command send it to par-shell
   else{
-    xwrite(STDOUT_FILENO, line, s);
+    xwrite(parshellFd, line, s);
   }
 
 }
 
   free(line);
+  close(parshellFd);
   return 0;
 }
