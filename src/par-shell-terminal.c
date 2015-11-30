@@ -30,25 +30,28 @@ int main(int argc, char const *argv[]) {
   // open the par-shell pipe
   int parshellFd = xopen(argv[1], O_WRONLY, 0666); //TODO 2 arguments
 
+  // send the start message
   sendMessage(START_MESSAGE, parshellFd);
 
   char *line = NULL;
   size_t size = 0;
 
 while (1) {
-  int s = getline(&line, &size, stdin); // get the input from the user
+  // get the input from the user
+  int s = getline(&line, &size, stdin);
 
   // case it returned an error
   if (s == -1) {
     fprintf(stderr, "Some error occurred reading the user's input. %s\n", strerror(errno));
     continue;
   }
+ // case it read an invalid command
   if (s < 2) {
     fprintf(stdout, "Please input a valid command\n");
     continue;
   }
   // the exit command
-  if (strncmp(line, EXIT_COMMAND, s - 1) == 0) {
+  if (strncmp(line, EXIT_COMMAND, strlen(EXIT_COMMAND)) == 0) {
     sendMessage(EXIT_MESSAGE, parshellFd);
     break;
   }
