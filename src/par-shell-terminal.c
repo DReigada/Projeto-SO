@@ -11,13 +11,14 @@
 #include "Auxiliares-terminal.h"
 
 #define EXIT_COMMAND "exit"
+#define EXIT_GLOBAL_COMMAND "exit-global"
 
-#define EXIT_MESSAGE "\a exit %d"
 #define START_MESSAGE "\a start %d"
+#define EXIT_MESSAGE "\a exit %d"
+#define EXIT_GLOBAL_MESSAGE "\a exit-global %d"
 
 // the number of arguments of the par-shell-terminal
 #define NARGS 2
-
 
 int main(int argc, char const *argv[]) {
 
@@ -51,19 +52,22 @@ while (1) {
     continue;
   }
   // the exit command
-  if (strncmp(line, EXIT_COMMAND, strlen(EXIT_COMMAND)) == 0) {
+  if (strncmp(line, EXIT_COMMAND, MAX(strlen(EXIT_COMMAND), strlen(line) - 1)) == 0) {
     sendMessage(EXIT_MESSAGE, parshellFd);
     break;
   }
 
-  // if the input was not a command send it to par-shell
-  else{
-    xwrite(parshellFd, line, s);
+  // the exit-global command
+  if (strncmp(line, EXIT_GLOBAL_COMMAND, MAX(strlen(EXIT_GLOBAL_COMMAND), strlen(line) -1)) == 0) {
+    sendMessage(EXIT_GLOBAL_MESSAGE, parshellFd);
+    break;
   }
 
+  // if the input was not a command send it to par-shell
+  xwrite(parshellFd, line, s);
 }
 
   free(line);
-  close(parshellFd);
+  xclose(parshellFd);
   return 0;
 }
