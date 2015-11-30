@@ -42,10 +42,12 @@ int readLineArguments(char **argVector, int vectorSize)
 
   if ((numRead = read(STDIN_FILENO, str, BUFSIZ)) < 0) {
     fprintf(stderr, "Error reading %s\n", strerror(errno));
+    free(str);
     return -1;
   }
   // if read returned 0 it reached EOF
   if (numRead == 0) {
+    free(str);
     return -2;
   }
 
