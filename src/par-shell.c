@@ -57,6 +57,11 @@
 // the name of the FIFO for inputs
 #define FIFO_NAME "par-shell-in"
 
+// the messages from the terminals
+#define START_MESSAGE "start"
+#define EXIT_MESSAGE "exit"
+#define EXIT_GLOBAL_MESSAGE "exit-global"
+
 int main(int argc, char* argv[]){
 
 	// To initiate the par-shell no input arguments are needed
@@ -71,8 +76,10 @@ int main(int argc, char* argv[]){
 	mkfifo(FIFO_NAME, PERMISSIONS);
 	xopen(FIFO_NAME, O_RDONLY | O_CREAT, PERMISSIONS);
 
-
+	// terminals related variables
 	int numTerminals = 0;
+	Queue terminalsList = initQueue();
+
 	// set number of children to 0
 	numChildren = 0;
 
@@ -127,26 +134,43 @@ int main(int argc, char* argv[]){
 		if (narg == -2 && numTerminals > 1) {
 			numTerminals = 0;
 			// wait for a terminal to open the pipe
+			// TODO see the best way to do this
 			xclose(xopen(FIFO_NAME, O_RDONLY, PERMISSIONS));
 			continue;
 		}
 
-		// if a terninal sent its first message
-		if ((strcmp(argVector[0], "\a") == 0) &&
-		      (strcmp(argVector[1],"start") == 0)) {
-		  numTerminals++;
-		  continue;
-		}
+		// case it is a special message from a terminal
+		if (strcmp(argVector[0], "\a") == 0){
 
-		// if one of the terminals sent the exit message
-		if ((strcmp(argVector[0], "\a") == 0) &&
-					(strcmp(argVector[1], "exit") == 0)){
+			// case its the start message
+			if ((strcmp(argVector[1], START_MESSAGE) == 0)) {
+				pid_t *pid = malloc(sizeof(pid_t));
+				*pid = atoi(argVector[2]);
+				addQueue(pid, terminalsList);
+			  numTerminals++;
+			  continue;
+			}
 
-			if(--numTerminals == 0) break; // TODO test only
-			// TODO see the best way to do this
-			//close(0);
-			// wait for a terminal to open the pipe
-			xclose(xopen(FIFO_NAME, O_RDONLY, PERMISSIONS));
+			// case it is the exit message
+			if (strcmp(argVector[1], EXIT_MESSAGE) == 0){
+					if (--numTerminals == 0)
+					// wait for a terminal to open the pipe
+					// TODO see the best way to do this
+						xclose(xopen(FIFO_NAME, O_RDONLY, PERMISSIONS));
+				continue;
+			}
+
+			// case it is the exit-global message
+			if (strcmp(argVector[1], EXIT_GLOBAL_MESSAGE) == 0) {
+				pid_t *pid;
+				while((pid = getFirstQueue(terminalsList)) != NULL){
+					printf("Killing terminal with pid %d\n", *pid);
+					kill(*pid, SIGTERM); // TODO check errors
+				}
+				break;
+			}
+
+			printf("Invalid message from a terminal\n");
 			continue;
 		}
 
