@@ -1,4 +1,4 @@
-/*File that defines two functions for a better use of malloc and realloc*/
+/*File that defines auxiliary functions used in par-shell*/
 #ifndef _AUXILIARES_PARSHELL_H_
 #define _AUXILIARES_PARSHELL_H_
 

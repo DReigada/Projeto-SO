@@ -1,4 +1,4 @@
-/*File that defines two functions for a better use of malloc and realloc*/
+/*File that defines global auxiliary functions*/
 #ifndef _AUXILIARES_H_
 #define _AUXILIARES_H_
 
