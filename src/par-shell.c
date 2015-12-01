@@ -57,6 +57,9 @@
 // the name of the FIFO for inputs
 #define FIFO_NAME "par-shell-in"
 
+//the format of the FIFO's for stats
+#define STATS_FIFO_PATH_FORMAT "statsfifo-pid-%d"
+
 // the messages from the terminals
 #define START_MESSAGE "start"
 #define EXIT_MESSAGE "exit"
@@ -168,7 +171,7 @@ int main(int argc, char* argv[]){
 				pid_t *pid;
 				while((pid = getFirstQueue(terminalsList)) != NULL){
 					printf("Killing terminal with pid %d\n", *pid);
-					kill(*pid, SIGTERM); // TODO check errors
+					kill(*pid, SIGTERM); // TODO check errors xkill
 					free(pid);
 				}
 				break;
@@ -176,10 +179,22 @@ int main(int argc, char* argv[]){
 
 			// case it is the stats message
 			if (strcmp(argVector[1], STATS_MESSAGE) == 0) {
+				// get the name of the fifo
+				char *fifoname = malloc(strlen(STATS_FIFO_PATH_FORMAT) + strlen(argVector[2]));
+				pid_t pid = atoi(argVector[2]);
+				sprintf(fifoname, STATS_FIFO_PATH_FORMAT, pid);
 
-				// TODO Implement this
+				// open the fifo and free the path string
+				int statsfifofd = xopen2(fifoname, O_WRONLY);
+				free(fifoname);
+				
+				// send the values, must lock the mutex
+				mutex_lock(&numChildren_lock);
+				xwrite(statsfifofd, &numChildren, sizeof(int));
+				xwrite(statsfifofd, &execTime, sizeof(int));
+				mutex_unlock(&numChildren_lock);
 
-
+				xclose(statsfifofd);
 				continue;
 			}
 
@@ -270,6 +285,9 @@ int main(int argc, char* argv[]){
 
 	// close the log file
 	xfclose(logFile);
+
+	// unlink the fifo
+	xunlink(FIFO_NAME);
 
 	// exit the shell with success
 	exit(EXIT_SUCCESS);
