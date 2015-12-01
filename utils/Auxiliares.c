@@ -115,6 +115,18 @@ ssize_t xwrite(int fd, const void *buf, size_t count){
 }
 
 /**
+ * Uses the same input as mkfifo (and no output), with the only
+ * difference being that it stops execution if some error occurred when
+ * calling mkfifo.
+ */
+void xmkfifo(const char *pathname, mode_t mode){
+  if (mkfifo(pathname, mode) == -1) {
+    fprintf(stderr, "Error creating a FIFO/pipe %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+}
+
+/**
  * Uses the same input as unlink (and no output), with the only
  * difference being that it stops execution if some error occurred when
  * calling unlink.

@@ -73,7 +73,7 @@ int main(int argc, char* argv[]){
 	// close the stdin and open the FIFO in its place
 	xclose(0);
 	xunlink(FIFO_NAME);
-	mkfifo(FIFO_NAME, PERMISSIONS);
+	xmkfifo(FIFO_NAME, PERMISSIONS); //TODO xmkfifo
 	xopen(FIFO_NAME, O_RDONLY | O_CREAT, PERMISSIONS);
 
 	// terminals related variables
