@@ -10,12 +10,14 @@
 #include "Auxiliares.h"
 #include "Auxiliares-terminal.h"
 
-#define EXIT_COMMAND "exit"
-#define EXIT_GLOBAL_COMMAND "exit-global"
+#define EXIT_COMMAND "exit\n"
+#define EXIT_GLOBAL_COMMAND "exit-global\n"
+#define STATS_COMMAND "stats\n"
 
 #define START_MESSAGE "\a start %d"
 #define EXIT_MESSAGE "\a exit %d"
 #define EXIT_GLOBAL_MESSAGE "\a exit-global %d"
+#define STATS_MESSAGE "\n stats %d"
 
 // the number of arguments of the par-shell-terminal
 #define NARGS 2
@@ -52,15 +54,22 @@ while (1) {
     continue;
   }
   // the exit command
-  if (strncmp(line, EXIT_COMMAND, MAX(strlen(EXIT_COMMAND), strlen(line) - 1)) == 0) {
+  if (strcmp(line, EXIT_COMMAND) == 0) {
     sendMessage(EXIT_MESSAGE, parshellFd);
     break;
   }
 
   // the exit-global command
-  if (strncmp(line, EXIT_GLOBAL_COMMAND, MAX(strlen(EXIT_GLOBAL_COMMAND), strlen(line) -1)) == 0) {
+  if (strcmp(line, EXIT_GLOBAL_COMMAND) == 0) {
     sendMessage(EXIT_GLOBAL_MESSAGE, parshellFd);
     break;
+  }
+
+  // the stats command
+  if (strcmp(line, STATS_COMMAND) == 0) {
+    sendMessage(STATS_MESSAGE, parshellFd);
+    // TODO receive the stats info and show it
+    continue;
   }
 
   // if the input was not a command send it to par-shell

@@ -11,12 +11,6 @@
 #define FALSE 0
 
 /**
- * Returns the larger of 2 numbers
- */
-#define MAX(X, Y) ((X) > (Y) ? (X) : (Y))
-
-
-/**
  * Uses the same input as malloc, and has the same output, with the only
  * difference being that it stops execution if some error occurred when
  * calling malloc.
