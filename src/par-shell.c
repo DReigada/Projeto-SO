@@ -118,7 +118,7 @@ int main(int argc, char* argv[]){
 
 		//free the memory allocated to store new commands
 		free(argVector[0]);
-		
+
 		// read the user input
 		narg = readLineArguments(argVector, MAX_N_INPUT);
 
@@ -132,9 +132,8 @@ int main(int argc, char* argv[]){
 			fprintf(stdout, "Please input a valid command\n");
 			continue;
 		}
-
 		// in case read returned EOF and there were active terminals
-		if (narg == -2 && numTerminals > 1) {
+		if (narg == -2 && numTerminals > 0) {
 			numTerminals = 0;
 			// wait for a terminal to open the pipe
 			// TODO see the best way to do this
