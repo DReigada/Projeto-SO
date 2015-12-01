@@ -10,6 +10,8 @@
 #define TRUE 1
 #define FALSE 0
 
+#define FIFO_PERMISSIONS 0666
+
 /**
  * Uses the same input as malloc, and has the same output, with the only
  * difference being that it stops execution if some error occurred when
@@ -47,7 +49,13 @@ void xfflush(FILE *stream);
  * Uses the same input as open but if some error occurs when calling open
  * it does not return null, instead it stops the execution.
  */
-int xopen(const char *pathname, int flags, mode_t mode);
+int xopen3(const char *pathname, int flags, mode_t mode);
+
+/**
+ * Uses the same input as open but if some error occurs when calling open
+ * it does not return null, instead it stops the execution.
+ */
+int xopen2(const char *pathname, int flags);
 
 /**
  * Uses the same input as close (and no output), with the only

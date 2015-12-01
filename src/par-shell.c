@@ -49,7 +49,7 @@
 // the location of the log file
 #define LOGFILE "log.txt"
 
-// filename format of the created processes output, its max size and permissions
+// filename format of the created processes output, its max size
 #define OUTPUT_FILE_FORMAT "par-shell-out-%d.txt"
 #define OUTPUT_NAME_MAX_SIZE 50
 #define PERMISSIONS 0666
@@ -61,6 +61,7 @@
 #define START_MESSAGE "start"
 #define EXIT_MESSAGE "exit"
 #define EXIT_GLOBAL_MESSAGE "exit-global"
+#define STATS_MESSAGE "stats"
 
 int main(int argc, char* argv[]){
 
@@ -73,8 +74,8 @@ int main(int argc, char* argv[]){
 	// close the stdin and open the FIFO in its place
 	xclose(0);
 	xunlink(FIFO_NAME);
-	xmkfifo(FIFO_NAME, PERMISSIONS); //TODO xmkfifo
-	xopen(FIFO_NAME, O_RDONLY | O_CREAT, PERMISSIONS);
+	xmkfifo(FIFO_NAME, FIFO_PERMISSIONS); //TODO xmkfifo
+	xopen2(FIFO_NAME, O_RDONLY);
 
 	// terminals related variables
 	int numTerminals = 0;
@@ -137,7 +138,7 @@ int main(int argc, char* argv[]){
 			numTerminals = 0;
 			// wait for a terminal to open the pipe
 			// TODO see the best way to do this
-			xclose(xopen(FIFO_NAME, O_RDONLY, PERMISSIONS));
+			xclose(xopen2(FIFO_NAME, O_RDONLY));
 			continue;
 		}
 
@@ -158,7 +159,7 @@ int main(int argc, char* argv[]){
 					if (--numTerminals == 0)
 					// wait for a terminal to open the pipe
 					// TODO see the best way to do this
-						xclose(xopen(FIFO_NAME, O_RDONLY, PERMISSIONS));
+						xclose(xopen2(FIFO_NAME, O_RDONLY));
 				continue;
 			}
 
@@ -171,6 +172,15 @@ int main(int argc, char* argv[]){
 					free(pid);
 				}
 				break;
+			}
+
+			// case it is the stats message
+			if (strcmp(argVector[1], STATS_MESSAGE) == 0) {
+
+				// TODO Implement this
+
+
+				continue;
 			}
 
 			printf("Invalid message from a terminal\n");
@@ -205,7 +215,7 @@ int main(int argc, char* argv[]){
 			xclose(1);
 			char filename[OUTPUT_NAME_MAX_SIZE];
 			sprintf(filename, OUTPUT_FILE_FORMAT, getpid());
-			xopen(filename, O_WRONLY | O_CREAT, PERMISSIONS);
+			xopen3(filename, O_WRONLY | O_CREAT, PERMISSIONS);
 
 			// Change the process image to the program given by the user
 			if (execv(argVector[0], argVector) < 0){ // check for errors

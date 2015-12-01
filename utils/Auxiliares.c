@@ -79,9 +79,23 @@ void xfflush(FILE *stream){
  * it does not return null, instead it stops the execution.
  * Returns the file descriptor in success.
  */
-int xopen(const char *pathname, int flags, mode_t mode){
+int xopen3(const char *pathname, int flags, mode_t mode){
   int fd;
   if((fd = open(pathname, flags, mode)) == -1){
+    fprintf(stderr, "Error opening file: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  return fd;
+}
+
+/**
+ * Uses the same input as open but if some error occurs when calling open
+ * it does not return null, instead it stops the execution.
+ */
+int xopen2(const char *pathname, int flags){
+  int fd;
+  if((fd = open(pathname, flags)) == -1){
     fprintf(stderr, "Error opening file: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
