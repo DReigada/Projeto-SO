@@ -79,8 +79,8 @@ while (1) {
     char *fifopath = malloc(strlen(argvCopy) + MAX_FIFO_NAME_SIZE);
     sprintf(fifopath, FIFO_PATH_FORMAT, dirname(argvCopy), getpid());
     free(argvCopy);
+    xunlink(fifopath);
     xmkfifo(fifopath, FIFO_PERMISSIONS);
-
     // send the message to par-shell
     sendMessage(STATS_MESSAGE, parshellFd);
 
@@ -91,8 +91,9 @@ while (1) {
     int numProcesses, totalTime;
     read(fifofd, &numProcesses, sizeof(int)); //TODO change to xread
     read(fifofd, &totalTime, sizeof(int));
-    // close the fifo
+    // close and delete the fifo
     xclose(fifofd);
+    xunlink(fifopath);
 
     printf("Number of active processes: %d\n", numProcesses);
     printf("Total execution time: %d\n", totalTime);
