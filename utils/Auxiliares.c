@@ -143,10 +143,11 @@ void xmkfifo(const char *pathname, mode_t mode){
 /**
  * Uses the same input as unlink (and no output), with the only
  * difference being that it stops execution if some error occurred when
- * calling unlink.
+ * calling unlink (except ENOENT).
  */
 void xunlink(const char *pathname){
-  if (unlink(pathname) == -1) {
+  if ((unlink(pathname) == -1) &&
+        errno != ENOENT) {
     fprintf(stderr, "Error unlinking file %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }

@@ -81,7 +81,7 @@ void xmkfifo(const char *pathname, mode_t mode);
 /**
  * Uses the same input as unlink (and no output), with the only
  * difference being that it stops execution if some error occurred when
- * calling unlink.
+ * calling unlink (except ENOENT).
  */
 void xunlink(const char *pathname);
 
