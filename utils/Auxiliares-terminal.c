@@ -10,6 +10,6 @@
  */
 void sendMessage(char *msgFormat, int fd){
   char message[MESSAGE_MAX_SIZE];
-  sprintf(message, msgFormat, getpid());
-  xwrite(fd, message, sizeof(message));
+  int size = sprintf(message, msgFormat, getpid());
+  xwrite(fd, message, size);
 }

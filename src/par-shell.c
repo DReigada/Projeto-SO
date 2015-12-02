@@ -171,7 +171,7 @@ int main(int argc, char* argv[]){
 
 			// case its the start message
 			if ((strcmp(argVector[1], START_MESSAGE) == 0)) {
-				pid_t *pid = malloc(sizeof(pid_t));
+				pid_t *pid = xmalloc(sizeof(pid_t));
 				*pid = atoi(argVector[2]);
 				addQueue(pid, terminalsList);
 			  numTerminals++;
@@ -290,7 +290,7 @@ int main(int argc, char* argv[]){
 	/* exit-global command was given */
 
 	printf("Waiting for all the processes to terminate\n");
-	
+
 	// indicate the thread to terminate
 	par_shell_on = FALSE;
 

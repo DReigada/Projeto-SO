@@ -61,8 +61,9 @@ int readLineArguments(char **argVector, int vectorSize)
     return -2;
   }
 
+  str[numRead] = '\0';
   // reallocs the string to its size
-  str = realloc(str, strlen(str));
+  str = realloc(str, numRead + 1);
 
   /* get the first token */
   token = strtok(str, s);
