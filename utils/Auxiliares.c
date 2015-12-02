@@ -5,7 +5,7 @@
 #include <errno.h>
 
 #include <unistd.h>
-
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -138,7 +138,7 @@ ssize_t xwrite(int fd, const void *buf, size_t count){
       fprintf(stderr, "Error writing to file/pipe %s\n", strerror(errno));
       exit(EXIT_FAILURE);
     }
-    
+
     break;
   }
 }
@@ -164,6 +164,18 @@ void xunlink(const char *pathname){
   if ((unlink(pathname) == -1) &&
         errno != ENOENT) {
     fprintf(stderr, "Error unlinking file %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+}
+
+/**
+ * Uses the same input as kill (and no output), with the only
+ * difference being that it stops execution if some error occurred when
+ * calling kill.
+ */
+void xkill(pid_t pid, int sig){
+  if (kill(pid, sig) == -1) {
+    fprintf(stderr, "Error killing process %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
 }

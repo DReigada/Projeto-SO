@@ -339,7 +339,7 @@ void killTerminals(Queue terminalsList, pid_t callingPid){
 	while((pid = getFirstQueue(terminalsList)) != NULL){
 		if (callingPid != *pid){ // do not kill the calling process
 			printf("Terminating terminal with pid %d\n", *pid);
-			kill(*pid, SIGTERM); // TODO check errors xkill
+			xkill(*pid, SIGTERM);
 		}
 		free(pid);
 	}
