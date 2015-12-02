@@ -39,7 +39,7 @@ EXTERN int par_shell_on;
 EXTERN FILE *logFile;
 
 // variables to store the data from the log file
-int iterationNum;
-int execTime;
+EXTERN int iterationNum;
+EXTERN int execTime;
 
 #endif
