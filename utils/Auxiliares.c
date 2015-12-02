@@ -81,12 +81,17 @@ void xfflush(FILE *stream){
  */
 int xopen3(const char *pathname, int flags, mode_t mode){
   int fd;
-  if((fd = open(pathname, flags, mode)) == -1){
-    fprintf(stderr, "Error opening file: %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
+  while (1) {
+    if((fd = open(pathname, flags, mode)) == -1){
+      // if the error was EINTR open again
+      if (errno == EINTR) continue;
+      fprintf(stderr, "Error opening file: %s\n", strerror(errno));
+      exit(EXIT_FAILURE);
+    }
+
+    return fd;
   }
 
-  return fd;
 }
 
 /**
@@ -95,12 +100,16 @@ int xopen3(const char *pathname, int flags, mode_t mode){
  */
 int xopen2(const char *pathname, int flags){
   int fd;
-  if((fd = open(pathname, flags)) == -1){
-    fprintf(stderr, "Error opening file: %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
-  }
+  while (1) {
+    if((fd = open(pathname, flags)) == -1){
+      // if the error was EINTR open again
+      if (errno == EINTR) continue;
+      fprintf(stderr, "Error opening file: %s\n", strerror(errno));
+      exit(EXIT_FAILURE);
+    }
 
-  return fd;
+    return fd;
+  }
 }
 
 /**
@@ -122,9 +131,15 @@ void xclose(int fd){
  * Returns the  number  of bytes written.
  */
 ssize_t xwrite(int fd, const void *buf, size_t count){
-  if (write(fd, buf, count) == -1) {
-    fprintf(stderr, "Error writing to file/pipe %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
+  while(1){
+    if (write(fd, buf, count) == -1) {
+      // if the error was EINTR read again
+      if (errno == EINTR) continue;
+      fprintf(stderr, "Error writing to file/pipe %s\n", strerror(errno));
+      exit(EXIT_FAILURE);
+    }
+    
+    break;
   }
 }
 
