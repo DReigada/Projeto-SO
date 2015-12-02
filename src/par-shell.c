@@ -11,6 +11,11 @@
 // shared variables and the monitor function
 #include "globalVariables.h"
 #include "threadFunction.h"
+// our own files
+#include "commandlinereader.h"
+#include "process_info.h"
+#include "Auxiliares.h"
+#include "Auxiliares-par-shell.h"
 
 // GNU C libraries
 #include <stdio.h>
@@ -27,11 +32,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-// our own files
-#include "commandlinereader.h"
-#include "process_info.h"
-#include "Auxiliares.h"
-#include "Auxiliares-par-shell.h"
 
 // Constants
 #define NARGS 1 // number of arguments of the par-shell program
@@ -73,6 +73,14 @@ int main(int argc, char* argv[]){
 		printf("Usage: par-shell\n");
 		exit(EXIT_FAILURE);
 	}
+
+	// initialize the SIGINT flag and associate the signal handler
+	sigintFlag = FALSE;
+	struct sigaction sa;
+	sa.sa_handler = sigintHandler;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	sigaction(SIGINT, &sa, NULL); // xsigaction
 
 	// close the stdin and open the FIFO in its place
 	xclose(0);
@@ -136,12 +144,25 @@ int main(int argc, char* argv[]){
 			fprintf(stdout, "Please input a valid command\n");
 			continue;
 		}
-		// in case read returned EOF and there were active terminals
-		if (narg == -2 && numTerminals > 0) {
+		// in case read returned EOF
+		if (narg == -2 && numTerminals >= 0) {
 			numTerminals = 0;
 			// wait for a terminal to open the pipe
 			// TODO see the best way to do this
 			xclose(xopen2(FIFO_NAME, O_RDONLY));
+			continue;
+		}
+		// case the SIGINT signal ocurred
+		if ((narg == -3) && sigintFlag) {
+			// kill all terminals
+			pid_t *pid;
+			while((pid = getFirstQueue(terminalsList)) != NULL){
+				printf("Killing terminal with pid %d\n", *pid);
+				kill(*pid, SIGTERM); // TODO check errors xkill
+				free(pid);
+			}
+
+			numTerminals = 0;
 			continue;
 		}
 
@@ -187,7 +208,7 @@ int main(int argc, char* argv[]){
 				// open the fifo and free the path string
 				int statsfifofd = xopen2(fifoname, O_WRONLY);
 				free(fifoname);
-				
+
 				// send the values, must lock the mutex
 				mutex_lock(&numChildren_lock);
 				xwrite(statsfifofd, &numChildren, sizeof(int));
@@ -204,7 +225,6 @@ int main(int argc, char* argv[]){
 
 		// case the command is exit
 		if (strcmp(argVector[0], EXIT_COMMAND) == 0){
-			printf("Waiting for all the processes to terminate\n");
 			break;
 		}
 
@@ -267,8 +287,10 @@ int main(int argc, char* argv[]){
 			xcond_signal(&numChildren_cond_variable);
 		}
 	}
-	/* exit command was given */
+	/* exit-global command was given */
 
+	printf("Waiting for all the processes to terminate\n");
+	
 	// indicate the thread to terminate
 	par_shell_on = FALSE;
 
