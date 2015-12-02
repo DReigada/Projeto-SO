@@ -85,7 +85,7 @@ int main(int argc, char* argv[]){
 	// close the stdin and open the FIFO in its place
 	xclose(0);
 	xunlink(FIFO_NAME);
-	xmkfifo(FIFO_NAME, FIFO_PERMISSIONS); //TODO xmkfifo
+	xmkfifo(FIFO_NAME, FIFO_PERMISSIONS);
 	xopen2(FIFO_NAME, O_RDONLY);
 
 	// terminals related variables
@@ -151,20 +151,13 @@ int main(int argc, char* argv[]){
 			while(!isEmptyQueue(terminalsList))
 				free((pid_t *) getFirstQueue(terminalsList));
 			// wait for a terminal to open the pipe
-			// TODO see the best way to do this
 			xclose(xopen2(FIFO_NAME, O_RDONLY));
 			continue;
 		}
 		// case the SIGINT signal ocurred
 		if ((narg == -3) && sigintFlag) {
 			// kill all terminals
-			pid_t *pid;
-			while((pid = getFirstQueue(terminalsList)) != NULL){
-				printf("Killing terminal with pid %d\n", *pid);
-				kill(*pid, SIGTERM); // TODO check errors xkill
-				free(pid);
-			}
-
+			killTerminals(terminalsList, 0);
 			numTerminals = 0;
 			continue;
 		}
@@ -188,24 +181,15 @@ int main(int argc, char* argv[]){
 				free((pid_t *) getSpecificQueue(terminalsList, &pid, comparePids, 1));
 					if (--numTerminals == 0)
 					// wait for a terminal to open the pipe
-					// TODO see the best way to do this
-						xclose(xopen2(FIFO_NAME, O_RDONLY));
+						xclose(xopen2(FIFO_NAME, O_RDONLY)); // TODO wait for fifo function
 				continue;
 			}
 
 			// case it is the exit-global message
 			if (strcmp(argVector[1], EXIT_GLOBAL_MESSAGE) == 0) {
 				pid_t callingPid = atoi(argVector[2]);
-				pid_t *pid;
 				// kill all processes in the list
-				printf("Terminating all terminals\n");
-				while((pid = getFirstQueue(terminalsList)) != NULL){
-					if (callingPid != *pid){ // do not kill the calling process
-						printf("Terminating terminal with pid %d\n", *pid);
-						kill(*pid, SIGTERM); // TODO check errors xkill
-					}
-					free(pid);
-				}
+				killTerminals(terminalsList, callingPid);
 				break;
 			}
 

@@ -5,6 +5,7 @@
 
 #include <string.h>
 #include <errno.h>
+#include <signal.h>
 
 #define MAXLINESIZE 50
 
@@ -326,6 +327,22 @@ int countTokens(char *str, const char *delim){
  */
 int comparePids(void *pid1, void *pid2){
 	return *(pid_t*) pid1 == *(pid_t*) pid2;
+}
+
+/**
+ * Kills all the terminals in the given list,
+ * except the one with pid equal to callingPid
+ */
+void killTerminals(Queue terminalsList, pid_t callingPid){
+	printf("Terminating all terminals\n");
+ 	pid_t *pid;
+	while((pid = getFirstQueue(terminalsList)) != NULL){
+		if (callingPid != *pid){ // do not kill the calling process
+			printf("Terminating terminal with pid %d\n", *pid);
+			kill(*pid, SIGTERM); // TODO check errors xkill
+		}
+		free(pid);
+	}
 }
 
 /**

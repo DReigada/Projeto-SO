@@ -146,6 +146,12 @@ int countTokens(char *str, const char *delim);
 int comparePids(void *pid1, void *pid2);
 
 /**
+ * Kills all the terminals in the given list,
+ * except the one with pid equal to callingPid
+ */
+void killTerminals(Queue terminalsList, pid_t callingPid);
+
+/**
  * The handler for SIGINT
  */
 void sigintHandler(int signal);
