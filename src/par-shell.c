@@ -147,6 +147,9 @@ int main(int argc, char* argv[]){
 		// in case read returned EOF
 		if (narg == -2 && numTerminals >= 0) {
 			numTerminals = 0;
+			// remove all terminals form the list
+			while(!isEmptyQueue(terminalsList))
+				free((pid_t *) getFirstQueue(terminalsList));
 			// wait for a terminal to open the pipe
 			// TODO see the best way to do this
 			xclose(xopen2(FIFO_NAME, O_RDONLY));
@@ -180,6 +183,9 @@ int main(int argc, char* argv[]){
 
 			// case it is the exit message
 			if (strcmp(argVector[1], EXIT_MESSAGE) == 0){
+				// get the pid of the terminal that called exit and remove it from the list
+				pid_t pid = atoi(argVector[2]);
+				free((pid_t *) getSpecificQueue(terminalsList, &pid, comparePids, 1));
 					if (--numTerminals == 0)
 					// wait for a terminal to open the pipe
 					// TODO see the best way to do this
@@ -189,10 +195,15 @@ int main(int argc, char* argv[]){
 
 			// case it is the exit-global message
 			if (strcmp(argVector[1], EXIT_GLOBAL_MESSAGE) == 0) {
+				pid_t callingPid = atoi(argVector[2]);
 				pid_t *pid;
+				// kill all processes in the list
+				printf("Terminating all terminals\n");
 				while((pid = getFirstQueue(terminalsList)) != NULL){
-					printf("Killing terminal with pid %d\n", *pid);
-					kill(*pid, SIGTERM); // TODO check errors xkill
+					if (callingPid != *pid){ // do not kill the calling process
+						printf("Terminating terminal with pid %d\n", *pid);
+						kill(*pid, SIGTERM); // TODO check errors xkill
+					}
 					free(pid);
 				}
 				break;

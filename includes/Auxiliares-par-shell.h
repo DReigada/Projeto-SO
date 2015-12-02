@@ -140,6 +140,12 @@ int testlines(char *iteration, char *pid, char *exectime);
 int countTokens(char *str, const char *delim);
 
 /**
+ * Compares two pid_t referenced by pid1 and pid2.
+ * Returns 0 if they are not equal.
+ */
+int comparePids(void *pid1, void *pid2);
+
+/**
  * The handler for SIGINT
  */
 void sigintHandler(int signal);
