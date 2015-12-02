@@ -22,8 +22,11 @@ Arguments:
  N-1 arguments to be read; the entry after the last argument is set to NULL.
 
 Return value:
- The number of arguments that were read, or -1 if some error occurred.
- If -2 is returned then read returned EOF.
+ The number of arguments that were read, or:
+    -1 if some error occurred.
+    -2 is returned then read returned EOF.
+    -3 if the read call was interrupted by a signal before any data was read
+
 */
 
 int readLineArguments(char **argVector, int vectorSize)
@@ -44,6 +47,10 @@ int readLineArguments(char **argVector, int vectorSize)
     argVector[i] = NULL;
 
   if ((numRead = read(STDIN_FILENO, str, BUFSIZ)) < 0) {
+    if (errno == EINTR) {
+      free(str);
+      return -3;
+    }
     fprintf(stderr, "Error reading %s\n", strerror(errno));
     free(str);
     return -1;
