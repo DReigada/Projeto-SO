@@ -92,4 +92,11 @@ void xunlink(const char *pathname);
  */
 void xkill(pid_t pid, int sig);
 
+/**
+ * Waits for a FIFO to open on "the other side"
+ * Takes the pathname of the fifo and the flag with which open should open the fifo
+ * TODO review this
+ */
+void waitFifo(const char *pathname, int flags);
+
 #endif

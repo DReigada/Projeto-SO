@@ -151,7 +151,7 @@ int main(int argc, char* argv[]){
 			while(!isEmptyQueue(terminalsList))
 				free((pid_t *) getFirstQueue(terminalsList));
 			// wait for a terminal to open the pipe
-			xclose(xopen2(FIFO_NAME, O_RDONLY));
+			waitFifo(FIFO_NAME, O_RDONLY);
 			continue;
 		}
 		// case the SIGINT signal ocurred
@@ -181,7 +181,7 @@ int main(int argc, char* argv[]){
 				free((pid_t *) getSpecificQueue(terminalsList, &pid, comparePids, 1));
 					if (--numTerminals == 0)
 					// wait for a terminal to open the pipe
-						xclose(xopen2(FIFO_NAME, O_RDONLY)); // TODO wait for fifo function
+						waitFifo(FIFO_NAME, O_RDONLY);
 				continue;
 			}
 

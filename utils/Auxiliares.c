@@ -179,3 +179,13 @@ void xkill(pid_t pid, int sig){
     exit(EXIT_FAILURE);
   }
 }
+
+/**
+ * Waits for a FIFO to open on "the other side"
+ * Takes the pathname of the fifo and the flag with which open should open the fifo
+ * TODO review this
+ */
+void waitFifo(const char *pathname, int flags){
+  // opens the fifo and closes it right after
+  xclose(xopen2(pathname, flags));
+}
