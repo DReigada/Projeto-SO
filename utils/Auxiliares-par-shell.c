@@ -14,7 +14,6 @@
 
 #define TOKEN_DELIMITER " \n\r\t"
 
-
 /**
  * Uses the same input as pthread_mutex_lock (and no output), with the only
  * difference being that it stops execution if some error occurred when
@@ -319,4 +318,11 @@ int countTokens(char *str, const char *delim){
       ptr++;
   }
   return count;
+}
+
+/**
+ * The handler for SIGINT
+ */
+void sigintHandler(int signal){
+	sigintFlag = TRUE;
 }

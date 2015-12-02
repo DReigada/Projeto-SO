@@ -13,6 +13,15 @@
 #define TRUE 1
 #define FALSE 0
 
+#ifdef DEFINE_VARIABLES
+#define EXTERN /* nothing */
+#else
+#define EXTERN extern
+#endif
+
+// the flag for the SIGINT handler
+EXTERN int sigintFlag;
+
 /**
  * Uses the same input as pthread_mutex_lock (and no output), with the only
  * difference being that it stops execution if some error occurred when
@@ -129,5 +138,10 @@ int testlines(char *iteration, char *pid, char *exectime);
  * Returns the number of tokens
  */
 int countTokens(char *str, const char *delim);
+
+/**
+ * The handler for SIGINT
+ */
+void sigintHandler(int signal);
 
 #endif
