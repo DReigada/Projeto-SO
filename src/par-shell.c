@@ -284,6 +284,9 @@ int main(int argc, char* argv[]){
 	}
 	/* exit-global command was given */
 
+	// unlink the fifo
+	xunlink(FIFO_NAME);
+
 	printf("Waiting for all the processes to terminate\n");
 
 	// indicate the thread to terminate
@@ -302,9 +305,6 @@ int main(int argc, char* argv[]){
 
 	// close the log file
 	xfclose(logFile);
-
-	// unlink the fifo
-	xunlink(FIFO_NAME);
 
 	// exit the shell with success
 	exit(EXIT_SUCCESS);
