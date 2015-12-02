@@ -89,7 +89,7 @@ while (1) {
 
     // the numbers to get from par-shell
     int numProcesses, totalTime;
-    xread(fifofd, &numProcesses, sizeof(int)); //TODO change to xread
+    xread(fifofd, &numProcesses, sizeof(int));
     xread(fifofd, &totalTime, sizeof(int));
     // close and delete the fifo
     xclose(fifofd);
