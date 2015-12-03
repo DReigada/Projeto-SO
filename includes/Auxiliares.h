@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <pthread.h>
+#include <signal.h>
 
 // boolean values
 #define TRUE 1
@@ -105,5 +106,12 @@ void xkill(pid_t pid, int sig);
  * TODO review this
  */
 void waitFifo(const char *pathname, int flags);
+
+/**
+ * Uses the same input as sigaction (and no output), with the only
+ * difference being that it stops execution if some error occurred when
+ * calling sigaction.
+ */
+void xsigaction(int signum, const struct sigaction *act, struct sigaction *oldact);
 
 #endif

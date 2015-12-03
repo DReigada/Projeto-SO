@@ -80,7 +80,7 @@ int main(int argc, char* argv[]){
 	sa.sa_handler = sigintHandler;
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
-	sigaction(SIGINT, &sa, NULL); // xsigaction
+	xsigaction(SIGINT, &sa, NULL);
 
 	// close the stdin and open the FIFO in its place
 	xclose(0);
@@ -145,6 +145,7 @@ int main(int argc, char* argv[]){
 			continue;
 		}
 		// in case read returned EOF
+		// it means all terminals were terminated without calling exit
 		if (narg == -2 && numTerminals >= 0) {
 			numTerminals = 0;
 			// remove all terminals form the list

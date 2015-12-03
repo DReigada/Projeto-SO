@@ -204,3 +204,15 @@ void waitFifo(const char *pathname, int flags){
   // opens the fifo and closes it right after
   xclose(xopen2(pathname, flags));
 }
+
+/**
+ * Uses the same input as sigaction (and no output), with the only
+ * difference being that it stops execution if some error occurred when
+ * calling sigaction.
+ */
+void xsigaction(int signum, const struct sigaction *act, struct sigaction *oldact){
+  if (sigaction(signum, act, oldact) == -1) {
+      fprintf(stderr, "Error calling sigaction: %s\n", strerror(errno));
+      exit(EXIT_FAILURE);
+  }
+}
