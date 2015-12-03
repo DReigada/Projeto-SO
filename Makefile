@@ -5,7 +5,7 @@ ODIR=build
 BDIR=bin
 TDIR=test
 
-_DEPS = Auxiliares.h Auxiliares-par-shell.h Auxiliares-terminal.h globalVariables.h QUEUE.h commandlinereader.h process_info.h threadFunction.h
+_DEPS = Message.h Auxiliares.h Auxiliares-par-shell.h Auxiliares-terminal.h globalVariables.h QUEUE.h commandlinereader.h process_info.h threadFunction.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 _SHELL-BUILD = QUEUE.o commandlinereader.o process_info.o Auxiliares.o Auxiliares-par-shell.o threadFunction.o par-shell.o
