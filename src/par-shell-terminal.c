@@ -12,17 +12,15 @@
 #include "Auxiliares.h"
 #include "Auxiliares-terminal.h"
 
+#include "Message.h"
+
+// the special commands to compare with
 #define EXIT_COMMAND "exit\n"
 #define EXIT_GLOBAL_COMMAND "exit-global\n"
 #define STATS_COMMAND "stats\n"
 
-#define START_MESSAGE "\a start %d"
-#define EXIT_MESSAGE "\a exit %d"
-#define EXIT_GLOBAL_MESSAGE "\a exit-global %d"
-#define STATS_MESSAGE "\a stats %d"
-
 #define FIFO_PATH_FORMAT "%s/statsfifo-pid-%d"
-#define MAX_FIFO_NAME_SIZE 25
+#define MAX_FIFO_NAME_SIZE 30
 
 // the number of arguments of the par-shell-terminal
 #define NARGS 2
@@ -47,7 +45,9 @@ int main(int argc, char const *argv[]) {
   int parshellFd = xopen2(argv[1], O_WRONLY);
 
   // send the start message
-  sendMessage(START_MESSAGE, parshellFd);
+  Message startMessage;
+  startMessage.senderPid = getpid();
+  sendMessage(&startMessage, START_M, parshellFd);
 
   char *line = NULL;
   size_t size = 0;
@@ -72,15 +72,20 @@ while (1) {
     fprintf(stdout, "Please input a valid command\n");
     continue;
   }
+
+  // create the message and set the pid
+  Message message;
+  message.senderPid = getpid();
+
   // the exit command
   if (strcmp(line, EXIT_COMMAND) == 0) {
-    sendMessage(EXIT_MESSAGE, parshellFd);
+    sendMessage(&message, EXIT_M, parshellFd);
     break;
   }
 
   // the exit-global command
   if (strcmp(line, EXIT_GLOBAL_COMMAND) == 0) {
-    sendMessage(EXIT_GLOBAL_MESSAGE, parshellFd);
+    sendMessage(&message, EXIT_GLOBAL_M, parshellFd);
     break;
   }
 
@@ -96,8 +101,9 @@ while (1) {
     free(argvCopy);
     xunlink(fifopath);
     xmkfifo(fifopath, FIFO_PERMISSIONS);
+
     // send the message to par-shell
-    sendMessage(STATS_MESSAGE, parshellFd);
+    sendMessage(&message, STATS_M, parshellFd);
 
     // open the fifo
     int fifofd = xopen2(fifopath, O_RDONLY);
@@ -117,8 +123,14 @@ while (1) {
     continue;
   }
 
-  // if the input was not a command send it to par-shell
-  xwrite(parshellFd, line, s);
+  // if the input was not a special command send it to par-shell
+  // unless the command was too long
+  if (s - 1 > MAX_CONTENT_SIZE) {
+    printf("Input is too long\n");
+    continue;
+  }
+  strcpy(message.content, line);
+  sendMessage(&message, COMMAND_M, parshellFd);
 }
 
   free(line);
