@@ -6,6 +6,7 @@
 #include <string.h>
 #include <errno.h>
 #include <signal.h>
+#include <unistd.h>
 
 #define MAXLINESIZE 50
 
@@ -350,4 +351,25 @@ void killTerminals(Queue terminalsList, pid_t callingPid){
  */
 void sigintHandler(int signal){
 	sigintFlag = TRUE;
+}
+
+/**
+ * Reads a Message from stdin and stores it in the memory pointed by message
+ * Returns:
+ * 		- 0 on success;
+ *   	- 1 if it read EOF;
+ *   	- 2 if read was interrupted by a signal before any data was read (EINTR);
+ *   	- -1 on error reading.
+ */
+int readMessage(Message *message){
+	size_t size = read(STDIN_FILENO, message, sizeof(Message));
+	// if it returned an error
+	if (size == -1) {
+		if (errno == EINTR) return 2;
+		fprintf(stderr, "Error reading %s\n", strerror(errno));
+		return -1;
+	}
+	// if read returned 0 it reached EOF
+	if (size == 0) return 1;
+	return 0;
 }

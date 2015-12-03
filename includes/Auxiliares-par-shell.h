@@ -8,6 +8,7 @@
 
 #include "process_info.h"
 #include "QUEUE.h"
+#include <Message.h>
 
 // boolean values
 #define TRUE 1
@@ -155,5 +156,15 @@ void killTerminals(Queue terminalsList, pid_t callingPid);
  * The handler for SIGINT
  */
 void sigintHandler(int signal);
+
+/**
+ * Reads a Message from stdin and stores it in the memory pointed by message
+ * Returns:
+ * 		- 0 on success;
+ *   	- 1 if it read EOF;
+ *   	- 2 if read was interrupted by a signal before any data was read (EINTR);
+ *   	- -1 on error reading.
+ */
+int readMessage(Message *message);
 
 #endif
