@@ -231,6 +231,12 @@ int main(int argc, char* argv[]){
 			xcond_wait(&numChildren_cond_variable, &numChildren_lock);
 		mutex_unlock(&numChildren_lock);
 
+		// if the SIGINT signal ocurred while waiting
+		if (sigintFlag){
+			// kill all terminals and break the cicle
+			killTerminals(terminalsList, 0);
+			break;
+		}
 
 		pid_t child_pid = fork();    // create a new child process
 		if (child_pid == -1){        // check for errors
