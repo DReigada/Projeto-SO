@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <libgen.h>
 
+#define DEFINE_VARIABLES
 #include "Auxiliares.h"
 #include "Auxiliares-terminal.h"
 
@@ -34,6 +35,14 @@ int main(int argc, char const *argv[]) {
     exit(EXIT_FAILURE);
   }
 
+  // initialize the SIGTERM flag and associate the signal handler
+  sigtermFlag = FALSE;
+  struct sigaction sa;
+  sa.sa_handler = sigtermHandler;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = 0;
+  xsigaction(SIGTERM, &sa, NULL);
+
   // open the par-shell pipe
   int parshellFd = xopen2(argv[1], O_WRONLY);
 
@@ -44,9 +53,15 @@ int main(int argc, char const *argv[]) {
   size_t size = 0;
 
 while (1) {
+
   // get the input from the user
   int s = getline(&line, &size, stdin);
 
+  // case it received the sigterm interrupt
+  if (sigtermFlag == TRUE) {
+    printf("Terminal was forced to shutdown\n");
+    break;
+  }
   // case it returned an error
   if (s == -1) {
     fprintf(stderr, "Some error occurred reading the user's input. %s\n", strerror(errno));

@@ -13,3 +13,10 @@ void sendMessage(char *msgFormat, int fd){
   int size = sprintf(message, msgFormat, getpid());
   xwrite(fd, message, size);
 }
+
+/**
+ * The handler for SIGTERM
+ */
+void sigtermHandler(int signal){
+  sigtermFlag = TRUE;
+}
