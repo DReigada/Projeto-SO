@@ -156,10 +156,9 @@ int main(int argc, char* argv[]){
 		}
 		// case the SIGINT signal ocurred
 		if ((narg == -3) && sigintFlag) {
-			// kill all terminals
+			// kill all terminals and break the cicle
 			killTerminals(terminalsList, 0);
-			numTerminals = 0;
-			continue;
+			break;
 		}
 
 		// case it is a special message from a terminal
