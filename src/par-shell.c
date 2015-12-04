@@ -41,8 +41,6 @@
 #define N_MUTEXES 2  // number of mutexes that will be needed
 #define MAXPAR 4	 // maximum number of child processes in any given moment
 
-#define EXIT_COMMAND "exit"
-
 // define the fopen modes
 #define READAPPEND "a+"
 
@@ -170,8 +168,8 @@ int main(int argc, char* argv[]){
 				pid_t *pid = xmalloc(sizeof(pid_t));
 				*pid = atoi(argVector[2]);
 				addQueue(pid, terminalsList);
-			  numTerminals++;
-			  continue;
+			  	numTerminals++;
+			  	continue;
 			}
 
 			// case it is the exit message
@@ -216,11 +214,6 @@ int main(int argc, char* argv[]){
 
 			printf("Invalid message from a terminal\n");
 			continue;
-		}
-
-		// case the command is exit
-		if (strcmp(argVector[0], EXIT_COMMAND) == 0){
-			break;
 		}
 
 		/* else we assume it was given a path to a program to execute */
