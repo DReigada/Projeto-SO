@@ -95,7 +95,6 @@ while (1) {
 
   // the stats command
   if (strcmp(line, STATS_COMMAND) == 0) {
-    printf("yay\n");
     // copy the content of argv1 to an aux string
     char *argvCopy = malloc(strlen(argv[1]) + 1);
     strcpy(argvCopy, argv[1]);
