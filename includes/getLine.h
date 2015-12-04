@@ -8,4 +8,6 @@
  * Returns 1 if successful; 0 if there was no input or an error ocurred using 
  * fgets; -1 if there was overflow
  */
-int getLine(char* str, size_t sz)
+int getLine(char* str, int sz);
+
+

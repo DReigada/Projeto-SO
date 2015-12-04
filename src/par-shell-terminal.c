@@ -12,15 +12,19 @@
 #include "Auxiliares.h"
 #include "Auxiliares-terminal.h"
 
+#include "getLine.h"
 #include "Message.h"
 
 // the special commands to compare with
-#define EXIT_COMMAND "exit\n"
-#define EXIT_GLOBAL_COMMAND "exit-global\n"
-#define STATS_COMMAND "stats\n"
+#define EXIT_COMMAND "exit"
+#define EXIT_GLOBAL_COMMAND "exit-global"
+#define STATS_COMMAND "stats"
 
 #define FIFO_PATH_FORMAT "%s/statsfifo-pid-%d"
 #define MAX_FIFO_NAME_SIZE 30
+
+// maximum command size
+#define SIZ BUFSIZ
 
 // the number of arguments of the par-shell-terminal
 #define NARGS 2
@@ -49,27 +53,27 @@ int main(int argc, char const *argv[]) {
   startMessage.senderPid = getpid();
   sendMessage(&startMessage, START_M, parshellFd);
 
-  char *line = NULL;
+  char *line = (char*) xmalloc(sizeof(char*) * (SIZ + 1));
   size_t size = 0;
 
 while (1) {
 
   // get the input from the user
-  int s = getline(&line, &size, stdin);
+  int s = getLine(line, SIZ);
 
   // case it received the sigterm interrupt
   if (sigtermFlag == TRUE) {
     printf("Terminal was forced to shutdown\n");
     break;
   }
-  // case it returned an error
+  // case overflow
   if (s == -1) {
-    fprintf(stderr, "Some error occurred reading the user's input. %s\n", strerror(errno));
+    fprintf(stderr, "Overflow error.\n");
     continue;
   }
- // case it read an invalid command
-  if (s < 2) {
-    fprintf(stdout, "Please input a valid command\n");
+ // case it read an invalid command or an error occurred
+  if (s == 0) {
+    fprintf(stdout, "Error reading input.\n");
     continue;
   }
 
@@ -91,6 +95,7 @@ while (1) {
 
   // the stats command
   if (strcmp(line, STATS_COMMAND) == 0) {
+    printf("yay\n");
     // copy the content of argv1 to an aux string
     char *argvCopy = malloc(strlen(argv[1]) + 1);
     strcpy(argvCopy, argv[1]);
