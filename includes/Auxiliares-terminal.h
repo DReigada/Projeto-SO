@@ -2,6 +2,8 @@
 #ifndef _AUXILIARES_TERMINAL_H_
 #define _AUXILIARES_TERMINAL_H_
 
+#include "Message.h"
+
 #define MESSAGE_MAX_SIZE 50
 
 #ifdef DEFINE_VARIABLES
@@ -14,9 +16,9 @@
 EXTERN int sigtermFlag;
 
 /**
- * Sends a message with msgFormat to the file/pipe with file descriptor fd
+ * Sends a message (seting its type first) to the pipe with file descriptor fd
  */
-void sendMessage(char *msgFormat, int fd);
+void sendMessage(Message *message, int type, int fd);
 
 /**
  * The handler for SIGTERM

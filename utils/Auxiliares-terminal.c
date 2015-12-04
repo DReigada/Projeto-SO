@@ -6,12 +6,11 @@
 #include "Auxiliares.h"
 
 /**
- * Sends a message with msgFormat to the file/pipe with file descriptor fd
+ * Sends a message (seting its type first) to the pipe with file descriptor fd
  */
-void sendMessage(char *msgFormat, int fd){
-  char message[MESSAGE_MAX_SIZE];
-  int size = sprintf(message, msgFormat, getpid());
-  xwrite(fd, message, size);
+void sendMessage(Message *message, int type, int fd){
+  message->type = type;
+  xwrite(fd, message, sizeof(Message));
 }
 
 /**

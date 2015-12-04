@@ -12,7 +12,7 @@
 #include "globalVariables.h"
 #include "threadFunction.h"
 // our own files
-#include "commandlinereader.h"
+#include "commandsplitter.h"
 #include "process_info.h"
 #include "Auxiliares.h"
 #include "Auxiliares-par-shell.h"
@@ -57,6 +57,7 @@
 
 //the format of the FIFO's for stats
 #define STATS_FIFO_PATH_FORMAT "statsfifo-pid-%d"
+#define MAX_FIFO_NAME_SIZE 30
 
 // the messages from the terminals
 #define START_MESSAGE "start"
@@ -114,11 +115,9 @@ int main(int argc, char* argv[]){
 
 	initThread(&thread_id, &monitorChildProcesses, mutex_list, N_MUTEXES);
 
-	// allocates the memory for the command that the user inputs
+	// allocates the memory for the command that the terminals send
 	char** argVector = (char**) xmalloc(sizeof(char*) * MAX_N_INPUT);
 	argVector[0] = NULL;
-	// stores the number of arguments from the user
-	int narg = 0;
 
 	// initializes the list to store the children
 	processList = initQueue();
@@ -126,25 +125,17 @@ int main(int argc, char* argv[]){
 	// Continue until the exit command is executed
 	while (TRUE){
 
-		//free the memory allocated to store new commands
-		free(argVector[0]);
+		Message message;
+		int mret = readMessage(&message);
 
-		// read the user input
-		narg = readLineArguments(argVector, MAX_N_INPUT);
-
-		// check for errors reading the input and read again if there were any
-		if (narg == -1){
-			fprintf(stderr, "Some error occurred reading the user's input.\n");
-			continue;
-		}
-		// in case no command was inserted
-		else if (narg == 0){
-			fprintf(stdout, "Please input a valid command\n");
+		// check for errors reading the message and read again if there were any
+		if (mret == -1){
+			fprintf(stderr, "Some error occurred reading a message from a terminal.\n");
 			continue;
 		}
 		// in case read returned EOF
 		// it means all terminals were terminated without calling exit
-		if (narg == -2 && numTerminals >= 0) {
+		if (mret == 1) {
 			numTerminals = 0;
 			// remove all terminals form the list
 			while(!isEmptyQueue(terminalsList))
@@ -154,131 +145,128 @@ int main(int argc, char* argv[]){
 			continue;
 		}
 		// case the SIGINT signal ocurred
-		if ((narg == -3) && sigintFlag) {
+		if ((mret == 2) && sigintFlag) {
 			// kill all terminals and break the cicle
 			killTerminals(terminalsList, 0);
 			break;
 		}
 
-		// case it is a special message from a terminal
-		if (strcmp(argVector[0], "\a") == 0){
+		// case its the start message
+		if (message.type == START_M) {
+			pid_t *pid = xmalloc(sizeof(pid_t));
+			*pid = message.senderPid;
+			addQueue(pid, terminalsList);
+		  numTerminals++;
+		  continue;
+		}
 
-			// case its the start message
-			if ((strcmp(argVector[1], START_MESSAGE) == 0)) {
-				pid_t *pid = xmalloc(sizeof(pid_t));
-				*pid = atoi(argVector[2]);
-				addQueue(pid, terminalsList);
-			  	numTerminals++;
-			  	continue;
-			}
+		// case it is the exit message
+		if (message.type == EXIT_M){
+			// get the pid of the terminal that called exit and remove it from the list
+			pid_t pid = message.senderPid;
+			free((pid_t *) getSpecificQueue(terminalsList, &pid, comparePids, 1));
+				if (--numTerminals == 0)
+				// wait for a terminal to open the pipe
+					waitFifo(FIFO_NAME, O_RDONLY);
+			continue;
+		}
 
-			// case it is the exit message
-			if (strcmp(argVector[1], EXIT_MESSAGE) == 0){
-				// get the pid of the terminal that called exit and remove it from the list
-				pid_t pid = atoi(argVector[2]);
-				free((pid_t *) getSpecificQueue(terminalsList, &pid, comparePids, 1));
-					if (--numTerminals == 0)
-					// wait for a terminal to open the pipe
-						waitFifo(FIFO_NAME, O_RDONLY);
-				continue;
-			}
+		// case it is the exit-global message
+		if (message.type == EXIT_GLOBAL_M) {
+			pid_t callingPid = message.senderPid;
+			// kill all processes in the list
+			killTerminals(terminalsList, callingPid);
+			break;
+		}
 
-			// case it is the exit-global message
-			if (strcmp(argVector[1], EXIT_GLOBAL_MESSAGE) == 0) {
-				pid_t callingPid = atoi(argVector[2]);
-				// kill all processes in the list
-				killTerminals(terminalsList, callingPid);
+		// case it is the stats message
+		if (message.type == STATS_M) {
+			// get the name of the fifo
+			char fifoname[MAX_FIFO_NAME_SIZE];
+			pid_t pid = message.senderPid;
+			sprintf(fifoname, STATS_FIFO_PATH_FORMAT, pid);
+
+			// open the fifo and free the path string
+			int statsfifofd = xopen2(fifoname, O_WRONLY);
+
+			// send the values, must lock the mutex
+			mutex_lock(&numChildren_lock);
+			xwrite(statsfifofd, &numChildren, sizeof(int));
+			xwrite(statsfifofd, &execTime, sizeof(int));
+			mutex_unlock(&numChildren_lock);
+
+			xclose(statsfifofd);
+			continue;
+		}
+
+		// case it was given a path to a program to execute
+		if (message.type == COMMAND_M) {
+			// wait if the limit of childs was reached
+			mutex_lock(&numChildren_lock);
+			while (numChildren >= MAXPAR)
+				xcond_wait(&numChildren_cond_variable, &numChildren_lock);
+			mutex_unlock(&numChildren_lock);
+
+			// if the SIGINT signal ocurred while waiting
+			if (sigintFlag){
+				// kill all terminals and break the cicle
+				killTerminals(terminalsList, 0);
 				break;
 			}
 
-			// case it is the stats message
-			if (strcmp(argVector[1], STATS_MESSAGE) == 0) {
-				// get the name of the fifo
-				char *fifoname = malloc(strlen(STATS_FIFO_PATH_FORMAT) + strlen(argVector[2]));
-				pid_t pid = atoi(argVector[2]);
-				sprintf(fifoname, STATS_FIFO_PATH_FORMAT, pid);
-
-				// open the fifo and free the path string
-				int statsfifofd = xopen2(fifoname, O_WRONLY);
-				free(fifoname);
-
-				// send the values, must lock the mutex
-				mutex_lock(&numChildren_lock);
-				xwrite(statsfifofd, &numChildren, sizeof(int));
-				xwrite(statsfifofd, &execTime, sizeof(int));
-				mutex_unlock(&numChildren_lock);
-
-				xclose(statsfifofd);
+			pid_t child_pid = fork();    // create a new child process
+			if (child_pid == -1){        // check for errors
+				fprintf(stderr,
+						"Error occurred when creating a new process: %s\n",
+						strerror(errno));
 				continue;
 			}
+			if (child_pid == 0){ 		 // child executes this
 
-			printf("Invalid message from a terminal\n");
-			continue;
-		}
+				// get the arguments in the message command
+				readCommandArguments(argVector, MAX_N_INPUT, message.content);
 
-		/* else we assume it was given a path to a program to execute */
+				// close the stdout and open the output file in its place
+				xclose(1);
+				char filename[OUTPUT_NAME_MAX_SIZE];
+				sprintf(filename, OUTPUT_FILE_FORMAT, getpid());
+				xopen3(filename, O_WRONLY | O_CREAT, PERMISSIONS);
 
-		// wait if the limit of childs was reached
-		mutex_lock(&numChildren_lock);
-		while (numChildren >= MAXPAR)
-			xcond_wait(&numChildren_cond_variable, &numChildren_lock);
-		mutex_unlock(&numChildren_lock);
+				// Change the process image to the program given by the user
+				if (execv(argVector[0], argVector) < 0){ // check for errors
+					fprintf(stderr,
+							"Error occurred when trying to open the executable with "
+							"the pathname: %s\n",
+							strerror(errno));
 
-		// if the SIGINT signal ocurred while waiting
-		if (sigintFlag){
-			// kill all terminals and break the cicle
-			killTerminals(terminalsList, 0);
-			break;
-		}
+					// case there was an error calling execv
 
-		pid_t child_pid = fork();    // create a new child process
-		if (child_pid == -1){        // check for errors
-			fprintf(stderr,
-					"Error occurred when creating a new process: %s\n",
-					strerror(errno));
-			continue;
-		}
-		if (child_pid == 0){ 		 // child executes this
+					// free the allocated memory that was copied for the child process
+					exitFree(argVector, processList, 0, terminalsList);
 
-			// close the stdout and open the output file in its place
-			xclose(1);
-			char filename[OUTPUT_NAME_MAX_SIZE];
-			sprintf(filename, OUTPUT_FILE_FORMAT, getpid());
-			xopen3(filename, O_WRONLY | O_CREAT, PERMISSIONS);
+					// close the log file
+					xfclose(logFile);
 
-			// Change the process image to the program given by the user
-			if (execv(argVector[0], argVector) < 0){ // check for errors
-				fprintf(stderr,
-						"Error occurred when trying to open the executable with "
-						"the pathname: %s\n",
-						strerror(errno));
-
-				// case there was an error calling execv
-
-				// free the allocated memory that was copied for the child process
-				exitFree(argVector, processList, 0, terminalsList);
-
-				// close the log file
-				xfclose(logFile);
-
-				exit(EXIT_FAILURE); //exits
+					exit(EXIT_FAILURE); //exits
+				}
 			}
-		}
-		else{		// parent executes this
-			process_info process = createProcessInfo(child_pid, time(NULL));
+			else{		// parent executes this
+				process_info process = createProcessInfo(child_pid, time(NULL));
 
-			// add created process to the list and increment number of children
-			mutex_lock(&numChildren_lock);
-			mutex_lock(&queue_lock);
+				// add created process to the list and increment number of children
+				mutex_lock(&numChildren_lock);
+				mutex_lock(&queue_lock);
 
-			numChildren++;
-			addQueue(process, processList);
+				numChildren++;
+				addQueue(process, processList);
 
-			mutex_unlock(&queue_lock);
-			mutex_unlock(&numChildren_lock);
+				mutex_unlock(&queue_lock);
+				mutex_unlock(&numChildren_lock);
 
-			// allow monitor thread to run (unblock it)
-			xcond_signal(&numChildren_cond_variable);
+				// allow monitor thread to run (unblock it)
+				xcond_signal(&numChildren_cond_variable);
+				continue;
+			}
 		}
 	}
 	/* exit-global command was given */

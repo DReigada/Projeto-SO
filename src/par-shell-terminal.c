@@ -12,17 +12,19 @@
 #include "Auxiliares.h"
 #include "Auxiliares-terminal.h"
 
-#define EXIT_COMMAND "exit\n"
-#define EXIT_GLOBAL_COMMAND "exit-global\n"
-#define STATS_COMMAND "stats\n"
+#include "getLine.h"
+#include "Message.h"
 
-#define START_MESSAGE "\a start %d"
-#define EXIT_MESSAGE "\a exit %d"
-#define EXIT_GLOBAL_MESSAGE "\a exit-global %d"
-#define STATS_MESSAGE "\a stats %d"
+// the special commands to compare with
+#define EXIT_COMMAND "exit"
+#define EXIT_GLOBAL_COMMAND "exit-global"
+#define STATS_COMMAND "stats"
 
 #define FIFO_PATH_FORMAT "%s/statsfifo-pid-%d"
-#define MAX_FIFO_NAME_SIZE 25
+#define MAX_FIFO_NAME_SIZE 30
+
+// maximum command size
+#define SIZ BUFSIZ
 
 // the number of arguments of the par-shell-terminal
 #define NARGS 2
@@ -47,40 +49,47 @@ int main(int argc, char const *argv[]) {
   int parshellFd = xopen2(argv[1], O_WRONLY);
 
   // send the start message
-  sendMessage(START_MESSAGE, parshellFd);
+  Message startMessage;
+  startMessage.senderPid = getpid();
+  sendMessage(&startMessage, START_M, parshellFd);
 
-  char *line = NULL;
+  char *line = (char*) xmalloc(sizeof(char*) * (SIZ + 1));
   size_t size = 0;
 
 while (1) {
 
   // get the input from the user
-  int s = getline(&line, &size, stdin);
+  int s = getLine(line, SIZ);
 
   // case it received the sigterm interrupt
   if (sigtermFlag == TRUE) {
     printf("Terminal was forced to shutdown\n");
     break;
   }
-  // case it returned an error
+  // case overflow
   if (s == -1) {
-    fprintf(stderr, "Some error occurred reading the user's input. %s\n", strerror(errno));
+    fprintf(stderr, "Overflow error.\n");
     continue;
   }
- // case it read an invalid command
-  if (s < 2) {
-    fprintf(stdout, "Please input a valid command\n");
+ // case it read an invalid command or an error occurred
+  if (s == 0) {
+    fprintf(stdout, "Error reading input.\n");
     continue;
   }
+
+  // create the message and set the pid
+  Message message;
+  message.senderPid = getpid();
+
   // the exit command
   if (strcmp(line, EXIT_COMMAND) == 0) {
-    sendMessage(EXIT_MESSAGE, parshellFd);
+    sendMessage(&message, EXIT_M, parshellFd);
     break;
   }
 
   // the exit-global command
   if (strcmp(line, EXIT_GLOBAL_COMMAND) == 0) {
-    sendMessage(EXIT_GLOBAL_MESSAGE, parshellFd);
+    sendMessage(&message, EXIT_GLOBAL_M, parshellFd);
     break;
   }
 
@@ -96,8 +105,9 @@ while (1) {
     free(argvCopy);
     xunlink(fifopath);
     xmkfifo(fifopath, FIFO_PERMISSIONS);
+
     // send the message to par-shell
-    sendMessage(STATS_MESSAGE, parshellFd);
+    sendMessage(&message, STATS_M, parshellFd);
 
     // open the fifo
     int fifofd = xopen2(fifopath, O_RDONLY);
@@ -117,8 +127,14 @@ while (1) {
     continue;
   }
 
-  // if the input was not a command send it to par-shell
-  xwrite(parshellFd, line, s);
+  // if the input was not a special command send it to par-shell
+  // unless the command was too long
+  if (s - 1 > MAX_CONTENT_SIZE) {
+    printf("Input is too long\n");
+    continue;
+  }
+  strcpy(message.content, line);
+  sendMessage(&message, COMMAND_M, parshellFd);
 }
 
   free(line);

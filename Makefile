@@ -5,13 +5,13 @@ ODIR=build
 BDIR=bin
 TDIR=test
 
-_DEPS = Auxiliares.h Auxiliares-par-shell.h Auxiliares-terminal.h globalVariables.h QUEUE.h commandlinereader.h process_info.h threadFunction.h
+_DEPS = getLine.h Message.h Auxiliares.h Auxiliares-par-shell.h Auxiliares-terminal.h globalVariables.h QUEUE.h commandsplitter.h process_info.h threadFunction.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_SHELL-BUILD = QUEUE.o commandlinereader.o process_info.o Auxiliares.o Auxiliares-par-shell.o threadFunction.o par-shell.o
+_SHELL-BUILD = QUEUE.o commandsplitter.o process_info.o Auxiliares.o Auxiliares-par-shell.o threadFunction.o par-shell.o
 SHELL-BUILD = $(patsubst %,$(ODIR)/%,$(_SHELL-BUILD))
 
-_TERMINAL-BUILD = Auxiliares.o Auxiliares-terminal.o par-shell-terminal.o
+_TERMINAL-BUILD = Auxiliares.o Auxiliares-terminal.o getLine.o par-shell-terminal.o
 TERMINAL-BUILD =  $(patsubst %,$(ODIR)/%,$(_TERMINAL-BUILD))
 
 MKDIR = build bin
