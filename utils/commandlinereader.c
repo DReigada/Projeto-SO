@@ -43,7 +43,7 @@ int readLineArguments(char **argVector, int vectorSize)
   if (argVector == NULL || vectorSize == 0)
     return 0;
 
-  for (int i = 0; i < vectorSize; i++)
+  for (i = 0; i < vectorSize; i++)
     argVector[i] = NULL;
 
   if ((numRead = read(STDIN_FILENO, str, BUFSIZ)) < 0) {
