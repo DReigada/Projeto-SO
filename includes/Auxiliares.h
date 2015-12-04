@@ -95,8 +95,8 @@ void xunlink(const char *pathname);
 
 /**
  * Uses the same input as kill (and no output), with the only
- * difference being that it stops execution if some error occurred when
- * calling kill.
+ * difference being that if some error occurred when calling kill
+ * it prints the error
  */
 void xkill(pid_t pid, int sig);
 

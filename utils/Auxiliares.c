@@ -151,7 +151,7 @@ ssize_t xwrite(int fd, const void *buf, size_t count){
 /**
  * Uses the same input as read but if some error occurs when calling read
  * it does not return -1, instead it stops the execution.
- * 
+ *
  * Returns the number of bytes read or -2 in case a signal occurred.
  */
 ssize_t xread(int fd, void *buf, size_t count){
@@ -195,13 +195,12 @@ void xunlink(const char *pathname){
 
 /**
  * Uses the same input as kill (and no output), with the only
- * difference being that it stops execution if some error occurred when
- * calling kill.
+ * difference being that if some error occurred when calling kill
+ * it prints the error
  */
 void xkill(pid_t pid, int sig){
   if (kill(pid, sig) == -1) {
-    fprintf(stderr, "Error killing process %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
+    fprintf(stderr, "Error killing process %d: %s\n", pid, strerror(errno));
   }
 }
 
