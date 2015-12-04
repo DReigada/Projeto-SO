@@ -8,6 +8,7 @@
 #include "QUEUE.h"
 #include "process_info.h"
 #include "Auxiliares.h"
+#include "Auxiliares-par-shell.h"
 
 // GNU C libraries
 #include <pthread.h>
