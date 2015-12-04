@@ -31,11 +31,12 @@ int readCommandArguments(char **argVector, int vectorSize, char* command)
 
   int numRead;
   char *token;
+  int i;
 
   if (argVector == NULL || vectorSize == 0)
     return 0;
 
-  for (int i = 0; i < vectorSize; i++)
+  for (i = 0; i < vectorSize; i++)
     argVector[i] = NULL;
 
   // allocate str and copy command content to it
@@ -59,7 +60,7 @@ int readCommandArguments(char **argVector, int vectorSize, char* command)
     return 0;
   }
 
-  for (int i = numtokens; i<vectorSize; i++) {
+  for (i = numtokens; i<vectorSize; i++) {
     argVector[i] = NULL;
   }
 
