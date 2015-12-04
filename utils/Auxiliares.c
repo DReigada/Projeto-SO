@@ -127,35 +127,40 @@ void xclose(int fd){
 /**
  * Uses the same input as write but if some error occurs when calling write
  * it does not return -1, instead it stops the execution.
- * Returns the  number  of bytes that were written.
+ * Returns the number of bytes written or -2 in case a signal occurred
  */
 ssize_t xwrite(int fd, const void *buf, size_t count){
+  ssize_t n;
   while(1){
-    if (write(fd, buf, count) == -1) {
-      // if the error was EINTR read again
-      if (errno == EINTR) continue;
+    if ((n = write(fd, buf, count)) == -1) {
+      // if the error was caused by a signal give it back to the user
+      if (errno == EINTR) return -2;
       fprintf(stderr, "Error writing to file/pipe %s\n", strerror(errno));
       exit(EXIT_FAILURE);
     }
     break;
   }
+  return n;
 }
 
 /**
  * Uses the same input as read but if some error occurs when calling read
  * it does not return -1, instead it stops the execution.
- * Returns the number of bytes that were read.
+ * 
+ * Returns the number of bytes read or -2 in case a signal occurred.
  */
 ssize_t xread(int fd, void *buf, size_t count){
+  ssize_t n;
   while(1){
-    if (read(fd, buf, count) == -1) {
-      // if the error was EINTR read again
-      if (errno == EINTR) continue;
+    if ((n = read(fd, buf, count)) == -1) {
+      // if the error was caused by a signal give it back to the user
+      if (errno == EINTR) return -2;
       fprintf(stderr, "Error reading from file/pipe %s\n", strerror(errno));
       exit(EXIT_FAILURE);
     }
     break;
   }
+  return n;
 }
 
 /**

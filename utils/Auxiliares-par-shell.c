@@ -362,14 +362,13 @@ void sigintHandler(int signal){
  *   	- -1 on error reading.
  */
 int readMessage(Message *message){
-	size_t size = read(STDIN_FILENO, message, sizeof(Message));
-	// if it returned an error
-	if (size == -1) {
-		if (errno == EINTR) return 2;
-		fprintf(stderr, "Error reading %s\n", strerror(errno));
-		return -1;
-	}
+	size_t size = xread(STDIN_FILENO, message, sizeof(Message));
+	// if read returned -2, a signal was received
+	if (size == -2) return 2;
+		
 	// if read returned 0 it reached EOF
 	if (size == 0) return 1;
+
+	// else return success
 	return 0;
 }
