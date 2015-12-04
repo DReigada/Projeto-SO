@@ -77,6 +77,8 @@ void xfflush(FILE *stream){
 /**
  * Uses the same input as open but if some error occurs when calling open
  * it does not return null, instead it stops the execution.
+ *
+ * The function to be used when opening a regular type file.
  * Returns the file descriptor in success.
  */
 int xopen3(const char *pathname, int flags, mode_t mode){
@@ -97,6 +99,9 @@ int xopen3(const char *pathname, int flags, mode_t mode){
 /**
  * Uses the same input as open but if some error occurs when calling open
  * it does not return null, instead it stops the execution.
+ *
+ * Its the function to be used when opening a fifo type file.
+ * Returns the file descriptor in success.
  */
 int xopen2(const char *pathname, int flags){
   int fd;
@@ -133,7 +138,7 @@ ssize_t xwrite(int fd, const void *buf, size_t count){
   ssize_t n;
   while(1){
     if ((n = write(fd, buf, count)) == -1) {
-      // if the error was caused by a signal give it back to the user
+      // if the error was caused by a signal give it back to the caller
       if (errno == EINTR) return -2;
       fprintf(stderr, "Error writing to file/pipe %s\n", strerror(errno));
       exit(EXIT_FAILURE);
@@ -153,7 +158,7 @@ ssize_t xread(int fd, void *buf, size_t count){
   ssize_t n;
   while(1){
     if ((n = read(fd, buf, count)) == -1) {
-      // if the error was caused by a signal give it back to the user
+      // if the error was caused by a signal give it back to the caller
       if (errno == EINTR) return -2;
       fprintf(stderr, "Error reading from file/pipe %s\n", strerror(errno));
       exit(EXIT_FAILURE);
