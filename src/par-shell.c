@@ -151,7 +151,6 @@ int main(int argc, char* argv[]){
 			break;
 		}
 
-<<<<<<< HEAD
 		// case its the start message
 		if (message.type == START_M) {
 			pid_t *pid = xmalloc(sizeof(pid_t));
@@ -160,111 +159,6 @@ int main(int argc, char* argv[]){
 		  numTerminals++;
 		  continue;
 		}
-||||||| merged common ancestors
-		// case it is a special message from a terminal
-		if (strcmp(argVector[0], "\a") == 0){
-
-			// case its the start message
-			if ((strcmp(argVector[1], START_MESSAGE) == 0)) {
-				pid_t *pid = xmalloc(sizeof(pid_t));
-				*pid = atoi(argVector[2]);
-				addQueue(pid, terminalsList);
-			  numTerminals++;
-			  continue;
-			}
-
-			// case it is the exit message
-			if (strcmp(argVector[1], EXIT_MESSAGE) == 0){
-				// get the pid of the terminal that called exit and remove it from the list
-				pid_t pid = atoi(argVector[2]);
-				free((pid_t *) getSpecificQueue(terminalsList, &pid, comparePids, 1));
-					if (--numTerminals == 0)
-					// wait for a terminal to open the pipe
-						waitFifo(FIFO_NAME, O_RDONLY);
-				continue;
-			}
-
-			// case it is the exit-global message
-			if (strcmp(argVector[1], EXIT_GLOBAL_MESSAGE) == 0) {
-				pid_t callingPid = atoi(argVector[2]);
-				// kill all processes in the list
-				killTerminals(terminalsList, callingPid);
-				break;
-			}
-
-			// case it is the stats message
-			if (strcmp(argVector[1], STATS_MESSAGE) == 0) {
-				// get the name of the fifo
-				char *fifoname = malloc(strlen(STATS_FIFO_PATH_FORMAT) + strlen(argVector[2]));
-				pid_t pid = atoi(argVector[2]);
-				sprintf(fifoname, STATS_FIFO_PATH_FORMAT, pid);
-
-				// open the fifo and free the path string
-				int statsfifofd = xopen2(fifoname, O_WRONLY);
-				free(fifoname);
-
-				// send the values, must lock the mutex
-				mutex_lock(&numChildren_lock);
-				xwrite(statsfifofd, &numChildren, sizeof(int));
-				xwrite(statsfifofd, &execTime, sizeof(int));
-				mutex_unlock(&numChildren_lock);
-
-				xclose(statsfifofd);
-				continue;
-			}
-=======
-		// case it is a special message from a terminal
-		if (strcmp(argVector[0], "\a") == 0){
-
-			// case its the start message
-			if ((strcmp(argVector[1], START_MESSAGE) == 0)) {
-				pid_t *pid = xmalloc(sizeof(pid_t));
-				*pid = atoi(argVector[2]);
-				addQueue(pid, terminalsList);
-			  	numTerminals++;
-			  	continue;
-			}
-
-			// case it is the exit message
-			if (strcmp(argVector[1], EXIT_MESSAGE) == 0){
-				// get the pid of the terminal that called exit and remove it from the list
-				pid_t pid = atoi(argVector[2]);
-				free((pid_t *) getSpecificQueue(terminalsList, &pid, comparePids, 1));
-					if (--numTerminals == 0)
-					// wait for a terminal to open the pipe
-						waitFifo(FIFO_NAME, O_RDONLY);
-				continue;
-			}
-
-			// case it is the exit-global message
-			if (strcmp(argVector[1], EXIT_GLOBAL_MESSAGE) == 0) {
-				pid_t callingPid = atoi(argVector[2]);
-				// kill all processes in the list
-				killTerminals(terminalsList, callingPid);
-				break;
-			}
-
-			// case it is the stats message
-			if (strcmp(argVector[1], STATS_MESSAGE) == 0) {
-				// get the name of the fifo
-				char *fifoname = malloc(strlen(STATS_FIFO_PATH_FORMAT) + strlen(argVector[2]));
-				pid_t pid = atoi(argVector[2]);
-				sprintf(fifoname, STATS_FIFO_PATH_FORMAT, pid);
-
-				// open the fifo and free the path string
-				int statsfifofd = xopen2(fifoname, O_WRONLY);
-				free(fifoname);
-
-				// send the values, must lock the mutex
-				mutex_lock(&numChildren_lock);
-				xwrite(statsfifofd, &numChildren, sizeof(int));
-				xwrite(statsfifofd, &execTime, sizeof(int));
-				mutex_unlock(&numChildren_lock);
-
-				xclose(statsfifofd);
-				continue;
-			}
->>>>>>> development
 
 		// case it is the exit message
 		if (message.type == EXIT_M){
@@ -277,7 +171,6 @@ int main(int argc, char* argv[]){
 			continue;
 		}
 
-<<<<<<< HEAD
 		// case it is the exit-global message
 		if (message.type == EXIT_GLOBAL_M) {
 			pid_t callingPid = message.senderPid;
@@ -292,16 +185,6 @@ int main(int argc, char* argv[]){
 			char fifoname[MAX_FIFO_NAME_SIZE];
 			pid_t pid = message.senderPid;
 			sprintf(fifoname, STATS_FIFO_PATH_FORMAT, pid);
-||||||| merged common ancestors
-		// case the command is exit
-		if (strcmp(argVector[0], EXIT_COMMAND) == 0){
-			break;
-		}
-
-		/* else we assume it was given a path to a program to execute */
-=======
-		/* else we assume it was given a path to a program to execute */
->>>>>>> development
 
 			// open the fifo and free the path string
 			int statsfifofd = xopen2(fifoname, O_WRONLY);
@@ -315,7 +198,6 @@ int main(int argc, char* argv[]){
 			xclose(statsfifofd);
 			continue;
 		}
-
 
 		// case it was given a path to a program to execute
 		if (message.type == COMMAND_M) {
