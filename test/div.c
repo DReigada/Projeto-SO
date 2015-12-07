@@ -13,8 +13,5 @@ int main()
 
   printf("c=%d\n",c);
 
-  printf("------------------Não vai dar meus friends------------------------\n");
-
   return 0;
 }
-

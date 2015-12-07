@@ -1,57 +1,60 @@
 /*
-// Command line reader (header file), version 2
+// Alteration to Command line reader
+//
+// Original code by:
 // Sistemas Operativos, DEI/IST/ULisboa 2015-16
 */
 
-#include <string.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-/* 
-Reads up to 'vectorSize' space-separated arguments from the standard input
+#include "commandsplitter.h"
+/*
+Reads up to 'vectorSize' space-separated arguments from given command
 and saves them in the entries of the 'argVector' argument.
-This function returns once enough arguments are read or the end of the line 
-is reached
+This function returns once enough arguments are read or the end of the line
+the string is reached
 
-Arguments: 
+Arguments:
  'argVector' should be a vector of char* previously allocated with
  as many entries as 'vectorSize'
- 'vectorSize' is the size of the above vector. A vector of size N allows up to 
+ 'vectorSize' is the size of the above vector. A vector of size N allows up to
  N-1 arguments to be read; the entry after the last argument is set to NULL.
+ 'command' should be a pointer to the string that stores the command to be parsed
 
-Return value:
- The number of arguments that were read, or -1 if some error occurred.
+Returns the number of arguments that were read.
 */
-
-int readLineArguments(char **argVector, int vectorSize)
+int readCommandArguments(char **argVector, int vectorSize, char* command)
 {
   int numtokens = 0;
   char *s = " \n\t\r";
 
-  char *str = NULL;
-  size_t size = 0;
-  int i;
-
+  int numRead;
   char *token;
+  int i;
 
   if (argVector == NULL || vectorSize == 0)
     return 0;
 
-  if (getline(&str, &size, stdin) < 0) {
-    return -1;
-  }
-   
+  for (i = 0; i < vectorSize; i++)
+    argVector[i] = NULL;
+
+  // allocate str and copy command content to it
+  char *str = malloc(strlen(command) + 1);
+  strcpy(str, command);
+
+
   /* get the first token */
   token = strtok(str, s);
-   
+
   /* walk through other tokens */
   while( numtokens < vectorSize-1 && token != NULL ) {
     argVector[numtokens] = token;
     numtokens ++;
-    
+
     token = strtok(NULL, s);
   }
-  
+
   if (numtokens == 0){
     free(str);
     return 0;
@@ -60,7 +63,6 @@ int readLineArguments(char **argVector, int vectorSize)
   for (i = numtokens; i<vectorSize; i++) {
     argVector[i] = NULL;
   }
-   
+
   return numtokens;
 }
-
